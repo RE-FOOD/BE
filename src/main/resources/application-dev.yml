@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: IITP
+
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+        generate_statistics: false
+    show-sql: true
+    open-in-view: false
+
+server:
+  port: 8080
+
