@@ -2,6 +2,9 @@ spring:
   application:
     name: IITP
 
+  config:
+    activate:
+      on-profile: local
 
   datasource:
     driver-class-name: org.h2.Driver
@@ -44,3 +47,13 @@ springdoc:
     - /api/**
   packages-to-scan:
     - com.iitp
+
+cloud:
+  aws:
+    s3:
+      bucket: ${BUCKET} # 버킷 이름
+    stack.auto: false
+    region.static: ${REGION} # 버킷 리전
+    credentials:
+      access-key: ${ACCESS_KEY}
+      secret-key: ${SECRET_KEY}
