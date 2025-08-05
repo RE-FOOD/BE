@@ -1,5 +1,6 @@
-package com.iitp.domains.member.config;
+package com.iitp.domains.member.config.security;
 
+import com.iitp.domains.member.config.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,11 +8,13 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -19,7 +22,7 @@ import java.util.Arrays;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
                 // CSRF 비활성화 (JWT 사용)
                 .csrf(csrf -> csrf.disable())
@@ -42,13 +45,15 @@ public class SecurityConfig {
                         // 인증 없이 접근 가능한 경로
                         .requestMatchers(
                                 "/api/auth/**",        // 인증 관련 API
-                                "/api/public/**",      // 공개 API
+                                "/api/**",      // 공개 API
                                 "/error"               // 에러 페이지
                         ).permitAll()
 
                         // 나머지는 인증 필요
                         .anyRequest().authenticated()
-                );
+                )
+                // jwt 필터
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
     }
 
@@ -56,19 +61,13 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // 허용할 서버 포트
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:8080"
-        ));
-        // 허용할 HTTP 메서드
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        // 요청할 헤더
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        // 클라이언트에서 쿠키나 인증 정보를 함께 보낼 수 있게 허용
+        // 임시로 모든 도메인 허용 추후에 특정 도메인만 허용
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
-        // CORS 결과를 브라우저 캐시에 저장할 시간(초 단위) → 1시간
-        configuration.setMaxAge(3600L);
-        // CORS설정을 적용할 URL 경로
+        configuration.setExposedHeaders(List.of("Authorization"));
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
