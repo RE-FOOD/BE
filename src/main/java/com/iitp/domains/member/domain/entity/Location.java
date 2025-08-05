@@ -1,4 +1,4 @@
-package com.iitp.domains.member.domain;
+package com.iitp.domains.member.domain.entity;
 
 import com.iitp.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
