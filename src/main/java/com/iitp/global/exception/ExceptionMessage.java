@@ -30,6 +30,10 @@ public enum ExceptionMessage {
     ACCESS_DENIED("접근 권한이 없습니다."),
     INSUFFICIENT_PERMISSION("해당 작업을 수행할 권한이 없습니다."),
 
+    // 카카오 관련
+    KAKAO_TOKEN_INVALID("유효하지 않은 카카오 토큰입니다."),
+    KAKAO_API_ERROR("카카오 API 호출 중 오류가 발생했습니다."),
+
     // 일반 오류
     INTERNAL_SERVER_ERROR("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요."),
     INVALID_REQUEST("잘못된 요청입니다."),
