@@ -1,6 +1,9 @@
-package com.iitp.domains.member.domain;
+package com.iitp.domains.member.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.iitp.domains.member.domain.EnvironmentLevel;
+import com.iitp.domains.member.domain.JoinType;
+import com.iitp.domains.member.domain.Role;
 import com.iitp.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -72,10 +75,9 @@ public class Member extends BaseEntity {
     private List<Location> locations = new ArrayList<>();
 
     @Builder
-    public Member(String email, String password, String nickname, String phone,
+    public Member(String email, String nickname, String phone,
                   Role role, JoinType joinType, EnvironmentLevel environmentLevel) {
         this.email = email;
-        this.password = password;
         this.nickname = nickname;
         this.phone = phone;
         this.role = role != null ? role : Role.ROLE_USER;
@@ -94,7 +96,11 @@ public class Member extends BaseEntity {
         this.refreshToken = refreshToken;
     }
 
-    public void clearRefreshToken() {
+    public void updatePhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void removeRefreshToken() {
         this.refreshToken = null;
     }
 
