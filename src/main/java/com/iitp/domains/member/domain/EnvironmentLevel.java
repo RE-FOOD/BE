@@ -11,5 +11,5 @@ public enum EnvironmentLevel {
     TREE(2), // 나무
     FRUIT(3); // 열매
 
-    private final int value;
+    private final int level;
 }
