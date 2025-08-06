@@ -76,13 +76,15 @@ public class Member extends BaseEntity {
 
     @Builder
     public Member(String email, String nickname, String phone,
-                  Role role, JoinType joinType, EnvironmentLevel environmentLevel) {
+                  Role role, JoinType joinType, EnvironmentLevel environmentLevel,
+                  String businessLicenseNumber) {
         this.email = email;
         this.nickname = nickname;
         this.phone = phone;
         this.role = role != null ? role : Role.ROLE_USER;
         this.joinType = joinType;
         this.environmentLevel = environmentLevel != null ? environmentLevel : EnvironmentLevel.SPROUT;
+        this.businessLicenseNumber = businessLicenseNumber;
         this.orderCount = 0;
         this.dishCount = 0;
     }
