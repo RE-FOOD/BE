@@ -1,46 +1,27 @@
 spring:
-  application:
-    name: IITP
-
+  config:
+    activate:
+      on-profile: local
 
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password:
+    driver-class-name: ${DB_DRIVER}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
       ddl-auto: create-drop
     properties:
       hibernate:
+        dialect: ${DB_DIALECT}
+        default_batch_fetch_size: 100
         format_sql: true
         highlight_sql: true
         generate_statistics: false
-        dialect: org.hibernate.dialect.H2Dialect
     show-sql: true
     open-in-view: false
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
 
 server:
   port: 8080
 
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-    enabled: true
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
-    tags-sorter: alpha
-    operations-sorter: alpha
-    doc-expansion: none
-    display-request-duration: true
-  paths-to-match:
-    - /api/**
-  packages-to-scan:
-    - com.iitp
