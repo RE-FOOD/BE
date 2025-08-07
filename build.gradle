@@ -13,6 +13,10 @@ java {
     }
 }
 
+ext {
+    set('querydslVersion', "5.0.0")  // QueryDSL 버전 명시적으로 설정
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -43,11 +47,16 @@ dependencies {
     // === Kakao API 연동을 위한 추가
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-    // === QueryDSL ===
+
+    // queryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-    annotationProcessor 'com.querydsl:querydsl-apt:5.0.0:jakarta'
-    annotationProcessor 'jakarta.annotation:jakarta.annotation-api'
-    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    // json 변환 유틸리티 의존성
+    implementation("com.googlecode.json-simple:json-simple:1.1.1")
+
 }
 
 tasks.named('test') {

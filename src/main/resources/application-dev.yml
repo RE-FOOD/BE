@@ -1,7 +1,4 @@
 spring:
-  application:
-    name: IITP
-
   config:
     activate:
       on-profile: dev
@@ -17,42 +14,15 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        default_batch_fetch_size: 100
         format_sql: true
         highlight_sql: true
         generate_statistics: false
     show-sql: true
     open-in-view: false
 
+
 server:
   port: 8080
 
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-    enabled: true
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
-    tags-sorter: alpha
-    operations-sorter: alpha
-    doc-expansion: none
-    display-request-duration: true
-  paths-to-match:
-    - /api/**
-  packages-to-scan:
-    - com.iitp
-
-cloud:
-  aws:
-    s3:
-      bucket: ${BUCKET} # 버킷 이름
-    stack.auto: false
-    region.static: ${REGION} # 버킷 리전
-    credentials:
-      access-key: ${ACCESS_KEY}
-      secret-key: ${SECRET_KEY}
-
-
-kakao:
-  api:
-    key: ${KAKAO_GEO_API_KEY}
