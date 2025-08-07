@@ -4,10 +4,7 @@ import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.StoreStatus;
 import com.iitp.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Time;
 import java.time.LocalTime;
@@ -19,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Getter
 public class Store extends BaseEntity {
     @Id
     @Column(name = "id", nullable = false)
