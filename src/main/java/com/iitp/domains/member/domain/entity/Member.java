@@ -30,7 +30,7 @@ public class Member extends BaseEntity {
     @Column(length = 255)
     private String password;
 
-    @Column(nullable = false, length = 30)
+    @Column(nullable = true, length = 30)
     private String nickname;
 
     @Column(length = 20)
@@ -48,7 +48,7 @@ public class Member extends BaseEntity {
     private JoinType joinType;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "environment_level", nullable = false)
+    @Column(name = "environment_level", nullable = true)
     private EnvironmentLevel environmentLevel = EnvironmentLevel.SPROUT;
 
     @Column(name = "order_count", nullable = false)
@@ -88,6 +88,28 @@ public class Member extends BaseEntity {
         this.orderCount = 0;
         this.dishCount = 0;
     }
+    // 일반 사용자 생성
+    public static Member createMember(String email, String nickname, String phone) {
+        return Member.builder()
+                .email(email)
+                .nickname(nickname)
+                .phone(phone)
+                .role(Role.ROLE_USER)
+                .joinType(JoinType.KAKAO)
+                .environmentLevel(EnvironmentLevel.SPROUT)
+                .build();
+    }
+
+    // 사업자 생성
+    public static Member createStore(String email, String phone, String businessLicenseNumber) {
+        return Member.builder()
+                .email(email)
+                .phone(phone)
+                .role(Role.ROLE_STORE)
+                .joinType(JoinType.KAKAO)
+                .businessLicenseNumber(businessLicenseNumber)
+                .build();
+    }
 
     // 비즈니스 로직 메서드들
     public void updateNickname(String nickname) {
@@ -104,6 +126,10 @@ public class Member extends BaseEntity {
 
     public void removeRefreshToken() {
         this.refreshToken = null;
+    }
+    // 사업자 등록 승인 처리
+    public void approveBusinessRegistration() {
+        this.isBusinessApproved = true;
     }
 
     public void updateFcmToken(String fcmToken) {
