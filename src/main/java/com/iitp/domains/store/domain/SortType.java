@@ -1,12 +1,13 @@
 package com.iitp.domains.store.domain;
 
-public enum StoreStatus {
-    OPEN("가게 오픈"),
-    CLOSED("가게 마감");
+public enum SortType {
+    NEAR("가까운 순"),
+    REVIEW("리뷰 많은 순"),
+    RATING("평점 높은 순");
 
     private final String description;
 
-    StoreStatus(String description) {
+    SortType(String description) {
         this.description = description;
     }
 
