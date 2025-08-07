@@ -5,14 +5,20 @@ import com.iitp.domains.store.domain.StoreStatus;
 import com.iitp.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 import java.sql.Time;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "store")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class Store extends BaseEntity {
     @Id
     @Column(name = "id", nullable = false)
@@ -20,7 +26,8 @@ public class Store extends BaseEntity {
     private Long id;
 
     // TODO :: 유저 연동되면 연결
-    private Long member_id;
+    @Column(name = "member_id", nullable = false)
+    private Long memberId;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -28,6 +35,7 @@ public class Store extends BaseEntity {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private StoreStatus status;
 
@@ -52,8 +60,11 @@ public class Store extends BaseEntity {
     @Column(name = "close_time", nullable = false)
     private LocalTime closeTime;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "category", nullable = false)
     private Category category;
 
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StoreImage> storeImages = new ArrayList<>();
 
 }
