@@ -13,6 +13,10 @@ java {
     }
 }
 
+ext {
+    set('querydslVersion', "5.0.0")  // QueryDSL 버전 명시적으로 설정
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
