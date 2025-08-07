@@ -117,9 +117,9 @@ public class JwtUtil {
     // 토큰에서 Claims 추출
     private Claims getClaimsFromToken(String token) {
         return Jwts.parser()
-                .setSigningKey(secretKey)
+                .verifyWith(secretKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 }
