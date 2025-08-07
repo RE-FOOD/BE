@@ -1,5 +1,6 @@
 package com.iitp.domains.member.config.security;
 
+import com.iitp.domains.member.config.jwt.JwtAuthenticationEntryPoint;
 import com.iitp.domains.member.config.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +23,7 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource, JwtAuthenticationFilter jwtAuthenticationFilter, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) throws Exception {
         http
                 // CSRF 비활성화 (JWT 사용)
                 .csrf(csrf -> csrf.disable())
@@ -39,14 +40,32 @@ public class SecurityConfig {
 
                 // HTTP Basic 비활성화
                 .httpBasic(basic -> basic.disable())
+                // H2 연결을 위한
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin()))
+                // 인증 실패 시 처리 EntryPoint 설정
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
                 // URL별 권한 설정
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 접근 가능한 경로
                         .requestMatchers(
+                                "/**", // 테스트를 위해 임시 허용(나중에 제거)
+
+                                // Swagger
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**",
+                                "/swagger-ui/index.html",
+
+                                "/h2-console/**",
                                 "/api/auth/**",        // 인증 관련 API
                                 "/api/**",      // 공개 API
-                                "/error"               // 에러 페이지
+                                "/error"            // 에러 페이지
+
                         ).permitAll()
 
                         // 나머지는 인증 필요
