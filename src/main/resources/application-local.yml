@@ -4,7 +4,7 @@ spring:
       on-profile: local
 
   datasource:
-    driver-class-name: ${DB_DRIVER}
+    driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
@@ -14,7 +14,7 @@ spring:
       ddl-auto: create-drop
     properties:
       hibernate:
-        dialect: ${DB_DIALECT}
+        dialect: org.hibernate.dialect.MySQLDialect
         default_batch_fetch_size: 100
         format_sql: true
         highlight_sql: true
