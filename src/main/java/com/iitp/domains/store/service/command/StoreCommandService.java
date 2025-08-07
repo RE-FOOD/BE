@@ -36,13 +36,23 @@ public class StoreCommandService {
     }
 
     public void updateStore(StoreUpdateRequest request,Long storeId, Long userId) {
-        Store store = storeRepository.findById(storeId)
+        Store store = storeRepository.findByStoreId(storeId)
                 .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
 
-        validateUserHasPermission(article, userId);
+        validateUserHasPermission(store, userId);
+
+        store.update(request);
+
     }
 
 
+    public void deleteStore(Long storeId, Long userId) {
+        Store store = storeRepository.findByStoreId(storeId)
+                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
+
+        validateUserHasPermission(store, userId);
+        store.markAsDeleted();
+    }
 
 
     private void validateUserHasPermission(Store store, Long userId) {
@@ -51,4 +61,5 @@ public class StoreCommandService {
             throw new IllegalArgumentException();
         }
     }
+
 }
