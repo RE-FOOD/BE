@@ -2,6 +2,7 @@ package com.iitp.domains.store.repository.store;
 
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
+import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.dto.response.StoreListResponse;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import org.springframework.stereotype.Repository;
@@ -13,6 +14,6 @@ import java.util.Optional;
 
 @Repository
 public interface StoreRepositoryCustom {
-
+    Optional<Store> findByStoreId(Long storeId);
     List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId, int limit);
 }

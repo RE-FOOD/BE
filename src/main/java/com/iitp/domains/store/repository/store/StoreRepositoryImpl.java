@@ -5,6 +5,7 @@ import com.iitp.domains.store.domain.SortType;
 import com.iitp.domains.store.domain.StoreStatus;
 import com.iitp.domains.store.domain.entity.QStore;
 import com.iitp.domains.store.domain.entity.QStoreImage;
+import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -14,6 +15,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 public class StoreRepositoryImpl implements StoreRepositoryCustom {
@@ -47,6 +49,18 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                 .fetch();
     }
 
+    @Override
+    public Optional<Store> findByStoreId(Long storeId) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(store)
+                        .where(
+                                store.isDeleted.eq(false),
+                                store.id.eq(storeId)
+                        )
+                        .fetchOne()
+        );
+    }
 
 
 
