@@ -33,7 +33,10 @@ public enum ExceptionMessage {
     // 일반 오류
     INTERNAL_SERVER_ERROR("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요."),
     INVALID_REQUEST("잘못된 요청입니다."),
-    RESOURCE_NOT_FOUND("요청한 리소스를 찾을 수 없습니다.")
-    ;
+    RESOURCE_NOT_FOUND("요청한 리소스를 찾을 수 없습니다."),
+
+    // 게시물 관련
+    DATA_NOT_FOUND("데이터 정보가 없음");
+
     private final String message;
 }
