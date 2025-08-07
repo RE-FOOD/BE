@@ -2,6 +2,7 @@ package com.iitp.domains.store.domain.entity;
 
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.StoreStatus;
+import com.iitp.domains.store.dto.request.StoreUpdateRequest;
 import com.iitp.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -65,4 +66,14 @@ public class Store extends BaseEntity {
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoreImage> storeImages = new ArrayList<>();
 
+
+    public void update(StoreUpdateRequest requestDto) {
+        if (requestDto.name() != null) this.name = requestDto.name();
+        if(requestDto.phoneNumber() != null) this.phoneNumber = requestDto.phoneNumber();
+        if(requestDto.address() != null) this.address = requestDto.address();
+        if(requestDto.description() != null) this.description = requestDto.description();
+        if(requestDto.origin() != null) this.origin = requestDto.origin();
+        if(requestDto.openTime() != null) this.openTime = LocalTime.from(requestDto.openTime().toLocalDateTime());
+        if(requestDto.closeTime() != null) this.closeTime = LocalTime.from(requestDto.closeTime().toLocalDateTime());
+    }
 }
