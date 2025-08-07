@@ -20,6 +20,8 @@ public record MemberSignupResponseDto(
 
         Integer environmentLevel,
 
+        String businessLicenseNumber,
+
         LocationResponseDto location,
 
         String accessToken,
