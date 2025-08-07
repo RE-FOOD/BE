@@ -35,4 +35,13 @@ public class StoreCommandController {
 
         return ApiResponse.ok(201, null,"게시글 수정 성공");
     }
+
+    @Operation(summary = "가게 삭제", description = "가게를 삭제합니다.")
+    @DeleteMapping("/{storeId}")
+    public ApiResponse<String> deleteStore( @PathVariable Long storeId) {
+        Long userId = 1L;       // TODO :: 유저 연동되면 연결
+        storeCommandService.deleteStore(storeId, userId);
+
+        return ApiResponse.ok(201, null,"게시글 수정 성공");
+    }
 }
