@@ -57,3 +57,8 @@ cloud:
     credentials:
       access-key: ${ACCESS_KEY}
       secret-key: ${SECRET_KEY}
+
+
+kakao:
+  api:
+    key: ${KAKAO_GEO_API_KEY}
