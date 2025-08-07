@@ -83,6 +83,18 @@ public class MemberReadService {
     }
 
     /**
+     * 사업자번호 중복 확인
+     */
+    public boolean isBusinessLicenseNumberExists(String businessLicenseNumber) {
+        if (businessLicenseNumber == null) return false;
+
+        boolean exists = memberRepository.existsByBusinessLicenseNumberAndIsDeletedFalse(businessLicenseNumber);
+        log.debug("사업자번호 중복 확인 - businessLicenseNumber: {}, exists: {}", businessLicenseNumber, exists);
+        return exists;
+    }
+
+
+    /**
      * 전화번호 중복 확인
      */
     public boolean isPhoneExists(String phone) {

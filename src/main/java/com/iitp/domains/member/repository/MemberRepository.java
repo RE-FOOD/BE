@@ -35,6 +35,9 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     // 전화번호 중복 체크
     boolean existsByPhoneAndIsDeletedFalse(String phone);
 
+    // 사업자번호 중복 체크
+    boolean existsByBusinessLicenseNumberAndIsDeletedFalse(String businessLicenseNumber);
+
     // 리프레시 토큰 삭제 (로그아웃)
     @Modifying
     @Transactional
