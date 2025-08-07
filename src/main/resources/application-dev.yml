@@ -1,6 +1,7 @@
 spring:
-  application:
-    name: IITP
+  config:
+    activate:
+      on-profile: dev
 
   mail:
     host: smtp.gmail.com  # Gmail SMTP 서버
@@ -47,9 +48,11 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: create-drop   # validate
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        default_batch_fetch_size: 100
         format_sql: true
         highlight_sql: true
         generate_statistics: false
@@ -83,18 +86,3 @@ cors:
 server:
   port: 8080
 
-springdoc:
-  api-docs:
-    path: /v3/api-docs
-    enabled: true
-  swagger-ui:
-    path: /swagger-ui.html
-    enabled: true
-    tags-sorter: alpha
-    operations-sorter: alpha
-    doc-expansion: none
-    display-request-duration: true
-  paths-to-match:
-    - /api/**
-  packages-to-scan:
-    - com.iitp
