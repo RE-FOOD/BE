@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카카오 로그인 테스트 - IITP</title>
+    <!-- 카카오 SDK v1.39.10 (login 메서드 지원) -->
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            margin-bottom: 1rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .kakao-btn {
+            background-color: #FEE500;
+            color: #000;
+        }
+
+        .kakao-btn:hover {
+            background-color: #FDD835;
+            transform: translateY(-2px);
+        }
+
+        .signup-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .signup-btn:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .logout-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background-color: #da190b;
+            transform: translateY(-2px);
+        }
+
+        .info-section {
+            background: rgba(255,255,255,0.9);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            text-align: left;
+        }
+
+        .user-info {
+            background: #e8f5e8;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        /* 회원 타입 선택 스타일 */
+        .member-type-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .member-type-title {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+            text-align: center;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .radio-item:hover {
+            border-color: #4CAF50;
+            background: #f0fff0;
+        }
+
+        .radio-item.selected {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+
+        .radio-item input[type="radio"] {
+            width: auto;
+            margin: 0;
+        }
+
+        /* 개인 회원 전용 필드 스타일 */
+        .user-fields {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .user-fields.hide {
+            display: none;
+        }
+
+        /* 사업자 번호 필드 스타일 */
+        .business-fields {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .business-fields.show {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .validation-message {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .validation-message.success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .validation-message.error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status {
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+
+        .hidden { display: none; }
+
+        .api-test {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .api-btn {
+            background: #007bff;
+            color: white;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .api-btn:hover {
+            background: #0056b3;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 5px;
+            text-align: left;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .debug-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .check-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+
+        .check-btn:hover {
+            background: #138496;
+        }
+
+        .input-with-check {
+            display: flex;
+            align-items: center;
+        }
+
+        .input-with-check input {
+            flex: 1;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo">🌱 IITP</div>
+    <div class="subtitle">카카오 로그인 테스트</div>
+
+    <!-- 로그인 섹션 -->
+    <div id="loginSection">
+        <button class="btn kakao-btn" onclick="handleKakaoLogin()">
+            <span>💬</span>
+            카카오로 로그인하기
+        </button>
+    </div>
+
+    <!-- 회원가입 섹션 -->
+    <div id="signupSection" class="hidden">
+        <div class="status info">신규 회원입니다. 회원 정보를 입력해주세요.</div>
+
+        <!-- 회원 타입 선택 -->
+        <div class="member-type-section">
+            <div class="member-type-title">회원 유형 선택</div>
+            <div class="radio-group">
+                <div class="radio-item selected" onclick="selectMemberType('user', this)">
+                    <input type="radio" name="memberType" value="user" checked>
+                    <span>👤 개인 회원</span>
+                </div>
+                <div class="radio-item" onclick="selectMemberType('store', this)">
+                    <input type="radio" name="memberType" value="store">
+                    <span>🏪 사업자 회원</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 개인 회원 전용 필드 -->
+        <div id="userFields" class="user-fields">
+            <div class="form-group">
+                <label for="nickname">닉네임 *</label>
+                <div class="input-with-check">
+                    <input type="text" id="nickname" placeholder="닉네임을 입력하세요" required>
+                    <button type="button" class="check-btn" onclick="checkNickname()">중복확인</button>
+                </div>
+                <div id="nicknameValidation" class="validation-message" style="display: none;"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">전화번호</label>
+                <div class="input-with-check">
+                    <input type="tel" id="phone" placeholder="01012345678" pattern="^01[0-9]{8,9}$">
+                    <button type="button" class="check-btn" onclick="checkPhone()">중복확인</button>
+                </div>
+                <div id="phoneValidation" class="validation-message" style="display: none;"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="address">주소 *</label>
+                <input type="text" id="address" placeholder="주소를 입력하세요" required>
+            </div>
+        </div>
+
+        <!-- 사업자 회원 전용 필드 -->
+        <div id="businessFields" class="business-fields">
+            <div class="form-group">
+                <label for="businessPhone">전화번호</label>
+                <div class="input-with-check">
+                    <input type="tel" id="businessPhone" placeholder="01012345678" pattern="^01[0-9]{8,9}$">
+                    <button type="button" class="check-btn" onclick="checkBusinessPhone()">중복확인</button>
+                </div>
+                <div id="businessPhoneValidation" class="validation-message" style="display: none;"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="businessLicense">사업자 번호 *</label>
+                <div class="input-with-check">
+                    <input type="text" id="businessLicense" placeholder="123-45-67890"
+                           pattern="^\d{3}-\d{2}-\d{5}$|^\d{10}$">
+                    <button type="button" class="check-btn" onclick="checkBusinessLicense()">중복확인</button>
+                </div>
+                <div id="businessValidation" class="validation-message" style="display: none;"></div>
+                <small style="color: #666;">형식: 123-45-67890 또는 1234567890</small>
+            </div>
+        </div>
+
+        <button class="btn signup-btn" onclick="signupUser()">
+            회원가입 완료
+        </button>
+    </div>
+
+    <!-- 사용자 정보 섹션 -->
+    <div id="userSection" class="hidden">
+        <div class="user-info">
+            <h3>로그인 성공! 🎉</h3>
+            <div id="userInfo"></div>
+        </div>
+        <button class="btn logout-btn" onclick="logout()">
+            로그아웃
+        </button>
+    </div>
+
+    <div id="statusDiv"></div>
+
+    <!-- 디버그 정보 -->
+    <div class="debug-info">
+        <strong>카카오 SDK 상태:</strong> <span id="sdkStatus">로딩 중...</span><br>
+        <strong>현재 토큰:</strong> <span id="tokenStatus">없음</span><br>
+        <strong>SDK 버전:</strong> <span id="sdkVersion">v1.39.10</span><br>
+        <strong>사용 가능한 메서드:</strong> <span id="availableMethods">확인 중...</span>
+    </div>
+</div>
+
+<div class="info-section">
+    <h3>API 테스트</h3>
+    <div class="api-test">
+        <button class="btn api-btn" onclick="testSdkStatus()">SDK 상태 확인</button>
+        <button class="btn api-btn" onclick="testNicknameCheck()">닉네임 중복 확인</button>
+        <button class="btn api-btn" onclick="testPhoneCheck()">전화번호 중복 확인</button>
+        <button class="btn api-btn" onclick="testEmailCheck()">이메일 중복 확인</button>
+        <button class="btn api-btn" onclick="testBusinessLicenseCheck()">사업자번호 중복 확인</button>
+        <button class="btn api-btn" onclick="testTokenRefresh()">토큰 갱신</button>
+        <button class="btn api-btn" onclick="checkBackendHealth()">백엔드 연결 확인</button>
+    </div>
+    <div id="apiResult"></div>
+</div>
+
+<script>
+    let currentAccessToken = null;
+    let kakaoInitialized = false;
+    let selectedMemberType = 'user'; // 기본값: 개인 회원
+
+    // 중복 확인 상태 관리
+    let validationStatus = {
+        nickname: false,
+        phone: false,
+        businessPhone: false,
+        businessLicense: false
+    };
+
+    // 페이지 로드 완료 후 카카오 SDK 초기화
+    window.addEventListener('load', function() {
+        console.log('페이지 로드 완료, 카카오 SDK 초기화 시작...');
+
+        if (typeof Kakao !== 'undefined') {
+            try {
+                Kakao.init("171831cd15632cbfaac40ae9f7604a6f");
+                console.log('카카오 SDK 초기화 성공');
+                console.log('카카오 SDK 버전:', Kakao.VERSION);
+                console.log('사용 가능한 Auth 메서드:', Object.keys(Kakao.Auth || {}));
+
+                document.getElementById('sdkStatus').textContent = '초기화 성공';
+                document.getElementById('availableMethods').textContent = Object.keys(Kakao.Auth || {}).join(', ');
+                kakaoInitialized = true;
+
+            } catch (error) {
+                console.error('카카오 SDK 초기화 실패:', error);
+                document.getElementById('sdkStatus').textContent = '초기화 실패: ' + error.message;
+            }
+        } else {
+            console.error('카카오 SDK가 로드되지 않았습니다.');
+            document.getElementById('sdkStatus').textContent = 'SDK 로드 실패';
+        }
+
+        // 기존 로그인 상태 확인
+        const savedToken = localStorage.getItem('accessToken');
+        const savedUserInfo = localStorage.getItem('userInfo');
+
+        if (savedToken && savedUserInfo) {
+            document.getElementById('tokenStatus').textContent = '저장된 토큰 있음';
+            showUserSection(JSON.parse(savedUserInfo));
+        } else {
+            document.getElementById('tokenStatus').textContent = '저장된 토큰 없음';
+        }
+    });
+
+    // 회원 타입 선택 함수
+    function selectMemberType(type, element) {
+        selectedMemberType = type;
+
+        // 모든 라디오 아이템에서 selected 클래스 제거
+        document.querySelectorAll('.radio-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+
+        // 선택된 아이템에 selected 클래스 추가
+        element.classList.add('selected');
+
+        // 라디오 버튼 체크
+        element.querySelector('input[type="radio"]').checked = true;
+
+        const businessFields = document.getElementById('businessFields');
+        const userFields = document.getElementById('userFields');
+
+        if (type === 'store') {
+            // 사업자 회원: 사업자 필드 표시, 개인 필드 숨김
+            businessFields.classList.add('show');
+            userFields.classList.add('hide');
+
+            // 개인 필드 초기화
+            document.getElementById('nickname').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('address').value = '';
+            hideValidation('nicknameValidation');
+            hideValidation('phoneValidation');
+            validationStatus.nickname = false;
+            validationStatus.phone = false;
+        } else {
+            // 개인 회원: 개인 필드 표시, 사업자 필드 숨김
+            businessFields.classList.remove('show');
+            userFields.classList.remove('hide');
+
+            // 사업자 필드 초기화
+            document.getElementById('businessPhone').value = '';
+            document.getElementById('businessLicense').value = '';
+            hideValidation('businessPhoneValidation');
+            hideValidation('businessValidation');
+            validationStatus.businessPhone = false;
+            validationStatus.businessLicense = false;
+        }
+    }
+
+    function showStatus(message, type = 'info') {
+        const statusDiv = document.getElementById('statusDiv');
+        statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        console.log(`[${type.toUpperCase()}] ${message}`);
+        setTimeout(() => statusDiv.innerHTML = '', 8000);
+    }
+
+    function handleKakaoLogin() {
+        console.log('카카오 로그인 시작...');
+
+        if (!kakaoInitialized) {
+            showStatus('카카오 SDK가 초기화되지 않았습니다. 페이지를 새로고침해주세요.', 'error');
+            return;
+        }
+
+        if (!Kakao.isInitialized()) {
+            showStatus('카카오 SDK가 준비되지 않았습니다.', 'error');
+            return;
+        }
+
+        try {
+            Kakao.Auth.login({
+                success: function(authObj) {
+                    console.log('카카오 로그인 성공:', authObj);
+                    currentAccessToken = authObj.access_token;
+                    document.getElementById('tokenStatus').textContent = '카카오 토큰 획득';
+                    showStatus('카카오 로그인 성공! 백엔드로 토큰 전송 중...', 'success');
+                    sendTokenToBackend(authObj.access_token);
+                },
+                fail: function(err) {
+                    console.error('카카오 로그인 실패:', err);
+                    showStatus('카카오 로그인에 실패했습니다: ' + (err.error_description || JSON.stringify(err)), 'error');
+                }
+            });
+        } catch (error) {
+            console.error('로그인 함수 실행 오류:', error);
+            showStatus('로그인 함수 실행 중 오류가 발생했습니다: ' + error.message, 'error');
+        }
+    }
+
+    // 중복 확인 함수들
+    async function checkNickname() {
+        const nickname = document.getElementById('nickname').value.trim();
+        if (!nickname) {
+            showValidation('nicknameValidation', '닉네임을 입력해주세요.', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/auth/check/nickname?nickname=${encodeURIComponent(nickname)}`);
+            const data = await response.json();
+
+            if (data.data) {
+                showValidation('nicknameValidation', '사용 가능한 닉네임입니다.', 'success');
+                validationStatus.nickname = true;
+            } else {
+                showValidation('nicknameValidation', '이미 사용중인 닉네임입니다.', 'error');
+                validationStatus.nickname = false;
+            }
+        } catch (error) {
+            showValidation('nicknameValidation', '중복 확인 중 오류가 발생했습니다.', 'error');
+            validationStatus.nickname = false;
+        }
+    }
+
+    async function checkPhone() {
+        const phone = document.getElementById('phone').value.trim();
+        if (!phone) {
+            showValidation('phoneValidation', '전화번호를 입력해주세요.', 'error');
+            return;
+        }
+
+        if (!/^01[0-9]{8,9}$/.test(phone)) {
+            showValidation('phoneValidation', '올바른 전화번호 형식이 아닙니다.', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/auth/check/phone?phone=${encodeURIComponent(phone)}`);
+            const data = await response.json();
+
+            if (data.data) {
+                showValidation('phoneValidation', '사용 가능한 전화번호입니다.', 'success');
+                validationStatus.phone = true;
+            } else {
+                showValidation('phoneValidation', '이미 사용중인 전화번호입니다.', 'error');
+                validationStatus.phone = false;
+            }
+        } catch (error) {
+            showValidation('phoneValidation', '중복 확인 중 오류가 발생했습니다.', 'error');
+            validationStatus.phone = false;
+        }
+    }
+
+    async function checkBusinessPhone() {
+        const phone = document.getElementById('businessPhone').value.trim();
+        if (!phone) {
+            showValidation('businessPhoneValidation', '전화번호를 입력해주세요.', 'error');
+            return;
+        }
+
+        if (!/^01[0-9]{8,9}$/.test(phone)) {
+            showValidation('businessPhoneValidation', '올바른 전화번호 형식이 아닙니다.', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/auth/check/phone?phone=${encodeURIComponent(phone)}`);
+            const data = await response.json();
+
+            if (data.data) {
+                showValidation('businessPhoneValidation', '사용 가능한 전화번호입니다.', 'success');
+                validationStatus.businessPhone = true;
+            } else {
+                showValidation('businessPhoneValidation', '이미 사용중인 전화번호입니다.', 'error');
+                validationStatus.businessPhone = false;
+            }
+        } catch (error) {
+            showValidation('businessPhoneValidation', '중복 확인 중 오류가 발생했습니다.', 'error');
+            validationStatus.businessPhone = false;
+        }
+    }
+
+    async function checkBusinessLicense() {
+        const businessLicense = document.getElementById('businessLicense').value.trim();
+        if (!businessLicense) {
+            showValidation('businessValidation', '사업자 번호를 입력해주세요.', 'error');
+            return;
+        }
+
+        if (!/^\d{3}-\d{2}-\d{5}$|^\d{10}$/.test(businessLicense)) {
+            showValidation('businessValidation', '올바른 사업자 번호 형식이 아닙니다.', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/auth/check/businessLicense?businessLicenseNumber=${encodeURIComponent(businessLicense)}`);
+            const data = await response.json();
+
+            if (data.data) {
+                showValidation('businessValidation', '사용 가능한 사업자 번호입니다.', 'success');
+                validationStatus.businessLicense = true;
+            } else {
+                showValidation('businessValidation', '이미 등록된 사업자 번호입니다.', 'error');
+                validationStatus.businessLicense = false;
+            }
+        } catch (error) {
+            console.warn('사업자 번호 중복 확인 오류:', error);
+            showValidation('businessValidation', '중복 확인 중 오류가 발생했습니다.', 'error');
+            validationStatus.businessLicense = false;
+        }
+    }
+
+    function showValidation(elementId, message, type) {
+        const element = document.getElementById(elementId);
+        element.textContent = message;
+        element.className = `validation-message ${type}`;
+        element.style.display = 'block';
+    }
+
+    function hideValidation(elementId) {
+        const element = document.getElementById(elementId);
+        element.style.display = 'none';
+    }
+
+    async function sendTokenToBackend(accessToken) {
+        try {
+            showStatus('기존 회원 확인 중...', 'info');
+            console.log('백엔드 로그인 요청 시작...');
+
+            const loginResponse = await fetch('http://localhost:8080/api/auth/login/member', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    accessToken: accessToken
+                })
+            });
+
+            console.log('백엔드 응답 상태:', loginResponse.status);
+
+            if (loginResponse.ok) {
+                const loginData = await loginResponse.json();
+                console.log('로그인 성공 데이터:', loginData);
+                showStatus('로그인 성공!', 'success');
+                handleLoginSuccess(loginData.data);
+            } else {
+                const errorData = await loginResponse.json();
+                console.log('로그인 실패 (신규 회원):', errorData);
+                showStatus('신규 회원입니다. 회원가입을 진행해주세요.', 'info');
+                showSignupSection();
+            }
+        } catch (error) {
+            console.error('로그인 처리 중 오류:', error);
+            showStatus('로그인 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+        }
+    }
+
+    function showSignupSection() {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('signupSection').classList.remove('hidden');
+        document.getElementById('userSection').classList.add('hidden');
+    }
+
+    async function signupUser() {
+        if (!currentAccessToken) {
+            showStatus('카카오 토큰이 없습니다. 다시 로그인해주세요.', 'error');
+            return;
+        }
+
+        try {
+            showStatus('회원가입 중...', 'info');
+
+            let requestData;
+            let apiUrl;
+
+            if (selectedMemberType === 'user') {
+                // 개인 회원 가입
+                const nickname = document.getElementById('nickname').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+                const address = document.getElementById('address').value.trim();
+
+                // 필수 필드 검증
+                if (!nickname) {
+                    showStatus('닉네임은 필수입니다.', 'error');
+                    return;
+                }
+
+                if (!address) {
+                    showStatus('주소는 필수입니다.', 'error');
+                    return;
+                }
+
+                // 중복 확인 여부 검증
+                if (!validationStatus.nickname) {
+                    showStatus('닉네임 중복 확인을 해주세요.', 'error');
+                    return;
+                }
+
+                if (phone && !validationStatus.phone) {
+                    showStatus('전화번호 중복 확인을 해주세요.', 'error');
+                    return;
+                }
+
+                requestData = {
+                    accessToken: currentAccessToken,
+                    nickname: nickname,
+                    phone: phone || null,
+                    address: address
+                };
+
+                apiUrl = 'http://localhost:8080/api/auth/signup/member';
+
+            } else {
+                // 사업자 회원 가입
+                const phone = document.getElementById('businessPhone').value.trim();
+                const businessLicense = document.getElementById('businessLicense').value.trim();
+
+                // 필수 필드 검증
+                if (!businessLicense) {
+                    showStatus('사업자 번호는 필수입니다.', 'error');
+                    return;
+                }
+
+                // 중복 확인 여부 검증
+                if (!validationStatus.businessLicense) {
+                    showStatus('사업자 번호 중복 확인을 해주세요.', 'error');
+                    return;
+                }
+
+                if (phone && !validationStatus.businessPhone) {
+                    showStatus('전화번호 중복 확인을 해주세요.', 'error');
+                    return;
+                }
+
+                requestData = {
+                    accessToken: currentAccessToken,
+                    businessLicenseNumber: businessLicense,
+                    phone: phone || null
+                };
+
+                apiUrl = 'http://localhost:8080/api/auth/signup/store';
+            }
+
+            console.log('회원가입 요청 데이터:', requestData);
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            console.log('회원가입 응답 상태:', response.status);
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('회원가입 성공:', data);
+                showStatus('회원가입 성공!', 'success');
+                handleLoginSuccess(data.data);
+            } else {
+                const errorData = await response.json();
+                console.error('회원가입 실패:', errorData);
+                showStatus('회원가입 실패: ' + (errorData.message || errorData.detail || '알 수 없는 오류'), 'error');
+            }
+        } catch (error) {
+            console.error('회원가입 처리 중 오류:', error);
+            showStatus('회원가입 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+        }
+    }
+
+    function handleLoginSuccess(userData) {
+        localStorage.setItem('accessToken', userData.accessToken);
+        localStorage.setItem('refreshToken', userData.refreshToken);
+        localStorage.setItem('userInfo', JSON.stringify(userData));
+
+        document.getElementById('tokenStatus').textContent = 'JWT 토큰 저장 완료';
+        showUserSection(userData);
+    }
+
+    function showUserSection(userData) {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('signupSection').classList.add('hidden');
+        document.getElementById('userSection').classList.remove('hidden');
+
+        // 사용자 정보 표시
+        const memberTypeText = userData.role === 'ROLE_STORE' ? '🏪 사업자 회원' : '👤 개인 회원';
+        const businessInfo = userData.role === 'ROLE_STORE' && userData.businessLicenseNumber
+            ? `<p><strong>사업자 번호:</strong> ${userData.businessLicenseNumber}</p>`
+            : '';
+        const businessApprovalInfo = userData.role === 'ROLE_STORE'
+            ? `<p><strong>사업자 승인 상태:</strong> ${userData.isBusinessApproved || '미승인'}</p>`
+            : '';
+
+        const userInfoHtml = `
+            <p><strong>ID:</strong> ${userData.id}</p>
+            <p><strong>회원 유형:</strong> ${memberTypeText}</p>
+            <p><strong>이메일:</strong> ${userData.email}</p>
+            <p><strong>닉네임:</strong> ${userData.nickname || '없음'}</p>
+            <p><strong>전화번호:</strong> ${userData.phone || '없음'}</p>
+            ${businessInfo}
+            ${businessApprovalInfo}
+            <p><strong>환경 레벨:</strong> ${userData.environmentLevel}</p>
+            <p><strong>주소:</strong> ${userData.location ? userData.location.address : '없음'}</p>
+        `;
+        document.getElementById('userInfo').innerHTML = userInfoHtml;
+    }
+
+    async function logout() {
+        try {
+            const accessToken = localStorage.getItem('accessToken');
+
+            if (accessToken) {
+                const response = await fetch('http://localhost:8080/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+                console.log('백엔드 로그아웃 응답:', response.status);
+            }
+
+            // 카카오 로그아웃
+            if (kakaoInitialized && typeof Kakao !== 'undefined' && Kakao.Auth) {
+                try {
+                    Kakao.Auth.logout();
+                    console.log('카카오 로그아웃 완료');
+                } catch (logoutError) {
+                    console.warn('카카오 로그아웃 실패:', logoutError);
+                }
+            }
+
+            // 로컬 스토리지 정리
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('userInfo');
+            currentAccessToken = null;
+
+            // 상태 초기화
+            selectedMemberType = 'user';
+            validationStatus = {
+                nickname: false,
+                phone: false,
+                businessPhone: false,
+                businessLicense: false
+            };
+
+            // UI 초기화
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('signupSection').classList.add('hidden');
+            document.getElementById('userSection').classList.add('hidden');
+            document.getElementById('tokenStatus').textContent = '로그아웃 완료';
+
+            // 폼 초기화
+            document.getElementById('nickname').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('address').value = '';
+            document.getElementById('businessPhone').value = '';
+            document.getElementById('businessLicense').value = '';
+
+            // 라디오 버튼 초기화
+            document.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            document.querySelector('.radio-item').classList.add('selected');
+            document.querySelector('input[name="memberType"][value="user"]').checked = true;
+
+            // 필드 표시/숨김 초기화
+            document.getElementById('businessFields').classList.remove('show');
+            document.getElementById('userFields').classList.remove('hide');
+
+            // 검증 메시지 숨기기
+            hideValidation('nicknameValidation');
+            hideValidation('phoneValidation');
+            hideValidation('businessPhoneValidation');
+            hideValidation('businessValidation');
+
+            showStatus('로그아웃 완료', 'success');
+        } catch (error) {
+            console.error('로그아웃 처리 중 오류:', error);
+            showStatus('로그아웃 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+        }
+    }
+
+    // SDK 상태 테스트 함수
+    function testSdkStatus() {
+        const result = {
+            sdkLoaded: typeof Kakao !== 'undefined',
+            sdkInitialized: kakaoInitialized,
+            kakaoVersion: typeof Kakao !== 'undefined' ? Kakao.VERSION : 'N/A',
+            authObject: typeof Kakao !== 'undefined' && Kakao.Auth ? 'Available' : 'Not Available',
+            authMethods: typeof Kakao !== 'undefined' && Kakao.Auth ? Object.keys(Kakao.Auth) : [],
+            loginMethod: typeof Kakao !== 'undefined' && Kakao.Auth && typeof Kakao.Auth.login === 'function' ? 'Available' : 'Not Available',
+            authorizeMethod: typeof Kakao !== 'undefined' && Kakao.Auth && typeof Kakao.Auth.authorize === 'function' ? 'Available' : 'Not Available',
+            currentToken: typeof Kakao !== 'undefined' && Kakao.Auth ? Kakao.Auth.getAccessToken() : null,
+            memberType: selectedMemberType,
+            validationStatus: validationStatus
+        };
+
+        showApiResult('SDK 상태 확인', result);
+    }
+
+    // API 테스트 함수들
+    async function checkBackendHealth() {
+        try {
+            showStatus('백엔드 연결 확인 중...', 'info');
+            const response = await fetch('http://localhost:8080/api/auth/check/email?email=test@test.com');
+
+            if (response.ok) {
+                const data = await response.json();
+                showApiResult('백엔드 연결 상태', { status: 'OK', response: data });
+                showStatus('백엔드 연결 정상', 'success');
+            } else {
+                showApiResult('백엔드 연결 상태', { status: 'ERROR', statusCode: response.status });
+                showStatus('백엔드 응답 오류: ' + response.status, 'error');
+            }
+        } catch (error) {
+            showApiResult('백엔드 연결 상태', { status: 'FAILED', error: error.message });
+            showStatus('백엔드 연결 실패: ' + error.message, 'error');
+        }
+    }
+
+    async function testNicknameCheck() {
+        const nickname = prompt('확인할 닉네임을 입력하세요:');
+        if (!nickname) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/auth/check/nickname?nickname=${encodeURIComponent(nickname)}`);
+            const data = await response.json();
+            showApiResult('닉네임 중복 확인', data);
+        } catch (error) {
+            showApiResult('닉네임 중복 확인 오류', { error: error.message });
+        }
+    }
+
+    async function testPhoneCheck() {
+        const phone = prompt('확인할 전화번호를 입력하세요:');
+        if (!phone) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/auth/check/phone?phone=${encodeURIComponent(phone)}`);
+            const data = await response.json();
+            showApiResult('전화번호 중복 확인', data);
+        } catch (error) {
+            showApiResult('전화번호 중복 확인 오류', { error: error.message });
+        }
+    }
+
+    async function testEmailCheck() {
+        const email = prompt('확인할 이메일을 입력하세요:');
+        if (!email) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/auth/check/email?email=${encodeURIComponent(email)}`);
+            const data = await response.json();
+            showApiResult('이메일 중복 확인', data);
+        } catch (error) {
+            showApiResult('이메일 중복 확인 오류', { error: error.message });
+        }
+    }
+
+    async function testBusinessLicenseCheck() {
+        const businessLicense = prompt('확인할 사업자번호를 입력하세요:');
+        if (!businessLicense) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/auth/check/businessLicense?businessLicenseNumber=${encodeURIComponent(businessLicense)}`);
+            const data = await response.json();
+            showApiResult('사업자번호 중복 확인', data);
+        } catch (error) {
+            showApiResult('사업자번호 중복 확인 오류', { error: error.message });
+        }
+    }
+
+    async function testTokenRefresh() {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) {
+            showApiResult('토큰 갱신 오류', { error: '저장된 Refresh Token이 없습니다.' });
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/auth/refresh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    refreshToken: refreshToken
+                })
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                localStorage.setItem('accessToken', data.data.accessToken);
+                localStorage.setItem('refreshToken', data.data.refreshToken);
+                showStatus('토큰 갱신 성공', 'success');
+            }
+
+            showApiResult('토큰 갱신', data);
+        } catch (error) {
+            showApiResult('토큰 갱신 오류', { error: error.message });
+        }
+    }
+
+    function showApiResult(title, data) {
+        const resultDiv = document.getElementById('apiResult');
+        resultDiv.innerHTML = `
+            <h4>${title} 결과:</h4>
+            <pre>${JSON.stringify(data, null, 2)}</pre>
+        `;
+    }
+</script>
+</body>
+</html>
