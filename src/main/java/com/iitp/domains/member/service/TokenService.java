@@ -1,9 +1,9 @@
 package com.iitp.domains.member.service;
 
-import com.iitp.domains.member.config.jwt.JwtUtil;
+import com.iitp.global.jwt.JwtUtil;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.dto.responseDto.TokenRefreshResponseDto;
-import com.iitp.domains.member.service.query.MemberReadService;
+import com.iitp.domains.member.service.query.MemberQueryService;
 import com.iitp.global.exception.BadRequestException;
 import com.iitp.global.exception.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class TokenService {
     private final JwtUtil jwtUtil;
-    private final MemberReadService memberReadService;
-
+    private final MemberQueryService memberQueryService;
     /**
      * 토큰 갱신
      */
@@ -40,13 +39,13 @@ public class TokenService {
         }
 
         // 3. DB에서 회원 조회
-        Member member = memberReadService.findMemberByRefreshToken(refreshToken);
+        Member member = memberQueryService.findMemberByRefreshToken(refreshToken);
 
         // 4. 새로운 토큰 생성
         String newAccessToken = jwtUtil.generateAccessToken(
                 member.getId(),
                 member.getEmail(),
-                member.getRole().name()
+                member.getRole()
         );
         String newRefreshToken = jwtUtil.generateRefreshToken(member.getId());
 
@@ -57,5 +56,6 @@ public class TokenService {
 
         return new TokenRefreshResponseDto(newAccessToken, newRefreshToken);
     }
+
 
 }
