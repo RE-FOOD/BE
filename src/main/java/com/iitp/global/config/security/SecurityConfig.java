@@ -1,7 +1,7 @@
-package com.iitp.domains.member.config.security;
+package com.iitp.global.config.security;
 
-import com.iitp.domains.member.config.jwt.JwtAuthenticationEntryPoint;
-import com.iitp.domains.member.config.jwt.JwtAuthenticationFilter;
+import com.iitp.global.jwt.JwtAuthenticationEntryPoint;
+import com.iitp.global.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
