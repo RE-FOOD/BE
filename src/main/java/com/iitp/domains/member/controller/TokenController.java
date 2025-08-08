@@ -23,10 +23,10 @@ public class TokenController {
 
     @Operation(summary = "토큰 갱신", description = "Refresh Token을 사용하여 새로운 Access Token과 Refresh Token을 발급받습니다.")
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<TokenRefreshResponseDto>> refreshToken(
+    public ApiResponse<TokenRefreshResponseDto> refreshToken(
             @Valid @RequestBody TokenRefreshRequestDto request) {
 
         TokenRefreshResponseDto response = tokenService.refreshToken(request.refreshToken());
-        return ResponseEntity.ok(ApiResponse.ok(response, "토큰 갱신 완료"));
+        return ApiResponse.ok(200, response, "토큰 갱신 완료");
     }
 }
