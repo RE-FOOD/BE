@@ -1,7 +1,7 @@
 package com.iitp.domains.member.service.command;
 
-import com.iitp.domains.member.config.KakaoApiClient;
-import com.iitp.domains.member.config.jwt.JwtUtil;
+import com.iitp.global.config.security.KakaoApiClient;
+import com.iitp.global.jwt.JwtUtil;
 import com.iitp.domains.member.domain.entity.Location;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.dto.KakaoUserInfoDto;
@@ -14,7 +14,7 @@ import com.iitp.domains.member.dto.responseDto.MemberSignupResponseDto;
 import com.iitp.domains.member.dto.responseDto.StoreSignupResponseDto;
 import com.iitp.domains.member.repository.LocationRepository;
 import com.iitp.domains.member.repository.MemberRepository;
-import com.iitp.domains.member.service.query.MemberReadService;
+import com.iitp.domains.member.service.query.MemberQueryService;
 import com.iitp.global.exception.BadRequestException;
 import com.iitp.global.exception.ExceptionMessage;
 import lombok.RequiredArgsConstructor;
@@ -28,10 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class MemberCreateService {
+public class MemberCommandService {
     private final MemberRepository memberRepository;
     private final LocationRepository locationRepository;
-    private final MemberReadService memberReadService;
+    private final MemberQueryService memberQueryService;
     private final KakaoApiClient kakaoApiClient;
     private final JwtUtil jwtUtil;
     private final EmailCreateService emailCreateService;
@@ -126,7 +126,7 @@ public class MemberCreateService {
         log.info("사업자 승인 처리 시작 - memberId: {}", memberId);
 
         // 1. 회원 조회
-        Member member = memberReadService.findMemberById(memberId);
+        Member member = memberQueryService.findMemberById(memberId);
 
         // 2. 사업자 회원인지 확인
         if (!member.getRole().name().equals("ROLE_STORE")) {
@@ -159,10 +159,10 @@ public class MemberCreateService {
         KakaoUserInfoDto kakaoUserInfo = kakaoApiClient.getUserInfo(request.accessToken());
 
         // 2. 기존 회원 확인
-        Member member = memberReadService.findMemberByEmail(kakaoUserInfo.getEmail());
+        Member member = memberQueryService.findMemberByEmail(kakaoUserInfo.getEmail());
 
         // 3. 위치 정보 조회
-        Location location = memberReadService.findMostRecentLocation(member.getId()).orElse(null);
+        Location location = memberQueryService.findMostRecentLocation(member.getId()).orElse(null);
 
         // 4. JWT 토큰 생성 및 갱신
         String[] tokens = generateAndSaveTokens(member);
@@ -183,7 +183,7 @@ public class MemberCreateService {
     public void signout(Long memberId) {
         log.info("로그아웃 시작 - memberId: {}", memberId);
 
-        Member member = memberReadService.findMemberById(memberId);
+        Member member = memberQueryService.findMemberById(memberId);
         member.removeRefreshToken();
 
         log.info("로그아웃 완료 - memberId: {}", memberId);
@@ -222,24 +222,24 @@ public class MemberCreateService {
     public void deleteMember(Long memberId) {
         log.info("회원 삭제 시작 - memberId: {}", memberId);
 
-        Member member = memberReadService.findMemberById(memberId);
+        Member member = memberQueryService.findMemberById(memberId);
         member.markAsDeleted();
 
         log.info("회원 삭제 완료 - memberId: {}", memberId);
     }
     // 사업자 회원가입 중복 확인 메서드
     private void validateStoreSignupDuplicates(String email, String phone, String businessLicenseNumber) {
-        if (memberReadService.isEmailExists(email)) {
+        if (memberQueryService.isEmailExists(email)) {
             log.warn("이메일 중복 - email: {}", email);
             throw new BadRequestException(ExceptionMessage.EMAIL_ALREADY_EXISTS);
         }
 
-        if (phone != null && memberReadService.isPhoneExists(phone)) {
+        if (phone != null && memberQueryService.isPhoneExists(phone)) {
             log.warn("전화번호 중복 - phone: {}", phone);
             throw new BadRequestException(ExceptionMessage.PHONE_ALREADY_EXISTS);
         }
 
-        if (memberReadService.isBusinessLicenseNumberExists(businessLicenseNumber)) {
+        if (memberQueryService.isBusinessLicenseNumberExists(businessLicenseNumber)) {
             log.warn("사업자번호 중복 - businessLicenseNumber: {}", businessLicenseNumber);
             throw new BadRequestException(ExceptionMessage.BusinessLicenseNumber_ALREADY_EXISTS);
         }
@@ -247,7 +247,7 @@ public class MemberCreateService {
 
     // 사업자번호 유효성 검증
     private void validateBusinessLicenseNumber(String businessLicenseNumber) {
-        if (memberReadService.isBusinessLicenseNumberExists(businessLicenseNumber)) {
+        if (memberQueryService.isBusinessLicenseNumberExists(businessLicenseNumber)) {
             log.warn("사업자번호 중복 - businessLicenseNumber: {}", businessLicenseNumber);
             throw new BadRequestException(ExceptionMessage.BusinessLicenseNumber_ALREADY_EXISTS);
         }
@@ -255,17 +255,17 @@ public class MemberCreateService {
 
     // 일반회원 중복 확인 메서드
     private void validateDuplicates(String email, String nickname, String phone) {
-        if (memberReadService.isEmailExists(email)) {
+        if (memberQueryService.isEmailExists(email)) {
             log.warn("이메일 중복 - email: {}", email);
             throw new BadRequestException(ExceptionMessage.EMAIL_ALREADY_EXISTS);
         }
 
-        if (memberReadService.isNicknameExists(nickname)) {
+        if (memberQueryService.isNicknameExists(nickname)) {
             log.warn("닉네임 중복 - nickname: {}", nickname);
             throw new BadRequestException(ExceptionMessage.NICKNAME_ALREADY_EXISTS);
         }
 
-        if (memberReadService.isPhoneExists(phone)) {
+        if (memberQueryService.isPhoneExists(phone)) {
             log.warn("전화번호 중복 - phone: {}", phone);
             throw new BadRequestException(ExceptionMessage.PHONE_ALREADY_EXISTS);
         }
@@ -276,7 +276,7 @@ public class MemberCreateService {
      */
     @Transactional(readOnly = true)
     public boolean isBusinessApproved(Long memberId) {
-        Member member = memberReadService.findMemberById(memberId);
+        Member member = memberQueryService.findMemberById(memberId);
         return member.getIsBusinessApproved() != null && member.getIsBusinessApproved();
     }
 
@@ -294,7 +294,7 @@ public class MemberCreateService {
         String accessToken = jwtUtil.generateAccessToken(
                 member.getId(),
                 member.getEmail(),
-                member.getRole().name()
+                member.getRole()
         );
         String refreshToken = jwtUtil.generateRefreshToken(member.getId());
 

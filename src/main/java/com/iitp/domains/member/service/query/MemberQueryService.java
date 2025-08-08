@@ -18,7 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Slf4j
-public class MemberReadService {
+public class MemberQueryService {
 
     private final MemberRepository memberRepository;
     private final LocationRepository locationRepository;
