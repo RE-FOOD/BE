@@ -1,5 +1,7 @@
-package com.iitp.domains.member.config.jwt;
+package com.iitp.global.jwt;
 
+import com.iitp.domains.member.domain.Role;
+import com.iitp.global.config.security.MemberPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,9 +58,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void setAuthentication(String token) {
         Long memberId = jwtUtil.getMemberIdFromToken(token);
         String email = jwtUtil.getEmailFromToken(token);
-        String role = jwtUtil.getRoleFromToken(token);
+        Role role = jwtUtil.getRoleFromToken(token);
 
-        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role));
+        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role.name()));
 
         MemberPrincipal principal = new MemberPrincipal(memberId, email, role);
         UsernamePasswordAuthenticationToken authentication =
