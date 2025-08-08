@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/stores")
 @RestController
-@Transactional
 public class StoreCommandController {
 
     private final StoreCommandService storeCommandService;

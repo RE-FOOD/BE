@@ -13,12 +13,14 @@ import com.iitp.global.exception.NotFoundException;
 import com.iitp.imageUpload.service.query.ImageGetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MenuQueryService {
     private final StoreRepository storeRepository;
     private final ImageGetService imageGetService;

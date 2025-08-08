@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/stores/{storeId}/menus")
 @RestController
-@Transactional
 public class MenuCommandController {
 
     private final MenuCommandService menuCommandService;

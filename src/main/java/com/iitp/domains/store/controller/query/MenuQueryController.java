@@ -20,7 +20,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/stores/{storeId}/menus")
-@Transactional(readOnly = true)
 public class MenuQueryController {
     private final MenuQueryService menuQueryService;
 

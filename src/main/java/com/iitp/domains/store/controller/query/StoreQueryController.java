@@ -2,19 +2,21 @@ package com.iitp.domains.store.controller.query;
 
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
+import com.iitp.domains.store.dto.response.StoreDetailResponse;
 import com.iitp.domains.store.dto.response.StoreListResponse;
 import com.iitp.domains.store.service.query.StoreQueryService;
 import com.iitp.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Tag(name = "가게 Query API", description = "가게 Query API")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/store")
+@RequestMapping("/api/stores")
 public class StoreQueryController {
     private final StoreQueryService storeQueryService;
 
@@ -30,5 +32,15 @@ public class StoreQueryController {
         List<StoreListResponse> responses = storeQueryService.findStores(category,keyword,sort,cursorId);
 
         return ApiResponse.ok(200,  responses, "상세 게시글 호출 성공");
+    }
+
+
+    @Operation(summary = "가게 세부 내용 호출", description = "가게 세부 내용 출력합니다.")
+    @GetMapping("/{storeId}")
+    public ApiResponse<StoreDetailResponse> findStore(@PathVariable Long storeId) {
+
+        StoreDetailResponse responses = storeQueryService.findStoreData(storeId);
+
+        return ApiResponse.ok(200,  responses, "상세 가게 호출 성공");
     }
 }

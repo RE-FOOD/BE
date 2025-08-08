@@ -10,9 +10,11 @@ import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MenuCommandService {
     private final StoreRepository storeRepository;
     private final MenuRepository menuRepository;
