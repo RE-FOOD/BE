@@ -66,6 +66,9 @@ public class Store extends BaseEntity {
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoreImage> storeImages = new ArrayList<>();
 
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Menu> menus = new ArrayList<>();
+
 
     public void update(StoreUpdateRequest requestDto) {
         if (requestDto.name() != null) this.name = requestDto.name();
