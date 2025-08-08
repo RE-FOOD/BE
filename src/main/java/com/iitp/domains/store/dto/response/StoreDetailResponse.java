@@ -1,5 +1,6 @@
 package com.iitp.domains.store.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.entity.Store;
 
@@ -12,7 +13,9 @@ public record StoreDetailResponse(
         String address,
         String description,
         String origin,
+        @JsonFormat(pattern = "HH:mm")
         LocalTime openTime,
+        @JsonFormat(pattern = "HH:mm")
         LocalTime closeTime,
         Category category,
         double latitude,

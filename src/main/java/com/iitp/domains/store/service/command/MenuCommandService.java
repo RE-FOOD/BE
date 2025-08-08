@@ -8,6 +8,7 @@ import com.iitp.domains.store.repository.menu.MenuRepository;
 import com.iitp.domains.store.repository.store.StoreRepository;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
+import com.iitp.global.redis.service.StoreCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MenuCommandService {
     private final StoreRepository storeRepository;
     private final MenuRepository menuRepository;
+    private final StoreCacheService cacheService;
 
     public void createMenu(MenuCreateRequest request, Long storeId) {
         Store store = validateStoreExists(storeId);
@@ -31,6 +33,9 @@ public class MenuCommandService {
         Menu menu  = validateMenuExists(menuId);
 
         menu.update(request);
+
+        // 캐시 삭제
+        cacheService.clearCache();
     }
 
 
@@ -38,6 +43,8 @@ public class MenuCommandService {
         validateStoreExists(storeId);
         Menu menu = validateMenuExists(menuId);
         menu.markAsDeleted();
+
+        cacheService.clearCache();
     }
 
 
