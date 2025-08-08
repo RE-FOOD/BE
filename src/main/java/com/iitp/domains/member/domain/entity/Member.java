@@ -30,10 +30,10 @@ public class Member extends BaseEntity {
     @Column(length = 255)
     private String password;
 
-    @Column(nullable = true, length = 30)
+    @Column(nullable = true, length = 30, unique = true)
     private String nickname;
 
-    @Column(length = 20)
+    @Column(length = 20, unique = true)
     private String phone;
 
     @Enumerated(EnumType.STRING)
@@ -57,7 +57,7 @@ public class Member extends BaseEntity {
     @Column(name = "dish_count", nullable = false)
     private Integer dishCount = 0;
 
-    @Column(name = "business_license_number", length = 20)
+    @Column(name = "business_license_number", length = 20, unique = true)
     private String businessLicenseNumber; // 사업자 번호
 
     @Column(name = "is_business_approved")
