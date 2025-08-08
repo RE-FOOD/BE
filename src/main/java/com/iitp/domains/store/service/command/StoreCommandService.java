@@ -36,8 +36,7 @@ public class StoreCommandService {
     }
 
     public void updateStore(StoreUpdateRequest request,Long storeId, Long userId) {
-        Store store = storeRepository.findByStoreId(storeId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
+        Store store = validateStoreExists(storeId);
 
         validateUserHasPermission(store, userId);
 
@@ -47,8 +46,7 @@ public class StoreCommandService {
 
 
     public void deleteStore(Long storeId, Long userId) {
-        Store store = storeRepository.findByStoreId(storeId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
+        Store store = validateStoreExists(storeId);
 
         validateUserHasPermission(store, userId);
         store.markAsDeleted();
@@ -60,6 +58,11 @@ public class StoreCommandService {
             log.info(String.valueOf(store.getMemberId() == userId));
             throw new IllegalArgumentException();
         }
+    }
+
+    private Store validateStoreExists(Long storeId) {
+        return storeRepository.findByStoreId(storeId)
+                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
     }
 
 }
