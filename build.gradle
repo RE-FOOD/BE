@@ -40,6 +40,14 @@ dependencies {
     // === API Documentation ===
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8'
 
+    // === AWS S3 ===
+    implementation platform("software.amazon.awssdk:bom:2.30.0")
+    implementation 'software.amazon.awssdk:s3'
+
+    // === Kakao API 연동을 위한 추가
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+
     // queryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
@@ -53,4 +61,19 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+// QueryDSL 설정
+def generated = 'src/main/generated'
+
+tasks.withType(JavaCompile) {
+    options.generatedSourceOutputDirectory = file(generated)
+}
+
+sourceSets {
+    main.java.srcDirs += [generated]
+}
+
+clean {
+    delete file(generated)
 }
