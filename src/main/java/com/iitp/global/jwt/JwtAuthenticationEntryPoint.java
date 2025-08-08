@@ -1,4 +1,4 @@
-package com.iitp.domains.member.config.jwt;
+package com.iitp.global.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
