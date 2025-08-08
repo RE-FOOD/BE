@@ -55,6 +55,7 @@ spring:
 
 kakao:
   api:
+    key: ${KAKAO_GEO_API_KEY}
     user-info-url: https://kapi.kakao.com/v2/user/me
   rest-api-key: ${KAKAO_REST_API_KEY}
 
@@ -104,8 +105,4 @@ cloud:
       access-key: ${ACCESS_KEY}
       secret-key: ${SECRET_KEY}
 
-
-kakao:
-  api:
-    key: ${KAKAO_GEO_API_KEY}
 
