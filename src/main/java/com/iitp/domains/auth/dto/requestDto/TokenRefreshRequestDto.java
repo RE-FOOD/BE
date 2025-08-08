@@ -1,4 +1,4 @@
-package com.iitp.domains.member.dto.requestDto;
+package com.iitp.domains.auth.dto.requestDto;
 
 import jakarta.validation.constraints.NotBlank;
 

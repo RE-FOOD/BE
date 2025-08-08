@@ -1,4 +1,4 @@
-package com.iitp.domains.member.dto.responseDto;
+package com.iitp.domains.auth.dto.responseDto;
 
 import com.iitp.domains.member.domain.Role;
 import lombok.Builder;
