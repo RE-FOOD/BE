@@ -1,5 +1,6 @@
-package com.iitp.domains.member.config.jwt;
+package com.iitp.global.jwt;
 
+import com.iitp.domains.member.domain.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -26,14 +27,14 @@ public class JwtUtil {
     }
 
     // Access Token 생성
-    public String generateAccessToken(Long memberId, String email, String role) {
+    public String generateAccessToken(Long memberId, String email, Role role) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + accessTokenExpiration);
 
         return Jwts.builder()
                 .setSubject(memberId.toString())
                 .claim("email", email)
-                .claim("role", role)
+                .claim("role", role.name())
                 .claim("type", "access")
                 .setIssuedAt(now)
                 .setExpiration(expiration)
@@ -68,9 +69,10 @@ public class JwtUtil {
     }
 
     // 토큰에서 역할 추출
-    public String getRoleFromToken(String token) {
+    public Role getRoleFromToken(String token) {
         Claims claims = getClaimsFromToken(token);
-        return claims.get("role", String.class);
+        String roleString = claims.get("role", String.class);
+        return Role.valueOf(roleString); // 기본 제공 메서드 직접 사용
     }
 
     // 토큰 유효성 검증

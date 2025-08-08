@@ -1,6 +1,6 @@
-package com.iitp.domains.member.config.security;
+package com.iitp.global.config.security;
 
-import com.iitp.domains.member.config.jwt.MemberPrincipal;
+import com.iitp.domains.member.domain.Role;
 import com.iitp.global.exception.AuthenticationException;
 import com.iitp.global.exception.ExceptionMessage;
 import org.springframework.security.core.Authentication;
@@ -29,7 +29,7 @@ public class SecurityUtil {
     /**
      * 현재 로그인한 사용자의 역할을 가져옵니다.
      */
-    public static String getCurrentMemberRole() {
+    public static Role getCurrentMemberRole() {
         return getCurrentMemberPrincipal().getRole();
     }
 
@@ -37,14 +37,14 @@ public class SecurityUtil {
      * 현재 로그인한 사용자가 일반 사용자인지 확인합니다.
      */
     public static boolean isCurrentMemberUser() {
-        return getCurrentMemberPrincipal().isUser();
+        return "ROLE_USER".equals(getCurrentMemberRole().name());
     }
 
     /**
      * 현재 로그인한 사용자가 사장님인지 확인합니다.
      */
     public static boolean isCurrentMemberStore() {
-        return getCurrentMemberPrincipal().isStore();
+        return "ROLE_STORE".equals(getCurrentMemberRole().name());
     }
 
     /**
