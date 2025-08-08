@@ -8,12 +8,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "가게 Command API", description = "가게 Command API")
 @RequiredArgsConstructor
-@RequestMapping("/api/store")
+@RequestMapping("/api/stores")
 @RestController
+@Transactional
 public class StoreCommandController {
 
     private final StoreCommandService storeCommandService;
@@ -33,7 +35,7 @@ public class StoreCommandController {
         Long userId = 1L;       // TODO :: 유저 연동되면 연결
         storeCommandService.updateStore(request,storeId, userId);
 
-        return ApiResponse.ok(201, null,"게시글 수정 성공");
+        return ApiResponse.ok(200, null,"게시글 수정 성공");
     }
 
     @Operation(summary = "가게 삭제", description = "가게를 삭제합니다.")
@@ -42,6 +44,6 @@ public class StoreCommandController {
         Long userId = 1L;       // TODO :: 유저 연동되면 연결
         storeCommandService.deleteStore(storeId, userId);
 
-        return ApiResponse.ok(201, null,"게시글 수정 성공");
+        return ApiResponse.ok(200, null,"게시글 수정 성공");
     }
 }
