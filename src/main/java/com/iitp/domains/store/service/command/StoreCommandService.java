@@ -10,6 +10,7 @@ import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import com.iitp.global.geoCode.GeocodingResult;
 import com.iitp.global.geoCode.KakaoGeocodingService;
+import com.iitp.global.redis.service.StoreCacheService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,8 @@ public class StoreCommandService {
     private final KakaoGeocodingService  kakaoGeocodingService;
     private final StoreRepository storeRepository;
     private final StoreImageRepository storeImageRepository;
+    private final StoreCacheService cacheService;
+
 
     public void createStore(StoreCreateRequest request, Long userId) {
         // 주소로 위/경도 조회
@@ -44,6 +47,8 @@ public class StoreCommandService {
 
         store.update(request);
 
+        // 캐시 삭제
+        cacheService.clearCache();
     }
 
 
@@ -52,6 +57,8 @@ public class StoreCommandService {
 
         validateUserHasPermission(store, userId);
         store.markAsDeleted();
+
+        cacheService.clearCache();
     }
 
 

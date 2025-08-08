@@ -56,7 +56,10 @@ dependencies {
 
     // json 변환 유틸리티 의존성
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {
