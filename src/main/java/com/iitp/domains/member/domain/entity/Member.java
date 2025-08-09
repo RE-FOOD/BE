@@ -47,6 +47,9 @@ public class Member extends BaseEntity {
     @Column(name = "join_type", nullable = false)
     private JoinType joinType;
 
+    @Column(name = "environment_point", nullable = false)
+    private Integer environmentPoint = 0;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "environment_level", nullable = true)
     private EnvironmentLevel environmentLevel = EnvironmentLevel.SPROUT;
@@ -85,6 +88,7 @@ public class Member extends BaseEntity {
         this.joinType = joinType;
         this.environmentLevel = environmentLevel != null ? environmentLevel : EnvironmentLevel.SPROUT;
         this.businessLicenseNumber = businessLicenseNumber;
+        this.environmentPoint = 0;
         this.orderCount = 0;
         this.dishCount = 0;
     }
