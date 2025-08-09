@@ -84,7 +84,7 @@ public class EmailCreateService {
      * 사업자 승인 이메일 HTML
      */
     private String createBusinessApprovalEmailHtml(String businessLicenseNumber, Long memberId) {
-        String approvalUrl = baseUrl + "/api/auth/business/approve/" + memberId;
+        String approvalUrl = baseUrl + "/api/members/business/approve/" + memberId;
         String logoBase64 = getImageAsBase64("refood-logo.png"); // PNG 파일명
 
         StringBuilder html = new StringBuilder();
