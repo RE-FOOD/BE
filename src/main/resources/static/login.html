@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>카카오 로그인 테스트 - IITP</title>
-    <!-- 카카오 SDK v1.39.10 (login 메서드 지원) -->
+:
+    <title>RE:FOOD - 회원 관리</title>
+    <!-- 카카오 SDK v1.39.10 -->
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
     <style>
         * {
@@ -21,6 +22,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
         .container {
@@ -83,6 +85,16 @@
             transform: translateY(-2px);
         }
 
+        .update-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .update-btn:hover {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+        }
+
         .logout-btn {
             background-color: #f44336;
             color: white;
@@ -93,12 +105,17 @@
             transform: translateY(-2px);
         }
 
-        .info-section {
-            background: rgba(255,255,255,0.9);
-            padding: 1.5rem;
-            border-radius: 10px;
-            margin-top: 1rem;
-            text-align: left;
+        .back-btn {
+            background-color: #9E9E9E;
+            color: white;
+            width: auto;
+            padding: 0.75rem 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .back-btn:hover {
+            background-color: #757575;
+            transform: translateY(-2px);
         }
 
         .user-info {
@@ -128,12 +145,79 @@
             font-size: 1rem;
         }
 
-        .form-group select {
-            width: 100%;
+        .validation-message {
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        .validation-message.success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+
+        .validation-message.error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status {
             padding: 0.75rem;
-            border: 1px solid #ddd;
             border-radius: 5px;
-            font-size: 1rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+
+        .hidden { display: none; }
+
+        .check-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
+        }
+
+        .check-btn:hover {
+            background: #138496;
+        }
+
+        .input-with-check {
+            display: flex;
+            align-items: center;
+        }
+
+        .input-with-check input {
+            flex: 1;
+            margin-right: 0.5rem;
+        }
+
+        .user-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .current-nickname {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .current-nickname strong {
+            color: #4CAF50;
         }
 
         /* 회원 타입 선택 스타일 */
@@ -209,109 +293,12 @@
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .validation-message {
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 4px;
-        }
-
-        .validation-message.success {
-            color: #155724;
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
-        }
-
-        .validation-message.error {
-            color: #721c24;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-        }
-
-        .status {
-            padding: 0.75rem;
-            border-radius: 5px;
-            margin-bottom: 1rem;
-            font-weight: bold;
-        }
-
-        .status.success { background: #d4edda; color: #155724; }
-        .status.error { background: #f8d7da; color: #721c24; }
-        .status.info { background: #d1ecf1; color: #0c5460; }
-
-        .hidden { display: none; }
-
-        .api-test {
-            background: #f8f9fa;
-            padding: 1rem;
-            border-radius: 8px;
-            margin-top: 1rem;
-        }
-
-        .api-btn {
-            background: #007bff;
-            color: white;
-            padding: 0.5rem 1rem;
-            margin: 0.25rem;
-            border-radius: 5px;
-            font-size: 0.9rem;
-        }
-
-        .api-btn:hover {
-            background: #0056b3;
-        }
-
-        pre {
-            background: #f4f4f4;
-            padding: 1rem;
-            border-radius: 5px;
-            text-align: left;
-            overflow-x: auto;
-            font-size: 0.9rem;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-
-        .debug-info {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 1rem;
-            border-radius: 5px;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-        }
-
-        .check-btn {
-            background: #17a2b8;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-left: 0.5rem;
-        }
-
-        .check-btn:hover {
-            background: #138496;
-        }
-
-        .input-with-check {
-            display: flex;
-            align-items: center;
-        }
-
-        .input-with-check input {
-            flex: 1;
-            margin-right: 0.5rem;
-        }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="logo">🌱 RE:FOOD</div>
-    <div class="subtitle">카카오 로그인 테스트</div>
+    <div class="subtitle">회원 관리 시스템</div>
 
     <!-- 로그인 섹션 -->
     <div id="loginSection">
@@ -397,50 +384,70 @@
     <!-- 사용자 정보 섹션 -->
     <div id="userSection" class="hidden">
         <div class="user-info">
-            <h3>로그인 성공! 🎉</h3>
+            <h3>안녕하세요! 🎉</h3>
             <div id="userInfo"></div>
         </div>
-        <button class="btn logout-btn" onclick="logout()">
-            로그아웃
+
+        <div class="user-menu">
+            <button class="btn update-btn" onclick="goToMyPage()">
+                <span>👤</span>
+                마이페이지
+            </button>
+            <button class="btn update-btn" onclick="showNicknameUpdateSection()">
+                <span>✏️</span>
+                닉네임 수정하기
+            </button>
+            <button class="btn logout-btn" onclick="logout()">
+                <span>🚪</span>
+                로그아웃
+            </button>
+        </div>
+    </div>
+
+    <!-- 닉네임 수정 섹션 -->
+    <div id="nicknameUpdateSection" class="hidden">
+        <button class="btn back-btn" onclick="showUserSection()">
+            <span>←</span>
+            뒤로가기
+        </button>
+
+        <h3 style="margin-bottom: 1rem; color: #333;">닉네임 수정</h3>
+
+        <div class="current-nickname">
+            <strong>현재 닉네임:</strong> <span id="currentNickname"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="newNickname">새 닉네임 *</label>
+            <div class="input-with-check">
+                <input type="text" id="newNickname" placeholder="새 닉네임을 입력하세요" required>
+                <button type="button" class="check-btn" onclick="checkNewNickname()">중복확인</button>
+            </div>
+            <div id="newNicknameValidation" class="validation-message" style="display: none;"></div>
+        </div>
+
+        <button class="btn update-btn" onclick="updateNickname()">
+            <span>✅</span>
+            닉네임 변경
         </button>
     </div>
 
     <div id="statusDiv"></div>
-
-    <!-- 디버그 정보 -->
-    <div class="debug-info">
-        <strong>카카오 SDK 상태:</strong> <span id="sdkStatus">로딩 중...</span><br>
-        <strong>현재 토큰:</strong> <span id="tokenStatus">없음</span><br>
-        <strong>SDK 버전:</strong> <span id="sdkVersion">v1.39.10</span><br>
-        <strong>사용 가능한 메서드:</strong> <span id="availableMethods">확인 중...</span>
-    </div>
-</div>
-
-<div class="info-section">
-    <h3>API 테스트</h3>
-    <div class="api-test">
-        <button class="btn api-btn" onclick="testSdkStatus()">SDK 상태 확인</button>
-        <button class="btn api-btn" onclick="testNicknameCheck()">닉네임 중복 확인</button>
-        <button class="btn api-btn" onclick="testPhoneCheck()">전화번호 중복 확인</button>
-        <button class="btn api-btn" onclick="testEmailCheck()">이메일 중복 확인</button>
-        <button class="btn api-btn" onclick="testBusinessLicenseCheck()">사업자번호 중복 확인</button>
-        <button class="btn api-btn" onclick="testTokenRefresh()">토큰 갱신</button>
-        <button class="btn api-btn" onclick="checkBackendHealth()">백엔드 연결 확인</button>
-    </div>
-    <div id="apiResult"></div>
 </div>
 
 <script>
     let currentAccessToken = null;
     let kakaoInitialized = false;
-    let selectedMemberType = 'user'; // 기본값: 개인 회원
+    let selectedMemberType = 'user';
+    let currentUserData = null;
 
     // 중복 확인 상태 관리
     let validationStatus = {
         nickname: false,
         phone: false,
         businessPhone: false,
-        businessLicense: false
+        businessLicense: false,
+        newNickname: false
     };
 
     // 페이지 로드 완료 후 카카오 SDK 초기화
@@ -451,20 +458,10 @@
             try {
                 Kakao.init("171831cd15632cbfaac40ae9f7604a6f");
                 console.log('카카오 SDK 초기화 성공');
-                console.log('카카오 SDK 버전:', Kakao.VERSION);
-                console.log('사용 가능한 Auth 메서드:', Object.keys(Kakao.Auth || {}));
-
-                document.getElementById('sdkStatus').textContent = '초기화 성공';
-                document.getElementById('availableMethods').textContent = Object.keys(Kakao.Auth || {}).join(', ');
                 kakaoInitialized = true;
-
             } catch (error) {
                 console.error('카카오 SDK 초기화 실패:', error);
-                document.getElementById('sdkStatus').textContent = '초기화 실패: ' + error.message;
             }
-        } else {
-            console.error('카카오 SDK가 로드되지 않았습니다.');
-            document.getElementById('sdkStatus').textContent = 'SDK 로드 실패';
         }
 
         // 기존 로그인 상태 확인
@@ -472,10 +469,8 @@
         const savedUserInfo = localStorage.getItem('userInfo');
 
         if (savedToken && savedUserInfo) {
-            document.getElementById('tokenStatus').textContent = '저장된 토큰 있음';
-            showUserSection(JSON.parse(savedUserInfo));
-        } else {
-            document.getElementById('tokenStatus').textContent = '저장된 토큰 없음';
+            currentUserData = JSON.parse(savedUserInfo);
+            showUserSection();
         }
     });
 
@@ -483,65 +478,56 @@
     function selectMemberType(type, element) {
         selectedMemberType = type;
 
-        // 모든 라디오 아이템에서 selected 클래스 제거
         document.querySelectorAll('.radio-item').forEach(item => {
             item.classList.remove('selected');
         });
 
-        // 선택된 아이템에 selected 클래스 추가
         element.classList.add('selected');
-
-        // 라디오 버튼 체크
         element.querySelector('input[type="radio"]').checked = true;
 
         const businessFields = document.getElementById('businessFields');
         const userFields = document.getElementById('userFields');
 
         if (type === 'store') {
-            // 사업자 회원: 사업자 필드 표시, 개인 필드 숨김
             businessFields.classList.add('show');
             userFields.classList.add('hide');
-
-            // 개인 필드 초기화
-            document.getElementById('nickname').value = '';
-            document.getElementById('phone').value = '';
-            document.getElementById('address').value = '';
-            hideValidation('nicknameValidation');
-            hideValidation('phoneValidation');
-            validationStatus.nickname = false;
-            validationStatus.phone = false;
+            clearUserFields();
         } else {
-            // 개인 회원: 개인 필드 표시, 사업자 필드 숨김
             businessFields.classList.remove('show');
             userFields.classList.remove('hide');
-
-            // 사업자 필드 초기화
-            document.getElementById('businessPhone').value = '';
-            document.getElementById('businessLicense').value = '';
-            hideValidation('businessPhoneValidation');
-            hideValidation('businessValidation');
-            validationStatus.businessPhone = false;
-            validationStatus.businessLicense = false;
+            clearBusinessFields();
         }
+    }
+
+    function clearUserFields() {
+        document.getElementById('nickname').value = '';
+        document.getElementById('phone').value = '';
+        document.getElementById('address').value = '';
+        hideValidation('nicknameValidation');
+        hideValidation('phoneValidation');
+        validationStatus.nickname = false;
+        validationStatus.phone = false;
+    }
+
+    function clearBusinessFields() {
+        document.getElementById('businessPhone').value = '';
+        document.getElementById('businessLicense').value = '';
+        hideValidation('businessPhoneValidation');
+        hideValidation('businessValidation');
+        validationStatus.businessPhone = false;
+        validationStatus.businessLicense = false;
     }
 
     function showStatus(message, type = 'info') {
         const statusDiv = document.getElementById('statusDiv');
         statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
         console.log(`[${type.toUpperCase()}] ${message}`);
-        setTimeout(() => statusDiv.innerHTML = '', 8000);
+        setTimeout(() => statusDiv.innerHTML = '', 5000);
     }
 
     function handleKakaoLogin() {
-        console.log('카카오 로그인 시작...');
-
         if (!kakaoInitialized) {
-            showStatus('카카오 SDK가 초기화되지 않았습니다. 페이지를 새로고침해주세요.', 'error');
-            return;
-        }
-
-        if (!Kakao.isInitialized()) {
-            showStatus('카카오 SDK가 준비되지 않았습니다.', 'error');
+            showStatus('카카오 SDK가 초기화되지 않았습니다.', 'error');
             return;
         }
 
@@ -550,22 +536,21 @@
                 success: function(authObj) {
                     console.log('카카오 로그인 성공:', authObj);
                     currentAccessToken = authObj.access_token;
-                    document.getElementById('tokenStatus').textContent = '카카오 토큰 획득';
                     showStatus('카카오 로그인 성공! 백엔드로 토큰 전송 중...', 'success');
                     sendTokenToBackend(authObj.access_token);
                 },
                 fail: function(err) {
                     console.error('카카오 로그인 실패:', err);
-                    showStatus('카카오 로그인에 실패했습니다: ' + (err.error_description || JSON.stringify(err)), 'error');
+                    showStatus('카카오 로그인에 실패했습니다.', 'error');
                 }
             });
         } catch (error) {
             console.error('로그인 함수 실행 오류:', error);
-            showStatus('로그인 함수 실행 중 오류가 발생했습니다: ' + error.message, 'error');
+            showStatus('로그인 처리 중 오류가 발생했습니다.', 'error');
         }
     }
 
-    // 중복 확인 함수들 (수정된 API 경로)
+    // 중복 확인 함수들
     async function checkNickname() {
         const nickname = document.getElementById('nickname').value.trim();
         if (!nickname) {
@@ -587,6 +572,37 @@
         } catch (error) {
             showValidation('nicknameValidation', '중복 확인 중 오류가 발생했습니다.', 'error');
             validationStatus.nickname = false;
+        }
+    }
+
+    async function checkNewNickname() {
+        const newNickname = document.getElementById('newNickname').value.trim();
+        if (!newNickname) {
+            showValidation('newNicknameValidation', '새 닉네임을 입력해주세요.', 'error');
+            return;
+        }
+
+        // 현재 닉네임과 동일한지 확인
+        if (currentUserData && newNickname === currentUserData.nickname) {
+            showValidation('newNicknameValidation', '현재 닉네임과 동일합니다.', 'error');
+            validationStatus.newNickname = false;
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/members/check/nickname?nickname=${encodeURIComponent(newNickname)}`);
+            const data = await response.json();
+
+            if (data.data) {
+                showValidation('newNicknameValidation', '사용 가능한 닉네임입니다.', 'success');
+                validationStatus.newNickname = true;
+            } else {
+                showValidation('newNicknameValidation', '이미 사용중인 닉네임입니다.', 'error');
+                validationStatus.newNickname = false;
+            }
+        } catch (error) {
+            showValidation('newNicknameValidation', '중복 확인 중 오류가 발생했습니다.', 'error');
+            validationStatus.newNickname = false;
         }
     }
 
@@ -672,7 +688,6 @@
                 validationStatus.businessLicense = false;
             }
         } catch (error) {
-            console.warn('사업자 번호 중복 확인 오류:', error);
             showValidation('businessValidation', '중복 확인 중 오류가 발생했습니다.', 'error');
             validationStatus.businessLicense = false;
         }
@@ -693,7 +708,6 @@
     async function sendTokenToBackend(accessToken) {
         try {
             showStatus('기존 회원 확인 중...', 'info');
-            console.log('백엔드 로그인 요청 시작...');
 
             const loginResponse = await fetch('http://localhost:8080/api/auth/login/members', {
                 method: 'POST',
@@ -705,22 +719,17 @@
                 })
             });
 
-            console.log('백엔드 응답 상태:', loginResponse.status);
-
             if (loginResponse.ok) {
                 const loginData = await loginResponse.json();
-                console.log('로그인 성공 데이터:', loginData);
                 showStatus('로그인 성공!', 'success');
                 handleLoginSuccess(loginData.data);
             } else {
-                const errorData = await loginResponse.json();
-                console.log('로그인 실패 (신규 회원):', errorData);
                 showStatus('신규 회원입니다. 회원가입을 진행해주세요.', 'info');
                 showSignupSection();
             }
         } catch (error) {
             console.error('로그인 처리 중 오류:', error);
-            showStatus('로그인 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+            showStatus('로그인 처리 중 오류가 발생했습니다.', 'error');
         }
     }
 
@@ -728,6 +737,7 @@
         document.getElementById('loginSection').classList.add('hidden');
         document.getElementById('signupSection').classList.remove('hidden');
         document.getElementById('userSection').classList.add('hidden');
+        document.getElementById('nicknameUpdateSection').classList.add('hidden');
     }
 
     async function signupUser() {
@@ -743,23 +753,15 @@
             let apiUrl;
 
             if (selectedMemberType === 'user') {
-                // 개인 회원 가입
                 const nickname = document.getElementById('nickname').value.trim();
                 const phone = document.getElementById('phone').value.trim();
                 const address = document.getElementById('address').value.trim();
 
-                // 필수 필드 검증
-                if (!nickname) {
-                    showStatus('닉네임은 필수입니다.', 'error');
+                if (!nickname || !address) {
+                    showStatus('필수 정보를 모두 입력해주세요.', 'error');
                     return;
                 }
 
-                if (!address) {
-                    showStatus('주소는 필수입니다.', 'error');
-                    return;
-                }
-
-                // 중복 확인 여부 검증
                 if (!validationStatus.nickname) {
                     showStatus('닉네임 중복 확인을 해주세요.', 'error');
                     return;
@@ -778,19 +780,15 @@
                 };
 
                 apiUrl = 'http://localhost:8080/api/auth/signup/members';
-
             } else {
-                // 사업자 회원 가입
                 const phone = document.getElementById('businessPhone').value.trim();
                 const businessLicense = document.getElementById('businessLicense').value.trim();
 
-                // 필수 필드 검증
                 if (!businessLicense) {
                     showStatus('사업자 번호는 필수입니다.', 'error');
                     return;
                 }
 
-                // 중복 확인 여부 검증
                 if (!validationStatus.businessLicense) {
                     showStatus('사업자 번호 중복 확인을 해주세요.', 'error');
                     return;
@@ -810,8 +808,6 @@
                 apiUrl = 'http://localhost:8080/api/auth/signup/stores';
             }
 
-            console.log('회원가입 요청 데이터:', requestData);
-
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: {
@@ -820,21 +816,17 @@
                 body: JSON.stringify(requestData)
             });
 
-            console.log('회원가입 응답 상태:', response.status);
-
             if (response.ok) {
                 const data = await response.json();
-                console.log('회원가입 성공:', data);
                 showStatus('회원가입 성공!', 'success');
                 handleLoginSuccess(data.data);
             } else {
                 const errorData = await response.json();
-                console.error('회원가입 실패:', errorData);
-                showStatus('회원가입 실패: ' + (errorData.message || errorData.detail || '알 수 없는 오류'), 'error');
+                showStatus('회원가입 실패: ' + (errorData.message || '알 수 없는 오류'), 'error');
             }
         } catch (error) {
             console.error('회원가입 처리 중 오류:', error);
-            showStatus('회원가입 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+            showStatus('회원가입 처리 중 오류가 발생했습니다.', 'error');
         }
     }
 
@@ -843,16 +835,52 @@
         localStorage.setItem('refreshToken', userData.refreshToken);
         localStorage.setItem('userInfo', JSON.stringify(userData));
 
-        document.getElementById('tokenStatus').textContent = 'JWT 토큰 저장 완료';
-        showUserSection(userData);
+        currentUserData = userData;
+        showUserSection();
     }
 
-    function showUserSection(userData) {
+    function showUserSection() {
         document.getElementById('loginSection').classList.add('hidden');
         document.getElementById('signupSection').classList.add('hidden');
         document.getElementById('userSection').classList.remove('hidden');
+        document.getElementById('nicknameUpdateSection').classList.add('hidden');
 
-        // 사용자 정보 표시
+        if (currentUserData) {
+            displayUserInfo(currentUserData);
+        }
+    }
+
+    // 마이페이지 이동
+    function goToMyPage() {
+        if (currentUserData) {
+            window.location.href = 'mypage.html';
+        } else {
+            showStatus('사용자 정보를 불러오는 중입니다. 잠시 후 시도해주세요.', 'error');
+        }
+    }
+
+    function showNicknameUpdateSection() {
+        // 개인 회원이 아니면 닉네임 수정 불가
+        if (!currentUserData || currentUserData.role !== 'ROLE_USER') {
+            showStatus('개인 회원만 닉네임을 수정할 수 있습니다.', 'error');
+            return;
+        }
+
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('signupSection').classList.add('hidden');
+        document.getElementById('userSection').classList.add('hidden');
+        document.getElementById('nicknameUpdateSection').classList.remove('hidden');
+
+        // 현재 닉네임 표시
+        document.getElementById('currentNickname').textContent = currentUserData.nickname || '없음';
+
+        // 입력 필드 초기화
+        document.getElementById('newNickname').value = '';
+        hideValidation('newNicknameValidation');
+        validationStatus.newNickname = false;
+    }
+
+    function displayUserInfo(userData) {
         const memberTypeText = userData.role === 'ROLE_STORE' ? '🏪 사업자 회원' : '👤 개인 회원';
         const businessInfo = userData.role === 'ROLE_STORE' && userData.businessLicenseNumber
             ? `<p><strong>사업자 번호:</strong> ${userData.businessLicenseNumber}</p>`
@@ -873,6 +901,61 @@
             <p><strong>주소:</strong> ${userData.location ? userData.location.address : '없음'}</p>
         `;
         document.getElementById('userInfo').innerHTML = userInfoHtml;
+    }
+
+    async function updateNickname() {
+        const newNickname = document.getElementById('newNickname').value.trim();
+
+        if (!newNickname) {
+            showStatus('새 닉네임을 입력해주세요.', 'error');
+            return;
+        }
+
+        if (!validationStatus.newNickname) {
+            showStatus('닉네임 중복 확인을 해주세요.', 'error');
+            return;
+        }
+
+        const accessToken = localStorage.getItem('accessToken');
+        if (!accessToken) {
+            showStatus('로그인이 필요합니다.', 'error');
+            return;
+        }
+
+        try {
+            showStatus('닉네임 수정 중...', 'info');
+
+            const response = await fetch('http://localhost:8080/api/members/nickname', {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    nickname: newNickname
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                showStatus('닉네임이 성공적으로 변경되었습니다!', 'success');
+
+                // 사용자 데이터 업데이트
+                currentUserData.nickname = data.data.nickname;
+                localStorage.setItem('userInfo', JSON.stringify(currentUserData));
+
+                // 사용자 섹션으로 돌아가기
+                setTimeout(() => {
+                    showUserSection();
+                }, 1500);
+            } else {
+                const errorData = await response.json();
+                showStatus('닉네임 수정 실패: ' + (errorData.message || '알 수 없는 오류'), 'error');
+            }
+        } catch (error) {
+            console.error('닉네임 수정 중 오류:', error);
+            showStatus('닉네임 수정 중 오류가 발생했습니다.', 'error');
+        }
     }
 
     async function logout() {
@@ -905,6 +988,7 @@
             localStorage.removeItem('refreshToken');
             localStorage.removeItem('userInfo');
             currentAccessToken = null;
+            currentUserData = null;
 
             // 상태 초기화
             selectedMemberType = 'user';
@@ -912,14 +996,15 @@
                 nickname: false,
                 phone: false,
                 businessPhone: false,
-                businessLicense: false
+                businessLicense: false,
+                newNickname: false
             };
 
             // UI 초기화
             document.getElementById('loginSection').classList.remove('hidden');
             document.getElementById('signupSection').classList.add('hidden');
             document.getElementById('userSection').classList.add('hidden');
-            document.getElementById('tokenStatus').textContent = '로그아웃 완료';
+            document.getElementById('nicknameUpdateSection').classList.add('hidden');
 
             // 폼 초기화
             document.getElementById('nickname').value = '';
@@ -927,6 +1012,7 @@
             document.getElementById('address').value = '';
             document.getElementById('businessPhone').value = '';
             document.getElementById('businessLicense').value = '';
+            document.getElementById('newNickname').value = '';
 
             // 라디오 버튼 초기화
             document.querySelectorAll('.radio-item').forEach(item => {
@@ -944,141 +1030,13 @@
             hideValidation('phoneValidation');
             hideValidation('businessPhoneValidation');
             hideValidation('businessValidation');
+            hideValidation('newNicknameValidation');
 
             showStatus('로그아웃 완료', 'success');
         } catch (error) {
             console.error('로그아웃 처리 중 오류:', error);
-            showStatus('로그아웃 처리 중 오류가 발생했습니다: ' + error.message, 'error');
+            showStatus('로그아웃 처리 중 오류가 발생했습니다.', 'error');
         }
-    }
-
-    // SDK 상태 테스트 함수
-    function testSdkStatus() {
-        const result = {
-            sdkLoaded: typeof Kakao !== 'undefined',
-            sdkInitialized: kakaoInitialized,
-            kakaoVersion: typeof Kakao !== 'undefined' ? Kakao.VERSION : 'N/A',
-            authObject: typeof Kakao !== 'undefined' && Kakao.Auth ? 'Available' : 'Not Available',
-            authMethods: typeof Kakao !== 'undefined' && Kakao.Auth ? Object.keys(Kakao.Auth) : [],
-            loginMethod: typeof Kakao !== 'undefined' && Kakao.Auth && typeof Kakao.Auth.login === 'function' ? 'Available' : 'Not Available',
-            authorizeMethod: typeof Kakao !== 'undefined' && Kakao.Auth && typeof Kakao.Auth.authorize === 'function' ? 'Available' : 'Not Available',
-            currentToken: typeof Kakao !== 'undefined' && Kakao.Auth ? Kakao.Auth.getAccessToken() : null,
-            memberType: selectedMemberType,
-            validationStatus: validationStatus
-        };
-
-        showApiResult('SDK 상태 확인', result);
-    }
-
-    // API 테스트 함수들
-    async function checkBackendHealth() {
-        try {
-            showStatus('백엔드 연결 확인 중...', 'info');
-            const response = await fetch('http://localhost:8080/api/members/check/email?email=test@test.com');
-
-            if (response.ok) {
-                const data = await response.json();
-                showApiResult('백엔드 연결 상태', { status: 'OK', response: data });
-                showStatus('백엔드 연결 정상', 'success');
-            } else {
-                showApiResult('백엔드 연결 상태', { status: 'ERROR', statusCode: response.status });
-                showStatus('백엔드 응답 오류: ' + response.status, 'error');
-            }
-        } catch (error) {
-            showApiResult('백엔드 연결 상태', { status: 'FAILED', error: error.message });
-            showStatus('백엔드 연결 실패: ' + error.message, 'error');
-        }
-    }
-
-    async function testNicknameCheck() {
-        const nickname = prompt('확인할 닉네임을 입력하세요:');
-        if (!nickname) return;
-
-        try {
-            const response = await fetch(`http://localhost:8080/api/members/check/nickname?nickname=${encodeURIComponent(nickname)}`);
-            const data = await response.json();
-            showApiResult('닉네임 중복 확인', data);
-        } catch (error) {
-            showApiResult('닉네임 중복 확인 오류', { error: error.message });
-        }
-    }
-
-    async function testPhoneCheck() {
-        const phone = prompt('확인할 전화번호를 입력하세요:');
-        if (!phone) return;
-
-        try {
-            const response = await fetch(`http://localhost:8080/api/members/check/phone?phone=${encodeURIComponent(phone)}`);
-            const data = await response.json();
-            showApiResult('전화번호 중복 확인', data);
-        } catch (error) {
-            showApiResult('전화번호 중복 확인 오류', { error: error.message });
-        }
-    }
-
-    async function testEmailCheck() {
-        const email = prompt('확인할 이메일을 입력하세요:');
-        if (!email) return;
-
-        try {
-            const response = await fetch(`http://localhost:8080/api/members/check/email?email=${encodeURIComponent(email)}`);
-            const data = await response.json();
-            showApiResult('이메일 중복 확인', data);
-        } catch (error) {
-            showApiResult('이메일 중복 확인 오류', { error: error.message });
-        }
-    }
-
-    async function testBusinessLicenseCheck() {
-        const businessLicense = prompt('확인할 사업자번호를 입력하세요:');
-        if (!businessLicense) return;
-
-        try {
-            const response = await fetch(`http://localhost:8080/api/members/check/businessLicense?businessLicenseNumber=${encodeURIComponent(businessLicense)}`);
-            const data = await response.json();
-            showApiResult('사업자번호 중복 확인', data);
-        } catch (error) {
-            showApiResult('사업자번호 중복 확인 오류', { error: error.message });
-        }
-    }
-
-    async function testTokenRefresh() {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (!refreshToken) {
-            showApiResult('토큰 갱신 오류', { error: '저장된 Refresh Token이 없습니다.' });
-            return;
-        }
-
-        try {
-            const response = await fetch('http://localhost:8080/api/auth/refresh', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    refreshToken: refreshToken
-                })
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                localStorage.setItem('accessToken', data.data.accessToken);
-                localStorage.setItem('refreshToken', data.data.refreshToken);
-                showStatus('토큰 갱신 성공', 'success');
-            }
-
-            showApiResult('토큰 갱신', data);
-        } catch (error) {
-            showApiResult('토큰 갱신 오류', { error: error.message });
-        }
-    }
-
-    function showApiResult(title, data) {
-        const resultDiv = document.getElementById('apiResult');
-        resultDiv.innerHTML = `
-            <h4>${title} 결과:</h4>
-            <pre>${JSON.stringify(data, null, 2)}</pre>
-        `;
     }
 </script>
 </body>

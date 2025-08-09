@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RE:FOOD - 마이페이지</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+        }
+
+        /* 헤더 */
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+            padding: 60px 20px 40px;
+            color: white;
+            text-align: center;
+            position: relative;
+        }
+
+        .profile-section {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 24px;
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+        }
+
+        .greeting {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .email {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .coupon-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .coupon-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 환경 레벨 섹션 */
+        .level-section {
+            background: white;
+            margin: -20px 20px 0;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        .level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .level-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .level-icon {
+            font-size: 1.2rem;
+        }
+
+        .level-text {
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        .next-level-text {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .score-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #FF5722;
+        }
+
+        .progress-container {
+            margin-bottom: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #E8F5E8;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #66BB6A);
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+
+        .level-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        /* 메뉴 섹션 */
+        .menu-section {
+            padding: 24px 20px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .menu-item:hover {
+            background-color: #f8f9fa;
+            margin: 0 -20px;
+            padding-left: 20px;
+            padding-right: 20px;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .menu-arrow {
+            font-size: 1.2rem;
+            color: #ccc;
+        }
+
+        /* 로그아웃 버튼 */
+        .logout-section {
+            padding: 0 20px 40px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 16px;
+            background-color: #f8f9fa;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        /* 하단 네비게이션 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #999;
+            font-size: 0.8rem;
+            transition: color 0.2s ease;
+        }
+
+        .nav-item.active {
+            color: #4CAF50;
+        }
+
+        .nav-icon {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        /* 로딩 상태 */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            font-size: 1.1rem;
+            color: #666;
+        }
+
+        /* 상태 메시지 */
+        .status {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .status.show {
+            opacity: 1;
+        }
+
+        .status.success { background: #d4edda; color: #155724; }
+        .status.error { background: #f8d7da; color: #721c24; }
+        .status.info { background: #d1ecf1; color: #0c5460; }
+
+        /* 반응형 */
+        @media (max-width: 480px) {
+            .header {
+                padding: 50px 16px 30px;
+            }
+
+            .level-section {
+                margin: -15px 16px 0;
+                padding: 16px;
+            }
+
+            .menu-section {
+                padding: 20px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 헤더 섹션 -->
+    <div class="header">
+        <div class="profile-section">
+            <div class="profile-icon" id="profileIcon">🌱</div>
+            <div class="greeting" id="greeting">안녕하세요!</div>
+            <div class="email" id="userEmail">이메일을 불러오는 중...</div>
+            <button class="coupon-btn">쿠폰함 〉</button>
+        </div>
+    </div>
+
+    <!-- 환경 레벨 섹션 -->
+    <div class="level-section">
+        <div class="level-header">
+            <div class="level-info">
+                <span class="level-icon">🌱</span>
+                <span class="level-text" id="levelText">레벨 2 모목</span>
+                <span>〉</span>
+            </div>
+            <div class="score-text" id="scoreText">0점</div>
+        </div>
+
+        <div class="next-level-text" id="nextLevelText">다음 레벨까지 남은 환경 점수</div>
+
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="level-labels">
+                <span>LEVEL1</span>
+                <span>LEVEL2</span>
+                <span>LEVEL3</span>
+                <span>환경 구원</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메뉴 섹션 -->
+    <div class="menu-section">
+        <div class="menu-item" onclick="goToNicknameEdit()">
+            <span class="menu-title">닉네임 변경</span>
+            <span class="menu-arrow">〉</span>
+        </div>
+
+        <div class="menu-item" onclick="goToEnvironmentReport()">
+            <span class="menu-title">환경 리포트</span>
+            <span class="menu-arrow">〉</span>
+        </div>
+
+        <div class="menu-item" onclick="goToReviewManagement()">
+            <span class="menu-title">리뷰 관리</span>
+            <span class="menu-arrow">〉</span>
+        </div>
+
+        <div class="menu-item" onclick="goToMemberWithdrawal()">
+            <span class="menu-title">회원 탈퇴</span>
+            <span class="menu-arrow">〉</span>
+        </div>
+
+        <div class="menu-item" onclick="logout()">
+            <span class="menu-title">로그아웃</span>
+            <span class="menu-arrow">〉</span>
+        </div>
+
+        <div class="menu-item" onclick="goToTermsAndPrivacy()">
+            <span class="menu-title">이용약관 및 개인정보처리방침</span>
+            <span class="menu-arrow">〉</span>
+        </div>
+    </div>
+
+    <!-- 로그아웃 섹션 - 제거 (메뉴 섹션으로 이동) -->
+    <div style="padding-bottom: 100px;"></div> <!-- 하단 네비게이션 여백 -->
+
+    <!-- 하단 네비게이션 -->
+    <div class="bottom-nav">
+        <a href="#" class="nav-item">
+            <div class="nav-icon">🏠</div>
+            <div>홈</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">📍</div>
+            <div>주변가게</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">❤️</div>
+            <div>찜</div>
+        </a>
+        <a href="#" class="nav-item">
+            <div class="nav-icon">📋</div>
+            <div>주문내역</div>
+        </a>
+        <a href="#" class="nav-item active">
+            <div class="nav-icon">👤</div>
+            <div>MY</div>
+        </a>
+    </div>
+</div>
+
+<!-- 상태 메시지 -->
+<div id="statusMessage" class="status"></div>
+
+<script>
+    let userInfo = null;
+
+    // 페이지 로드 시 마이페이지 정보 가져오기
+    window.addEventListener('load', function() {
+        loadMyPageInfo();
+    });
+
+    // 마이페이지 정보 로드
+    async function loadMyPageInfo() {
+        const accessToken = localStorage.getItem('accessToken');
+
+        if (!accessToken) {
+            showStatus('로그인이 필요합니다.', 'error');
+            // 로그인 페이지로 이동
+            window.location.href = '/login.html';
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/members/mypage', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                userInfo = data.data;
+                displayMyPageInfo(userInfo);
+            } else if (response.status === 401) {
+                showStatus('로그인이 만료되었습니다.', 'error');
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('userInfo');
+                window.location.href = '/login.html';
+            } else {
+                showStatus('마이페이지 정보를 불러오는데 실패했습니다.', 'error');
+            }
+        } catch (error) {
+            console.error('마이페이지 로드 오류:', error);
+            showStatus('네트워크 오류가 발생했습니다.', 'error');
+        }
+    }
+
+    // 마이페이지 정보 표시
+    function displayMyPageInfo(data) {
+        // 프로필 아이콘 설정 (닉네임 유무로 개인/사업자 구분)
+        const profileIcon = data.nickname ? '👤' : '🏪';
+        document.getElementById('profileIcon').textContent = profileIcon;
+
+        // 인사말 설정 (닉네임이 없으면 이메일 사용)
+        const displayName = data.nickname || data.email.split('@')[0];
+        document.getElementById('greeting').textContent = `${displayName}님, 안녕하세요!`;
+
+        // 이메일 설정
+        document.getElementById('userEmail').textContent = data.email;
+
+        // 환경 레벨 표시
+        displayEnvironmentLevel(data);
+
+        // 환경 점수 표시 (null이면 0점으로 표시)
+        const score = data.environmentScore !== null ? data.environmentScore : 0;
+        document.getElementById('scoreText').textContent = `${score}점`;
+
+        console.log('마이페이지 정보 표시 완료:', data);
+    }
+
+    // 환경 레벨 표시
+    function displayEnvironmentLevel(data) {
+        const levelMap = {
+            'SPROUT': { name: '새싹', icon: '🌱', level: 1 },
+            'SEEDLING': { name: '모목', icon: '🌿', level: 2 },
+            'TREE': { name: '나무', icon: '🌳', level: 3 },
+            'FRUIT': { name: '열매', icon: '🍃', level: 4 }
+        };
+
+        const currentLevel = levelMap[data.environmentLevel] || levelMap['SPROUT'];
+
+        // 레벨 텍스트 업데이트
+        document.getElementById('levelText').textContent = `레벨 ${currentLevel.level} ${currentLevel.name}`;
+
+        // 레벨 아이콘 업데이트
+        document.querySelector('.level-icon').textContent = currentLevel.icon;
+
+        // 환경 점수가 null이면 0으로 처리
+        const currentScore = data.environmentScore !== null ? data.environmentScore : 0;
+
+        // 진행률 계산 (주문횟수 + 다회용기 사용횟수 기준)
+        const totalActivity = (data.orderCount || 0) + (data.dishCount || 0);
+        const maxScore = 50; // 임시 최대 점수
+        const progressPercent = Math.min((totalActivity / maxScore) * 100, 100);
+        document.getElementById('progressFill').style.width = `${progressPercent}%`;
+
+        // 다음 레벨까지 남은 점수 표시
+        const remainingScore = Math.max(0, maxScore - totalActivity);
+        document.getElementById('nextLevelText').textContent =
+            remainingScore > 0 ? `다음 레벨까지 남은 환경 점수 ${remainingScore}점` : '최고 레벨 달성!';
+    }
+
+    // 메뉴 이동 함수들
+    function goToNicknameEdit() {
+        if (userInfo && userInfo.nickname) {
+            // 닉네임이 있는 개인 회원만 수정 가능
+            window.location.href = 'nicknameEdit.html';
+        } else {
+            showStatus('개인 회원만 닉네임을 변경할 수 있습니다.', 'error');
+        }
+    }
+
+    function goToEnvironmentReport() {
+        showStatus('환경 리포트 기능은 준비 중입니다.', 'info');
+    }
+
+    function goToReviewManagement() {
+        showStatus('리뷰 관리 기능은 준비 중입니다.', 'info');
+    }
+
+    function goToMemberWithdrawal() {
+        if (!confirm('정말로 회원 탈퇴를 하시겠습니까?\n\n탈퇴 시 모든 데이터가 삭제되며 복구가 불가능합니다.')) {
+            return;
+        }
+
+        if (!confirm('마지막 확인입니다.\n정말로 탈퇴하시겠습니까?')) {
+            return;
+        }
+
+        withdrawMember();
+    }
+
+    // 회원 탈퇴 실행
+    async function withdrawMember() {
+        const accessToken = localStorage.getItem('accessToken');
+
+        if (!accessToken) {
+            showStatus('로그인이 필요합니다.', 'error');
+            return;
+        }
+
+        try {
+            showStatus('회원 탈퇴 처리 중...', 'info');
+
+            const response = await fetch('http://localhost:8080/api/members/delete', {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                showStatus('회원 탈퇴가 완료되었습니다. 그동안 이용해주셔서 감사합니다.', 'success');
+
+                // 로컬 스토리지 정리
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('userInfo');
+
+                // 3초 후 로그인 페이지로 이동
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 3000);
+            } else if (response.status === 401) {
+                showStatus('로그인이 만료되었습니다.', 'error');
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('userInfo');
+                window.location.href = '/login.html';
+            } else {
+                const errorData = await response.json();
+                showStatus('회원 탈퇴 실패: ' + (errorData.message || '알 수 없는 오류'), 'error');
+            }
+        } catch (error) {
+            console.error('회원 탈퇴 중 오류:', error);
+            showStatus('회원 탈퇴 중 오류가 발생했습니다.', 'error');
+        }
+    }
+
+    function goToTermsAndPrivacy() {
+        showStatus('이용약관 페이지는 준비 중입니다.', 'info');
+    }
+
+    // 로그아웃
+    async function logout() {
+        if (!confirm('로그아웃 하시겠습니까?')) {
+            return;
+        }
+
+        const accessToken = localStorage.getItem('accessToken');
+
+        try {
+            if (accessToken) {
+                await fetch('http://localhost:8080/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+            }
+
+            // 로컬 스토리지 정리
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('userInfo');
+
+            showStatus('로그아웃 되었습니다.', 'success');
+
+            // 로그인 페이지로 이동
+            setTimeout(() => {
+                window.location.href = '/login.html';
+            }, 1000);
+
+        } catch (error) {
+            console.error('로그아웃 오류:', error);
+            showStatus('로그아웃 중 오류가 발생했습니다.', 'error');
+        }
+    }
+
+    // 상태 메시지 표시
+    function showStatus(message, type = 'info') {
+        const statusDiv = document.getElementById('statusMessage');
+        statusDiv.textContent = message;
+        statusDiv.className = `status ${type} show`;
+
+        setTimeout(() => {
+            statusDiv.classList.remove('show');
+        }, 3000);
+    }
+</script>
+</body>
+</html>
