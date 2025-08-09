@@ -31,7 +31,7 @@ public class JwtUtil {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + accessTokenExpiration);
 
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setSubject(memberId.toString())
                 .claim("email", email)
                 .claim("role", role.name())
@@ -40,6 +40,9 @@ public class JwtUtil {
                 .setExpiration(expiration)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
+        log.info("🔑 ACCESS TOKEN GENERATED");
+        log.info("   🎫 Token: {}", token);
+        return token;
     }
 
     // Refresh Token 생성
@@ -47,13 +50,16 @@ public class JwtUtil {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + refreshTokenExpiration);
 
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setSubject(memberId.toString())
                 .claim("type", "refresh")
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
+        log.info("🔄 REFRESH TOKEN GENERATED");
+        log.info("   🎫 Token: {}", token);
+        return token;
     }
 
     // 토큰에서 회원 ID 추출
