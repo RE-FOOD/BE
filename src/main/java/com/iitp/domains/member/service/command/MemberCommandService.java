@@ -1,5 +1,8 @@
 package com.iitp.domains.member.service.command;
 
+import com.iitp.domains.member.domain.Role;
+import com.iitp.domains.member.dto.requestDto.MemberUpdateNicknameRequestDto;
+import com.iitp.domains.member.dto.responseDto.MemberUpdateNicknameResponseDto;
 import com.iitp.global.config.security.KakaoApiClient;
 import com.iitp.global.jwt.JwtUtil;
 import com.iitp.domains.member.domain.entity.Location;
@@ -115,6 +118,43 @@ public class MemberCommandService {
         Member member = memberQueryService.findMemberById(memberId);
         return member.getIsBusinessApproved() != null && member.getIsBusinessApproved();
     }
+
+    /**
+     * 닉네임 수정
+     */
+    @Transactional
+    @CacheEvict(value = "members", allEntries = true)
+    public MemberUpdateNicknameResponseDto updateNickname(Long memberId, MemberUpdateNicknameRequestDto request) {
+        log.info("닉네임 수정 시작 - memberId: {}, newNickname: {}", memberId, request.nickname());
+
+        // 1. 회원 조회
+        Member member = memberQueryService.findMemberById(memberId);
+
+        // 2. 닉네임 중복 확인 (자신의 닉네임이 아닌 경우만)
+        if (!request.nickname().equals(member.getNickname()) &&
+                memberQueryService.isNicknameExists(request.nickname())) {
+            log.warn("닉네임 중복 - nickname: {}", request.nickname());
+            throw new BadRequestException(ExceptionMessage.NICKNAME_ALREADY_EXISTS);
+        }
+
+        // 3. 개인 회원인지 확인 (사업자는 닉네임이 없음)
+        if (member.getRole() != Role.ROLE_USER) {
+            log.warn("사업자 회원의 닉네임 수정 시도 - memberId: {}", memberId);
+            throw new BadRequestException(ExceptionMessage.ACCESS_DENIED);
+        }
+
+        // 4. 닉네임 업데이트
+        member.updateNickname(request.nickname());
+        memberRepository.save(member);
+
+        log.info("닉네임 수정 완료 - memberId: {}, newNickname: {}", memberId, request.nickname());
+
+        return MemberUpdateNicknameResponseDto.builder()
+                .id(member.getId())
+                .nickname(member.getNickname())
+                .build();
+    }
+
 
     // 주소 생성
     private Location createLocation(Long memberId, String address) {
