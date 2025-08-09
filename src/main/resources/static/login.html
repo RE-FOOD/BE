@@ -310,7 +310,7 @@
 </head>
 <body>
 <div class="container">
-    <div class="logo">🌱 IITP</div>
+    <div class="logo">🌱 RE:FOOD</div>
     <div class="subtitle">카카오 로그인 테스트</div>
 
     <!-- 로그인 섹션 -->
@@ -565,7 +565,7 @@
         }
     }
 
-    // 중복 확인 함수들
+    // 중복 확인 함수들 (수정된 API 경로)
     async function checkNickname() {
         const nickname = document.getElementById('nickname').value.trim();
         if (!nickname) {
@@ -574,7 +574,7 @@
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/check/nickname?nickname=${encodeURIComponent(nickname)}`);
+            const response = await fetch(`http://localhost:8080/api/members/check/nickname?nickname=${encodeURIComponent(nickname)}`);
             const data = await response.json();
 
             if (data.data) {
@@ -603,7 +603,7 @@
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/check/phone?phone=${encodeURIComponent(phone)}`);
+            const response = await fetch(`http://localhost:8080/api/members/check/phone?phone=${encodeURIComponent(phone)}`);
             const data = await response.json();
 
             if (data.data) {
@@ -632,7 +632,7 @@
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/check/phone?phone=${encodeURIComponent(phone)}`);
+            const response = await fetch(`http://localhost:8080/api/members/check/phone?phone=${encodeURIComponent(phone)}`);
             const data = await response.json();
 
             if (data.data) {
@@ -661,7 +661,7 @@
         }
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/check/businessLicense?businessLicenseNumber=${encodeURIComponent(businessLicense)}`);
+            const response = await fetch(`http://localhost:8080/api/members/check/businessLicense?businessLicenseNumber=${encodeURIComponent(businessLicense)}`);
             const data = await response.json();
 
             if (data.data) {
@@ -695,7 +695,7 @@
             showStatus('기존 회원 확인 중...', 'info');
             console.log('백엔드 로그인 요청 시작...');
 
-            const loginResponse = await fetch('http://localhost:8080/api/auth/login/member', {
+            const loginResponse = await fetch('http://localhost:8080/api/auth/login/members', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -777,7 +777,7 @@
                     address: address
                 };
 
-                apiUrl = 'http://localhost:8080/api/auth/signup/member';
+                apiUrl = 'http://localhost:8080/api/auth/signup/members';
 
             } else {
                 // 사업자 회원 가입
@@ -807,7 +807,7 @@
                     phone: phone || null
                 };
 
-                apiUrl = 'http://localhost:8080/api/auth/signup/store';
+                apiUrl = 'http://localhost:8080/api/auth/signup/stores';
             }
 
             console.log('회원가입 요청 데이터:', requestData);
@@ -974,7 +974,7 @@
     async function checkBackendHealth() {
         try {
             showStatus('백엔드 연결 확인 중...', 'info');
-            const response = await fetch('http://localhost:8080/api/auth/check/email?email=test@test.com');
+            const response = await fetch('http://localhost:8080/api/members/check/email?email=test@test.com');
 
             if (response.ok) {
                 const data = await response.json();
@@ -995,7 +995,7 @@
         if (!nickname) return;
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/check/nickname?nickname=${encodeURIComponent(nickname)}`);
+            const response = await fetch(`http://localhost:8080/api/members/check/nickname?nickname=${encodeURIComponent(nickname)}`);
             const data = await response.json();
             showApiResult('닉네임 중복 확인', data);
         } catch (error) {
@@ -1008,7 +1008,7 @@
         if (!phone) return;
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/check/phone?phone=${encodeURIComponent(phone)}`);
+            const response = await fetch(`http://localhost:8080/api/members/check/phone?phone=${encodeURIComponent(phone)}`);
             const data = await response.json();
             showApiResult('전화번호 중복 확인', data);
         } catch (error) {
@@ -1021,7 +1021,7 @@
         if (!email) return;
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/check/email?email=${encodeURIComponent(email)}`);
+            const response = await fetch(`http://localhost:8080/api/members/check/email?email=${encodeURIComponent(email)}`);
             const data = await response.json();
             showApiResult('이메일 중복 확인', data);
         } catch (error) {
@@ -1034,7 +1034,7 @@
         if (!businessLicense) return;
 
         try {
-            const response = await fetch(`http://localhost:8080/api/auth/check/businessLicense?businessLicenseNumber=${encodeURIComponent(businessLicense)}`);
+            const response = await fetch(`http://localhost:8080/api/members/check/businessLicense?businessLicenseNumber=${encodeURIComponent(businessLicense)}`);
             const data = await response.json();
             showApiResult('사업자번호 중복 확인', data);
         } catch (error) {
