@@ -26,17 +26,8 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     // 리프레시 토큰으로 회원 찾기
     Optional<Member> findByRefreshTokenAndIsDeletedFalse(String refreshToken);
 
-    // 이메일 중복 체크
-    boolean existsByEmailAndIsDeletedFalse(String email);
-
     // 닉네임 중복 체크
     boolean existsByNicknameAndIsDeletedFalse(String nickname);
-
-    // 전화번호 중복 체크
-    boolean existsByPhoneAndIsDeletedFalse(String phone);
-
-    // 사업자번호 중복 체크
-    boolean existsByBusinessLicenseNumberAndIsDeletedFalse(String businessLicenseNumber);
 
     // 리프레시 토큰 삭제 (로그아웃)
     @Modifying
