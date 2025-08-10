@@ -22,8 +22,8 @@ public class FavoriteCommandService {
     private final MemberQueryService memberQueryService;
     private final StoreQueryService storeQueryService;
 
-    public FavoriteToggledResponse toggleFavorite(Long storeId) {
-        Member member = memberQueryService.findExistingCurrentMember();
+    public FavoriteToggledResponse toggleFavorite(Long memberId, Long storeId) {
+        Member member = memberQueryService.findMemberById(memberId);
         Store store = storeQueryService.findExistingStore(storeId);
 
         Optional<Favorite> optionalFavorite = favoriteRepository.findByMemberIdAndStoreId(member.getId(), storeId);

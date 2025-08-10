@@ -23,10 +23,9 @@ public class FavoriteController {
 
     @PatchMapping("/{storeId}/favorites")
     @Operation(summary = "찜 토글", description = "기존 찜 존재 여부에 따라 특정 가게에 대한 찜을 생성 혹은 삭제합니다.")
-    public ApiResponse<FavoriteToggledResponse> toggleFavorite(@PathVariable("storeId") Long storeId, @AuthenticationPrincipal
-    MemberPrincipal memberPrincipal) {
+    public ApiResponse<FavoriteToggledResponse> toggleFavorite(@PathVariable("storeId") Long storeId) {
         Long memberId = SecurityUtil.getCurrentMemberId();
-        FavoriteToggledResponse favoriteToggledResponse = favoriteCommandService.toggleFavorite(storeId);
+        FavoriteToggledResponse favoriteToggledResponse = favoriteCommandService.toggleFavorite(memberId, storeId);
         return ApiResponse.ok(200, favoriteToggledResponse, "찜 토글 완료");
     }
 }
