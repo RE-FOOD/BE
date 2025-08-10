@@ -23,12 +23,18 @@ public enum ExceptionMessage {
     MEMBER_NOT_FOUND("회원을 찾을 수 없습니다."),
     EMAIL_ALREADY_EXISTS("이미 사용 중인 이메일입니다."),
     NICKNAME_ALREADY_EXISTS("이미 사용 중인 닉네임입니다."),
+    PHONE_ALREADY_EXISTS("이미 사용 중인 핸드폰번호입니다."),
+    BusinessLicenseNumber_ALREADY_EXISTS("이미 사용 중인 사업자번호입니다."),
     INVALID_PASSWORD_FORMAT("비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다."),
     INCORRECT_PASSWORD("기존 비밀번호가 틀립니다 다시 입력해주세요"),
 
     // 권한 관련
     ACCESS_DENIED("접근 권한이 없습니다."),
     INSUFFICIENT_PERMISSION("해당 작업을 수행할 권한이 없습니다."),
+
+    // 카카오 관련
+    KAKAO_TOKEN_INVALID("유효하지 않은 카카오 토큰입니다."),
+    KAKAO_API_ERROR("카카오 API 호출 중 오류가 발생했습니다."),
 
     // 일반 오류
     INTERNAL_SERVER_ERROR("서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요."),

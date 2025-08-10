@@ -1,0 +1,41 @@
+package com.iitp.domains.member.controller.command;
+
+import com.iitp.global.config.security.SecurityUtil;
+import com.iitp.domains.member.service.command.MemberCommandService;
+import com.iitp.global.common.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/members")
+@RequiredArgsConstructor
+@Slf4j
+@Tag(name = "인증 관리", description = "회원가입, 로그인, 로그아웃 API")
+public class MemberCommandController {
+    private final MemberCommandService memberCommandService;
+
+    @Operation(summary = "회원 탈퇴", description = "현재 로그인한 회원을 탈퇴 처리합니다.")
+    @PatchMapping("/delete")
+    @PreAuthorize("isAuthenticated()")
+    public ApiResponse<String> deleteMember() {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+        memberCommandService.deleteMember(memberId);
+        return ApiResponse.okWithoutData(200, "회원 탈퇴 완료");
+    }
+
+    @Operation(summary = "새 위치 추가", description = "현재 로그인한 회원의 새로운 위치를 추가합니다.")
+    @PostMapping("/location")
+    @PreAuthorize("isAuthenticated()")
+    public ApiResponse<String> addLocation(
+            @Parameter(description = "새로운 주소")
+            @RequestParam String address) {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+        memberCommandService.addNewLocation(memberId, address, true);
+        return ApiResponse.okWithoutData(200, "위치 추가 완료");
+    }
+}
