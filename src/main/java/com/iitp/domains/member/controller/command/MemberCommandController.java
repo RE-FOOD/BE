@@ -1,11 +1,15 @@
 package com.iitp.domains.member.controller.command;
 
+import com.iitp.domains.member.domain.entity.Location;
+import com.iitp.domains.member.dto.requestDto.LocationCreateRequestDto;
+import com.iitp.domains.member.dto.responseDto.LocationResponseDto;
 import com.iitp.global.config.security.SecurityUtil;
 import com.iitp.domains.member.service.command.MemberCommandService;
 import com.iitp.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,14 +32,21 @@ public class MemberCommandController {
         return ApiResponse.okWithoutData(200, "회원 탈퇴 완료");
     }
 
-    @Operation(summary = "새 위치 추가", description = "현재 로그인한 회원의 새로운 위치를 추가합니다.")
+    @Operation(summary = "새 위치 추가",
+            description = "현재 로그인한 회원의 새로운 위치를 추가합니다.")
     @PostMapping("/location")
     @PreAuthorize("isAuthenticated()")
-    public ApiResponse<String> addLocation(
-            @Parameter(description = "새로운 주소")
-            @RequestParam String address) {
+    public ApiResponse<LocationResponseDto> addLocation(
+            @Valid @RequestBody LocationCreateRequestDto request) {
         Long memberId = SecurityUtil.getCurrentMemberId();
-        memberCommandService.addNewLocation(memberId, address, true);
-        return ApiResponse.okWithoutData(200, "위치 추가 완료");
+        Location location = memberCommandService.addNewLocation(memberId, request.address(), true);
+
+        LocationResponseDto response = LocationResponseDto.of(
+                location.getId(),
+                location.getAddress(),
+                location.getIsMostRecent()
+        );
+
+        return ApiResponse.ok(200, response, "위치 추가 완료");
     }
 }
