@@ -66,7 +66,7 @@ public class StoreQueryService {
         }
 
         // DB에서 데이터 조회
-        Store store = validateStoreExists(storeId);
+        Store store = findExistingStore(storeId);
 
         List<String> imageUrls = store.getStoreImages().stream()
                 .map(result -> getImageUrl(result.getImageKey()))
@@ -88,7 +88,7 @@ public class StoreQueryService {
     }
 
 
-    private Store validateStoreExists(Long storeId) {
+    public Store findExistingStore(Long storeId) {
         return storeRepository.findByStoreId(storeId)
                 .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
     }
