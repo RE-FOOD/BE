@@ -4,6 +4,7 @@ import com.iitp.domains.member.domain.entity.Location;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.repository.LocationRepository;
 import com.iitp.domains.member.repository.MemberRepository;
+import com.iitp.global.config.security.SecurityUtil;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -120,6 +121,15 @@ public class MemberQueryService {
     public Optional<Location> findMostRecentLocation(Long memberId) {
         log.debug("최근 위치 조회 - memberId: {}", memberId);
         return locationRepository.findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(memberId);
+    }
+
+    /**
+     * 현재 로그인된 회원 조회
+     * SecurityContext - Principal - id를 이용해 현재 로그인된 회원 조회
+     */
+    public Member findExistingCurrentMember() {
+        return memberRepository.findById(SecurityUtil.getCurrentMemberId())
+                .orElseThrow(()-> new NotFoundException(ExceptionMessage.MEMBER_NOT_FOUND));
     }
 
 }
