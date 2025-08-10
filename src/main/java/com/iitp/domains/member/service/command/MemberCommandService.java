@@ -97,16 +97,6 @@ public class MemberCommandService {
         log.info("회원 삭제 완료 - memberId: {}", memberId);
     }
 
-    // 사업자번호 유효성 검증
-    private void validateBusinessLicenseNumber(String businessLicenseNumber) {
-        if (memberQueryService.isBusinessLicenseNumberExists(businessLicenseNumber)) {
-            log.warn("사업자번호 중복 - businessLicenseNumber: {}", businessLicenseNumber);
-            throw new BadRequestException(ExceptionMessage.BusinessLicenseNumber_ALREADY_EXISTS);
-        }
-    }
-
-
-
     /**
      * 사업자 승인 상태 확인
      */

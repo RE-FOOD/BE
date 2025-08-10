@@ -216,28 +216,6 @@ public class AuthCommandService {
     }
 
     /**
-     * 로그인 응답 생성
-     */
-    private MemberLogInResponseDto buildSigninResponse(Member member, Location location, String[] tokens) {
-        return MemberLogInResponseDto.builder()
-                .id(member.getId())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .phone(member.getPhone())
-                .role(member.getRole())
-                .joinType(member.getJoinType())
-                .environmentLevel(member.getEnvironmentLevel().getLevel())
-                .location(location != null ? LocationResponseDto.builder()
-                        .id(location.getId())
-                        .address(location.getAddress())
-                        .isMostRecent(location.getIsMostRecent())
-                        .build() : null)
-                .accessToken(tokens[0])
-                .refreshToken(tokens[1])
-                .build();
-    }
-
-    /**
      * 개인 회원가입 응답 생성
      */
     private MemberSignupResponseDto buildSignupResponse(Member member, Location location, String[] tokens) {
