@@ -50,8 +50,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 접근 가능한 경로
                         .requestMatchers(
-                                "/**", // 테스트를 위해 임시 허용(나중에 제거)
-
                                 // Swagger
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
@@ -60,10 +58,14 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/swagger-ui/index.html",
 
-                                "/h2-console/**",
                                 "/api/auth/**",        // 인증 관련 API
-                                "/api/**",      // 공개 API
-                                "/error"            // 에러 페이지
+                                "/api/members/check/**",    // 회원가입 입력값 검증 API
+                                "/login.html",  // 서버 로그인 테스트 페이지
+                                "/health",  // 서버 헬스체크 API
+                                "/h2-console/**",
+                                "/error",            // 에러 페이지
+                                "/"
+
 
                         ).permitAll()
 
