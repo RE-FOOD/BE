@@ -1,14 +1,11 @@
 package com.iitp.domains.auth.controller.command;
 
+import com.iitp.domains.auth.dto.responseDto.*;
 import com.iitp.domains.auth.service.command.AuthCommandService;
 import com.iitp.domains.auth.dto.requestDto.MemberLogInRequestDto;
 import com.iitp.domains.auth.dto.requestDto.MemberSignupRequestDto;
 import com.iitp.domains.auth.dto.requestDto.StoreSignupRequestDto;
 import com.iitp.domains.auth.dto.requestDto.TokenRefreshRequestDto;
-import com.iitp.domains.auth.dto.responseDto.MemberLogInResponseDto;
-import com.iitp.domains.auth.dto.responseDto.MemberSignupResponseDto;
-import com.iitp.domains.auth.dto.responseDto.StoreSignupResponseDto;
-import com.iitp.domains.auth.dto.responseDto.TokenRefreshResponseDto;
 import com.iitp.global.common.response.ApiResponse;
 import com.iitp.global.config.security.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,9 +51,9 @@ public class AuthCommandControoler {
 
     @Operation(summary = "로그인", description = "카카오 소셜 로그인을 통한 로그인을 진행합니다.")
     @PostMapping("/login/members")
-    public ApiResponse<MemberLogInResponseDto> signin(
+    public ApiResponse<LoginResponseDto> signin(
             @Valid @RequestBody MemberLogInRequestDto request) {
-        MemberLogInResponseDto response = authCommandService.signin(request);
+        LoginResponseDto response = authCommandService.signin(request);
         return ApiResponse.ok(200, response,"로그인 완료");
     }
 
