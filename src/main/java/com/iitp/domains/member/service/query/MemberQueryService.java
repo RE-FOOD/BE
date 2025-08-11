@@ -1,7 +1,10 @@
 package com.iitp.domains.member.service.query;
 
+import com.iitp.domains.member.domain.Role;
 import com.iitp.domains.member.domain.entity.Location;
 import com.iitp.domains.member.domain.entity.Member;
+import com.iitp.domains.member.dto.responseDto.LocationResponseDto;
+import com.iitp.domains.member.dto.responseDto.MemberProfileResponseDto;
 import com.iitp.domains.member.repository.LocationRepository;
 import com.iitp.domains.member.repository.MemberRepository;
 import com.iitp.global.exception.ExceptionMessage;
@@ -22,6 +25,57 @@ public class MemberQueryService {
 
     private final MemberRepository memberRepository;
     private final LocationRepository locationRepository;
+
+    /**
+     * 회원 프로필 조회
+     */
+    @Cacheable(value = "profiles", key = "'member:' + #memberId")
+    public MemberProfileResponseDto getMemberProfile(Long memberId) {
+        log.debug("회원 프로필 조회 시작 - memberId: {}", memberId);
+
+        // 1. 회원 정보 조회
+        Member member = findMemberById(memberId);
+
+        // 2. 역할에 따라 다른 응답 생성
+        if (member.getRole() == Role.ROLE_USER) {
+            // 개인회원 - 위치 정보까지 포함
+            Optional<Location> location = findMostRecentLocation(memberId);
+            LocationResponseDto locationDto = location.map(loc ->
+                    LocationResponseDto.builder()
+                            .id(loc.getId())
+                            .address(loc.getAddress())
+                            .isMostRecent(loc.getIsMostRecent())
+                            .build()
+            ).orElse(null);
+
+            return MemberProfileResponseDto.forUser(
+                    member.getId(),
+                    member.getEmail(),
+                    member.getNickname(),
+                    member.getPhone(),
+                    member.getRole(),
+                    member.getJoinType(),
+                    member.getEnvironmentLevel(),
+                    member.getEnvironmentPoint(),
+                    member.getOrderCount(),
+                    member.getDishCount(),
+                    locationDto
+            );
+
+        } else {
+            // 사업자회원
+            return MemberProfileResponseDto.forStore(
+                    member.getId(),
+                    member.getEmail(),
+                    member.getPhone(),
+                    member.getRole(),
+                    member.getJoinType(),
+                    member.getBusinessLicenseNumber(),
+                    member.getIsBusinessApproved()
+            );
+        }
+    }
+
 
     /**
      * 이메일로 회원 조회
@@ -65,43 +119,11 @@ public class MemberQueryService {
     }
 
     /**
-     * 이메일 중복 확인
-     */
-    public boolean isEmailExists(String email) {
-        boolean exists = memberRepository.existsByEmailAndIsDeletedFalse(email);
-        log.debug("이메일 중복 확인 - email: {}, exists: {}", email, exists);
-        return exists;
-    }
-
-    /**
      * 닉네임 중복 확인
      */
     public boolean isNicknameExists(String nickname) {
         boolean exists = memberRepository.existsByNicknameAndIsDeletedFalse(nickname);
         log.debug("닉네임 중복 확인 - nickname: {}, exists: {}", nickname, exists);
-        return exists;
-    }
-
-    /**
-     * 사업자번호 중복 확인
-     */
-    public boolean isBusinessLicenseNumberExists(String businessLicenseNumber) {
-        if (businessLicenseNumber == null) return false;
-
-        boolean exists = memberRepository.existsByBusinessLicenseNumberAndIsDeletedFalse(businessLicenseNumber);
-        log.debug("사업자번호 중복 확인 - businessLicenseNumber: {}, exists: {}", businessLicenseNumber, exists);
-        return exists;
-    }
-
-
-    /**
-     * 전화번호 중복 확인
-     */
-    public boolean isPhoneExists(String phone) {
-        if (phone == null) return false;
-
-        boolean exists = memberRepository.existsByPhoneAndIsDeletedFalse(phone);
-        log.debug("전화번호 중복 확인 - phone: {}, exists: {}", phone, exists);
         return exists;
     }
 

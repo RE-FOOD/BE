@@ -110,16 +110,6 @@ public class MemberCommandService {
         log.info("회원 탈퇴 완료 - memberId: {}, email: {}", memberId, member.getEmail());
     }
 
-    // 사업자번호 유효성 검증
-    private void validateBusinessLicenseNumber(String businessLicenseNumber) {
-        if (memberQueryService.isBusinessLicenseNumberExists(businessLicenseNumber)) {
-            log.warn("사업자번호 중복 - businessLicenseNumber: {}", businessLicenseNumber);
-            throw new BadRequestException(ExceptionMessage.BusinessLicenseNumber_ALREADY_EXISTS);
-        }
-    }
-
-
-
     /**
      * 사업자 승인 상태 확인
      */
@@ -174,5 +164,35 @@ public class MemberCommandService {
                 .address(address)
                 .isMostRecent(true)
                 .build();
+    }
+
+    /**
+     * FCM 토큰 업데이트
+     */
+    @Transactional
+    @CacheEvict(value = "members", key = "'id:' + #memberId")
+    public void updateFcmToken(Long memberId, String fcmToken) {
+        log.info("FCM 토큰 업데이트 시작 - memberId: {}", memberId);
+
+        Member member = memberQueryService.findMemberById(memberId);
+        member.updateFcmToken(fcmToken);
+        memberRepository.save(member);
+
+        log.info("FCM 토큰 업데이트 완료 - memberId: {}", memberId);
+    }
+
+    /**
+     * FCM 토큰 삭제
+     */
+    @Transactional
+    @CacheEvict(value = "members", key = "'id:' + #memberId")
+    public void removeFcmToken(Long memberId) {
+        log.info("FCM 토큰 삭제 시작 - memberId: {}", memberId);
+
+        Member member = memberQueryService.findMemberById(memberId);
+        member.updateFcmToken(null);
+        memberRepository.save(member);
+
+        log.info("FCM 토큰 삭제 완료 - memberId: {}", memberId);
     }
 }
