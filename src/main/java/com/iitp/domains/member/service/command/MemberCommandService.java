@@ -115,4 +115,34 @@ public class MemberCommandService {
                 .isMostRecent(true)
                 .build();
     }
+
+    /**
+     * FCM 토큰 업데이트
+     */
+    @Transactional
+    @CacheEvict(value = "members", key = "'id:' + #memberId")
+    public void updateFcmToken(Long memberId, String fcmToken) {
+        log.info("FCM 토큰 업데이트 시작 - memberId: {}", memberId);
+
+        Member member = memberQueryService.findMemberById(memberId);
+        member.updateFcmToken(fcmToken);
+        memberRepository.save(member);
+
+        log.info("FCM 토큰 업데이트 완료 - memberId: {}", memberId);
+    }
+
+    /**
+     * FCM 토큰 삭제
+     */
+    @Transactional
+    @CacheEvict(value = "members", key = "'id:' + #memberId")
+    public void removeFcmToken(Long memberId) {
+        log.info("FCM 토큰 삭제 시작 - memberId: {}", memberId);
+
+        Member member = memberQueryService.findMemberById(memberId);
+        member.updateFcmToken(null);
+        memberRepository.save(member);
+
+        log.info("FCM 토큰 삭제 완료 - memberId: {}", memberId);
+    }
 }

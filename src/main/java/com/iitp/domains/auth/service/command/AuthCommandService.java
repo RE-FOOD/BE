@@ -48,7 +48,7 @@ public class AuthCommandService {
         log.info("회원가입 시작 - nickname: {}",
                 request.nickname());
 
-// 1. 카카오에서 사용자 정보 가져오기
+        // 1. 카카오에서 사용자 정보 가져오기
         KakaoUserInfoDto kakaoUserInfo = kakaoApiClient.getUserInfo(request.accessToken());
 
         // 2. 중복 검증
@@ -128,7 +128,14 @@ public class AuthCommandService {
         // 2. 기존 회원 확인
         Member member = memberQueryService.findMemberByEmail(kakaoUserInfo.getEmail());
 
-        // 3. JWT 토큰 생성 및 갱신
+        // 3. FCM 토큰 업데이트
+        if (request.fcmToken() != null && !request.fcmToken().trim().isEmpty()) {
+            member.updateFcmToken(request.fcmToken());
+            memberRepository.save(member);
+            log.info("로그인 시 FCM 토큰 업데이트 완료 - memberId: {}", member.getId());
+        }
+
+        // 4. JWT 토큰 생성 및 갱신
         String[] tokens = generateAndSaveTokens(member);
 
         log.info("로그인 완료 - memberId: {}", member.getId());
@@ -149,7 +156,8 @@ public class AuthCommandService {
 
         Member member = memberQueryService.findMemberById(memberId);
         member.removeRefreshToken();
-
+        member.updateFcmToken(null);
+        memberRepository.save(member);
         log.info("로그아웃 완료 - memberId: {}", memberId);
     }
 
