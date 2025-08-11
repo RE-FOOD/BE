@@ -24,7 +24,7 @@ public class EnvironmentQueryController {
 
     @Operation(summary = "환경 정보 조회",
             description = "현재 로그인한 회원의 환경 레벨, 환경점수, 주문횟수, 다회용기 이용횟수를 조회합니다.")
-    @GetMapping("/data")
+    @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ApiResponse<EnvironmentResponseDto> getCurrentEnvironmentLevel() {
         Long memberId = SecurityUtil.getCurrentMemberId();
