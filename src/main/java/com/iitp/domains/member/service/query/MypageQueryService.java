@@ -30,14 +30,6 @@ public class MypageQueryService {
                 memberId, member.getOrderCount(), member.getDishCount(), member.getEnvironmentPoint());
 
         // 2. MyPageResponseDto 생성
-        return MyPageResponseDto.builder()
-                .id(member.getId())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .environmentLevel(member.getEnvironmentLevel())
-                .orderCount(member.getOrderCount())
-                .dishCount(member.getDishCount())
-                .environmentScore(member.getEnvironmentPoint())
-                .build();
+        return MyPageResponseDto.from(member);
     }
 }

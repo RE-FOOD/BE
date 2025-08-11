@@ -3,6 +3,8 @@ package com.iitp.domains.member.dto.responseDto;
 import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.JoinType;
 import com.iitp.domains.member.domain.Role;
+import com.iitp.domains.member.domain.entity.Location;
+import com.iitp.domains.member.domain.entity.Member;
 import lombok.Builder;
 
 @Builder
@@ -21,48 +23,43 @@ public record MemberProfileResponseDto(
         Boolean isBusinessApproved,    // 사업자회원만 (개인회원은 null)
         LocationResponseDto location   // 개인회원만 (사업자는 null)
 ) {
-    // 개인회원용
-    public static MemberProfileResponseDto forUser(
-            Long id, String email, String nickname, String phone,
-            Role role, JoinType joinType, EnvironmentLevel environmentLevel,
-            Integer environmentPoint, Integer orderCount, Integer dishCount,
-            LocationResponseDto location) {
-
+    /**
+     * 개인회원용
+     */
+    public static MemberProfileResponseDto forUser(Member member, Location location) {
         return MemberProfileResponseDto.builder()
-                .id(id)
-                .email(email)
-                .nickname(nickname)
-                .phone(phone)
-                .role(role)
-                .joinType(joinType)
-                .environmentLevel(environmentLevel)
-                .environmentPoint(environmentPoint)
-                .orderCount(orderCount)
-                .dishCount(dishCount)
+                .id(member.getId())
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .phone(member.getPhone())
+                .role(member.getRole())
+                .joinType(member.getJoinType())
+                .environmentLevel(member.getEnvironmentLevel())
+                .environmentPoint(member.getEnvironmentPoint())
+                .orderCount(member.getOrderCount())
+                .dishCount(member.getDishCount())
                 .businessLicenseNumber(null)
                 .isBusinessApproved(null)
-                .location(location)
+                .location(LocationResponseDto.from(location))
                 .build();
     }
-
-    // 사업자회원용
-    public static MemberProfileResponseDto forStore(
-            Long id, String email, String phone, Role role, JoinType joinType,
-            String businessLicenseNumber, Boolean isBusinessApproved) {
-
+    /**
+     * 사업자회원용
+     */
+    public static MemberProfileResponseDto forStore(Member member) {
         return MemberProfileResponseDto.builder()
-                .id(id)
-                .email(email)
+                .id(member.getId())
+                .email(member.getEmail())
                 .nickname(null)
-                .phone(phone)
-                .role(role)
-                .joinType(joinType)
+                .phone(member.getPhone())
+                .role(member.getRole())
+                .joinType(member.getJoinType())
                 .environmentLevel(null)
                 .environmentPoint(null)
                 .orderCount(null)
                 .dishCount(null)
-                .businessLicenseNumber(businessLicenseNumber)
-                .isBusinessApproved(isBusinessApproved)
+                .businessLicenseNumber(member.getBusinessLicenseNumber())
+                .isBusinessApproved(member.getIsBusinessApproved())
                 .location(null)
                 .build();
     }

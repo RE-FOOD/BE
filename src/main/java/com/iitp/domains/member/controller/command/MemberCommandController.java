@@ -57,13 +57,11 @@ public class MemberCommandController {
         Long memberId = SecurityUtil.getCurrentMemberId();
         Location location = memberCommandService.addNewLocation(memberId, request.address(), true);
 
-        LocationResponseDto response = LocationResponseDto.of(
-                location.getId(),
-                location.getAddress(),
-                location.getIsMostRecent()
-        );
+        LocationResponseDto response = LocationResponseDto.from(location);
+
         return ApiResponse.ok(200, response, "위치 추가 완료");
     }
+
     @Operation(summary = "FCM 토큰 업데이트",
             description = "푸시 알림을 위한 FCM 토큰을 업데이트합니다.")
     @PatchMapping("/fcmToken")

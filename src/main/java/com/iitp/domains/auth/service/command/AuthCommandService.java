@@ -70,7 +70,8 @@ public class AuthCommandService {
         String[] tokens = generateAndSaveTokens(savedMember);
 
         log.info("개인 회원가입 완료 - memberId: {}", savedMember.getId());
-        return buildSignupResponse(savedMember, savedLocation, tokens);
+
+        return MemberSignupResponseDto.forUser(savedMember, savedLocation, tokens[0], tokens[1]);
     }
 
     /**
@@ -112,7 +113,7 @@ public class AuthCommandService {
         }
 
         log.info("사업자 회원가입 완료 - memberId: {}", savedMember.getId());
-        return buildStoreSignupResponse(savedMember, tokens);
+        return StoreSignupResponseDto.from(savedMember, tokens[0], tokens[1]);
     }
 
     /**
@@ -221,45 +222,6 @@ public class AuthCommandService {
         member.updateRefreshToken(refreshToken);
 
         return new String[]{accessToken, refreshToken};
-    }
-
-    /**
-     * 개인 회원가입 응답 생성
-     */
-    private MemberSignupResponseDto buildSignupResponse(Member member, Location location, String[] tokens) {
-        return MemberSignupResponseDto.builder()
-                .id(member.getId())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .phone(member.getPhone())
-                .role(member.getRole())
-                .joinType(member.getJoinType())
-                .environmentLevel(member.getEnvironmentLevel().getLevel())
-                .businessLicenseNumber(member.getBusinessLicenseNumber())
-                .location(location != null ? LocationResponseDto.builder()
-                        .id(location.getId())
-                        .address(location.getAddress())
-                        .isMostRecent(location.getIsMostRecent())
-                        .build() : null)
-                .accessToken(tokens[0])
-                .refreshToken(tokens[1])
-                .build();
-    }
-
-    /**
-     * 사업자 회원가입 응답 생성
-     */
-    private StoreSignupResponseDto buildStoreSignupResponse(Member member, String[] tokens) {
-        return StoreSignupResponseDto.builder()
-                .id(member.getId())
-                .email(member.getEmail())
-                .phone(member.getPhone())
-                .role(member.getRole())
-                .businessLicenseNumber(member.getBusinessLicenseNumber())
-                .isBusinessApproved(member.getIsBusinessApproved() != null ? member.getIsBusinessApproved().toString() : "미승인")
-                .accessToken(tokens[0])
-                .refreshToken(tokens[1])
-                .build();
     }
 
     // 일반회원 중복 확인 메서드

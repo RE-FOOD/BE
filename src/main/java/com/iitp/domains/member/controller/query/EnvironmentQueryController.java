@@ -31,12 +31,7 @@ public class EnvironmentQueryController {
         log.info("현재 환경 레벨 조회 - memberId: {}", memberId);
 
         Member member = memberQueryService.findMemberById(memberId);
-        EnvironmentResponseDto response = EnvironmentResponseDto.from(
-                member.getEnvironmentLevel(),
-                member.getEnvironmentPoint(),
-                member.getOrderCount(),
-                member.getDishCount()
-        );
+        EnvironmentResponseDto response = EnvironmentResponseDto.from(member);
 
         return ApiResponse.ok(200, response, "환경 정보 조회 성공");
     }

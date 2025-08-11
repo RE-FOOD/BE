@@ -149,10 +149,7 @@ public class MemberCommandService {
 
         log.info("닉네임 수정 완료 - memberId: {}, newNickname: {}", memberId, request.nickname());
 
-        return MemberUpdateNicknameResponseDto.builder()
-                .id(member.getId())
-                .nickname(member.getNickname())
-                .build();
+        return MemberUpdateNicknameResponseDto.from(member);
     }
 
 
