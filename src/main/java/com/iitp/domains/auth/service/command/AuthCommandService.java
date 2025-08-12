@@ -1,6 +1,8 @@
 package com.iitp.domains.auth.service.command;
 
 import com.iitp.domains.auth.dto.responseDto.*;
+import com.iitp.domains.member.domain.BusinessApprovalStatus;
+import com.iitp.domains.member.domain.Role;
 import com.iitp.domains.member.domain.entity.Location;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.dto.KakaoUserInfoDto;
@@ -129,14 +131,23 @@ public class AuthCommandService {
         // 2. 기존 회원 확인
         Member member = memberQueryService.findMemberByEmail(kakaoUserInfo.getEmail());
 
-        // 3. FCM 토큰 업데이트
+        // 3. 사업자 회원인 경우 승인 상태 체크
+        if (member.getRole() == Role.ROLE_STORE) {
+            BusinessApprovalStatus approvalStatus = member.getIsBusinessApproved();
+            if (approvalStatus == BusinessApprovalStatus.PENDING) {
+                log.warn("승인 대기 중인 사업자 로그인 시도 - memberId: {}", member.getId());
+                throw new BadRequestException(ExceptionMessage.BUSINESS_APPROVAL_PENDING);
+            }
+        }
+
+        // 4. FCM 토큰 업데이트
         member.updateFcmToken(request.fcmToken());
         log.info("로그인 시 FCM 토큰 업데이트 완료 - memberId: {}", member.getId());
 
-        // 4. JWT 토큰 생성 및 갱신
+        // 5. JWT 토큰 생성 및 갱신
         String[] tokens = generateAndSaveTokens(member);
 
-        // 5. 변경사항 저장
+        // 6. 변경사항 저장
         memberRepository.save(member);
 
         log.info("로그인 완료 - memberId: {}", member.getId());
