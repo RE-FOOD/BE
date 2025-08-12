@@ -130,18 +130,19 @@ public class AuthCommandService {
         Member member = memberQueryService.findMemberByEmail(kakaoUserInfo.getEmail());
 
         // 3. FCM 토큰 업데이트
-        if (request.fcmToken() != null && !request.fcmToken().trim().isEmpty()) {
-            member.updateFcmToken(request.fcmToken());
-            memberRepository.save(member);
-            log.info("로그인 시 FCM 토큰 업데이트 완료 - memberId: {}", member.getId());
-        }
+        member.updateFcmToken(request.fcmToken());
+        log.info("로그인 시 FCM 토큰 업데이트 완료 - memberId: {}", member.getId());
 
         // 4. JWT 토큰 생성 및 갱신
         String[] tokens = generateAndSaveTokens(member);
 
-        log.info("로그인 완료 - memberId: {}", member.getId());
+        // 5. 변경사항 저장
+        memberRepository.save(member);
 
-        return LoginResponseDto.of(tokens[0], tokens[1]);
+        log.info("로그인 완료 - memberId: {}", member.getId());
+        log.info("로그인 완료 - memberFcmToken: {}", member.getFcmToken());
+
+        return LoginResponseDto.of(tokens[0], tokens[1], member.getFcmToken());
     }
 
     /**
@@ -157,7 +158,7 @@ public class AuthCommandService {
 
         Member member = memberQueryService.findMemberById(memberId);
         member.removeRefreshToken();
-        member.updateFcmToken(null);
+        member.removeFcmToken();
         memberRepository.save(member);
         log.info("로그아웃 완료 - memberId: {}", memberId);
     }
