@@ -1,12 +1,6 @@
 package com.iitp.domains.member.controller.command;
 
 
-import com.iitp.domains.member.domain.entity.Location;
-import com.iitp.domains.member.domain.entity.Member;
-import com.iitp.domains.member.dto.responseDto.LocationResponseDto;
-import com.iitp.domains.auth.dto.responseDto.MemberLogInResponseDto;
-import com.iitp.domains.auth.dto.responseDto.MemberSignupResponseDto;
-import com.iitp.domains.auth.dto.responseDto.StoreSignupResponseDto;
 import com.iitp.domains.member.service.command.EmailCreateService;
 import com.iitp.domains.member.service.command.MemberCommandService;
 import io.swagger.v3.oas.annotations.Parameter;
