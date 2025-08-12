@@ -128,9 +128,16 @@ public class Member extends BaseEntity {
         this.phone = phone;
     }
 
+    // refreshToken 제거
     public void removeRefreshToken() {
         this.refreshToken = null;
     }
+
+    // fcmToken 제거
+    public void removeFcmToken() {
+        this.fcmToken = null;
+    }
+
     // 사업자 등록 승인 처리
     public void approveBusinessRegistration() {
         this.isBusinessApproved = true;
