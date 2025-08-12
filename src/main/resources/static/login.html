@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-:
     <title>RE:FOOD - 회원 관리</title>
     <!-- 카카오 SDK v1.39.10 -->
     <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
@@ -340,10 +339,7 @@
 
             <div class="form-group">
                 <label for="phone">전화번호</label>
-                <div class="input-with-check">
-                    <input type="tel" id="phone" placeholder="01012345678" pattern="^01[0-9]{8,9}$">
-                    <button type="button" class="check-btn" onclick="checkPhone()">중복확인</button>
-                </div>
+                <input type="tel" id="phone" placeholder="01012345678" pattern="^01[0-9]{8,9}$">
                 <div id="phoneValidation" class="validation-message" style="display: none;"></div>
             </div>
 
@@ -357,20 +353,14 @@
         <div id="businessFields" class="business-fields">
             <div class="form-group">
                 <label for="businessPhone">전화번호</label>
-                <div class="input-with-check">
-                    <input type="tel" id="businessPhone" placeholder="01012345678" pattern="^01[0-9]{8,9}$">
-                    <button type="button" class="check-btn" onclick="checkBusinessPhone()">중복확인</button>
-                </div>
+                <input type="tel" id="businessPhone" placeholder="01012345678" pattern="^01[0-9]{8,9}$">
                 <div id="businessPhoneValidation" class="validation-message" style="display: none;"></div>
             </div>
 
             <div class="form-group">
                 <label for="businessLicense">사업자 번호 *</label>
-                <div class="input-with-check">
-                    <input type="text" id="businessLicense" placeholder="123-45-67890"
-                           pattern="^\d{3}-\d{2}-\d{5}$|^\d{10}$">
-                    <button type="button" class="check-btn" onclick="checkBusinessLicense()">중복확인</button>
-                </div>
+                <input type="text" id="businessLicense" placeholder="123-45-67890"
+                       pattern="^\d{3}-\d{2}-\d{5}$|^\d{10}$">
                 <div id="businessValidation" class="validation-message" style="display: none;"></div>
                 <small style="color: #666;">형식: 123-45-67890 또는 1234567890</small>
             </div>
@@ -606,93 +596,6 @@
         }
     }
 
-    async function checkPhone() {
-        const phone = document.getElementById('phone').value.trim();
-        if (!phone) {
-            showValidation('phoneValidation', '전화번호를 입력해주세요.', 'error');
-            return;
-        }
-
-        if (!/^01[0-9]{8,9}$/.test(phone)) {
-            showValidation('phoneValidation', '올바른 전화번호 형식이 아닙니다.', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch(`http://localhost:8080/api/members/check/phone?phone=${encodeURIComponent(phone)}`);
-            const data = await response.json();
-
-            if (data.data) {
-                showValidation('phoneValidation', '사용 가능한 전화번호입니다.', 'success');
-                validationStatus.phone = true;
-            } else {
-                showValidation('phoneValidation', '이미 사용중인 전화번호입니다.', 'error');
-                validationStatus.phone = false;
-            }
-        } catch (error) {
-            showValidation('phoneValidation', '중복 확인 중 오류가 발생했습니다.', 'error');
-            validationStatus.phone = false;
-        }
-    }
-
-    async function checkBusinessPhone() {
-        const phone = document.getElementById('businessPhone').value.trim();
-        if (!phone) {
-            showValidation('businessPhoneValidation', '전화번호를 입력해주세요.', 'error');
-            return;
-        }
-
-        if (!/^01[0-9]{8,9}$/.test(phone)) {
-            showValidation('businessPhoneValidation', '올바른 전화번호 형식이 아닙니다.', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch(`http://localhost:8080/api/members/check/phone?phone=${encodeURIComponent(phone)}`);
-            const data = await response.json();
-
-            if (data.data) {
-                showValidation('businessPhoneValidation', '사용 가능한 전화번호입니다.', 'success');
-                validationStatus.businessPhone = true;
-            } else {
-                showValidation('businessPhoneValidation', '이미 사용중인 전화번호입니다.', 'error');
-                validationStatus.businessPhone = false;
-            }
-        } catch (error) {
-            showValidation('businessPhoneValidation', '중복 확인 중 오류가 발생했습니다.', 'error');
-            validationStatus.businessPhone = false;
-        }
-    }
-
-    async function checkBusinessLicense() {
-        const businessLicense = document.getElementById('businessLicense').value.trim();
-        if (!businessLicense) {
-            showValidation('businessValidation', '사업자 번호를 입력해주세요.', 'error');
-            return;
-        }
-
-        if (!/^\d{3}-\d{2}-\d{5}$|^\d{10}$/.test(businessLicense)) {
-            showValidation('businessValidation', '올바른 사업자 번호 형식이 아닙니다.', 'error');
-            return;
-        }
-
-        try {
-            const response = await fetch(`http://localhost:8080/api/members/check/businessLicense?businessLicenseNumber=${encodeURIComponent(businessLicense)}`);
-            const data = await response.json();
-
-            if (data.data) {
-                showValidation('businessValidation', '사용 가능한 사업자 번호입니다.', 'success');
-                validationStatus.businessLicense = true;
-            } else {
-                showValidation('businessValidation', '이미 등록된 사업자 번호입니다.', 'error');
-                validationStatus.businessLicense = false;
-            }
-        } catch (error) {
-            showValidation('businessValidation', '중복 확인 중 오류가 발생했습니다.', 'error');
-            validationStatus.businessLicense = false;
-        }
-    }
-
     function showValidation(elementId, message, type) {
         const element = document.getElementById(elementId);
         element.textContent = message;
@@ -709,18 +612,30 @@
         try {
             showStatus('기존 회원 확인 중...', 'info');
 
+            // 🔍 FCM 토큰 확인 (실제로는 FCM SDK에서 가져와야 함)
+            const fcmToken = localStorage.getItem('fcmToken'); // 임시로 로컬스토리지에서
+            console.log('🔍 전송할 FCM 토큰:', fcmToken);
+
+            const requestBody = {
+                accessToken: accessToken,
+                fcmToken: fcmToken // FCM 토큰 포함
+            };
+
+            console.log('🔍 로그인 요청 데이터:', requestBody);
+
             const loginResponse = await fetch('http://localhost:8080/api/auth/login/members', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    accessToken: accessToken
-                })
+                body: JSON.stringify(requestBody)
             });
 
             if (loginResponse.ok) {
                 const loginData = await loginResponse.json();
+                console.log('✅ 로그인 응답:', loginData);
+                console.log('✅ 응답의 FCM 토큰:', loginData.data.fcmToken);
+
                 showStatus('로그인 성공!', 'success');
                 handleLoginSuccess(loginData.data);
             } else {
@@ -767,11 +682,6 @@
                     return;
                 }
 
-                if (phone && !validationStatus.phone) {
-                    showStatus('전화번호 중복 확인을 해주세요.', 'error');
-                    return;
-                }
-
                 requestData = {
                     accessToken: currentAccessToken,
                     nickname: nickname,
@@ -786,16 +696,6 @@
 
                 if (!businessLicense) {
                     showStatus('사업자 번호는 필수입니다.', 'error');
-                    return;
-                }
-
-                if (!validationStatus.businessLicense) {
-                    showStatus('사업자 번호 중복 확인을 해주세요.', 'error');
-                    return;
-                }
-
-                if (phone && !validationStatus.businessPhone) {
-                    showStatus('전화번호 중복 확인을 해주세요.', 'error');
                     return;
                 }
 
@@ -1038,6 +938,33 @@
             showStatus('로그아웃 처리 중 오류가 발생했습니다.', 'error');
         }
     }
+    // FCM 토큰을 실제로 가져오는 함수 (Firebase SDK 필요)
+    async function getFCMToken() {
+        try {
+            // 실제 FCM 구현 시
+            // const messaging = getMessaging();
+            // const token = await getToken(messaging, { vapidKey: 'your-vapid-key' });
+            // return token;
+
+            // 임시로 테스트용 토큰 생성
+            const testToken = 'test-fcm-token-' + Date.now();
+            localStorage.setItem('fcmToken', testToken);
+            return testToken;
+        } catch (error) {
+            console.error('FCM 토큰 가져오기 실패:', error);
+            return null;
+        }
+    }
+
+    // 페이지 로드 시 FCM 토큰 미리 준비
+    window.addEventListener('load', function() {
+        // 기존 초기화 코드...
+
+        // FCM 토큰 준비 (실제 환경에서는 Firebase 초기화 후)
+        getFCMToken().then(token => {
+            console.log('🔍 FCM 토큰 준비 완료:', token);
+        });
+    });
 </script>
 </body>
 </html>

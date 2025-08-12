@@ -383,7 +383,8 @@
         try {
             document.getElementById('loadingSection').classList.add('show');
 
-            const response = await fetch('http://localhost:8080/api/members/mypage', {
+            // API 엔드포인트: /api/mypage/main
+            const response = await fetch('http://localhost:8080/api/mypage/main', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
