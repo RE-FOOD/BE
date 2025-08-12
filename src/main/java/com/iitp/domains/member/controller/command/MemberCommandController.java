@@ -61,31 +61,4 @@ public class MemberCommandController {
 
         return ApiResponse.ok(200, response, "위치 추가 완료");
     }
-
-    @Operation(summary = "FCM 토큰 업데이트",
-            description = "푸시 알림을 위한 FCM 토큰을 업데이트합니다.")
-    @PatchMapping("/fcmToken")
-    @PreAuthorize("isAuthenticated()")
-    public ApiResponse<String> updateFcmToken(
-            @Valid @RequestBody FcmTokenUpdateRequestDto request) {
-
-        Long memberId = SecurityUtil.getCurrentMemberId();
-        memberCommandService.updateFcmToken(memberId, request.fcmToken());
-
-        return ApiResponse.okWithoutData(200, "FCM 토큰 업데이트 완료");
-    }
-
-    /**
-     * FCM 토큰 삭제 (푸시 알림 비활성화)
-     */
-    @Operation(summary = "FCM 토큰 삭제",
-            description = "푸시 알림을 비활성화합니다.")
-    @DeleteMapping("/fcmToken")
-    @PreAuthorize("isAuthenticated()")
-    public ApiResponse<String> removeFcmToken() {
-        Long memberId = SecurityUtil.getCurrentMemberId();
-        memberCommandService.removeFcmToken(memberId);
-
-        return ApiResponse.okWithoutData(200, "푸시 알림이 비활성화되었습니다");
-    }
 }
