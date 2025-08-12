@@ -1,6 +1,7 @@
 package com.iitp.domains.member.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.iitp.domains.member.domain.BusinessApprovalStatus;
 import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.JoinType;
 import com.iitp.domains.member.domain.Role;
@@ -63,8 +64,9 @@ public class Member extends BaseEntity {
     @Column(name = "business_license_number", length = 20, unique = true)
     private String businessLicenseNumber; // 사업자 번호
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "is_business_approved")
-    private Boolean isBusinessApproved; // 사장님 응답있을 시
+    private BusinessApprovalStatus isBusinessApproved; // 사장님 응답있을 시
 
     @JsonIgnore // 응답에서 제외
     @Column(name = "refresh_token", length = 500)
@@ -91,6 +93,9 @@ public class Member extends BaseEntity {
         this.environmentPoint = 0;
         this.orderCount = 0;
         this.dishCount = 0;
+        if (role == Role.ROLE_STORE) {
+            this.isBusinessApproved = BusinessApprovalStatus.PENDING;
+        }
     }
     // 일반 사용자 생성
     public static Member createMember(String email, String nickname, String phone) {
@@ -138,9 +143,13 @@ public class Member extends BaseEntity {
         this.fcmToken = null;
     }
 
-    // 사업자 등록 승인 처리
-    public void approveBusinessRegistration() {
-        this.isBusinessApproved = true;
+    // 사업자 등록 승인 처리 (승인)
+    public static void approveBusinessStatus(Member member) {
+        member.isBusinessApproved = BusinessApprovalStatus.APPROVED;
+    }
+    // 사업자 등록 승인 처리 (대기)
+    public static void pendingBusinessStatus(Member member) {
+        member.isBusinessApproved = BusinessApprovalStatus.PENDING;
     }
 
     public void updateFcmToken(String fcmToken) {
