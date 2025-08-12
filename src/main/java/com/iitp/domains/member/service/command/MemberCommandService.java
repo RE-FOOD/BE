@@ -1,5 +1,6 @@
 package com.iitp.domains.member.service.command;
 
+import com.iitp.domains.member.domain.BusinessApprovalStatus;
 import com.iitp.domains.member.domain.Role;
 import com.iitp.domains.member.dto.requestDto.MemberUpdateNicknameRequestDto;
 import com.iitp.domains.member.dto.responseDto.MemberUpdateNicknameResponseDto;
@@ -43,23 +44,42 @@ public class MemberCommandService {
         Member member = memberQueryService.findMemberById(memberId);
 
         // 2. 사업자 회원인지 확인
-        if (!member.getRole().name().equals("ROLE_STORE")) {
+        if (member.getRole() != Role.ROLE_STORE) {
             log.warn("사업자가 아닌 회원의 승인 요청 - memberId: {}, role: {}", memberId, member.getRole());
             throw new BadRequestException(ExceptionMessage.ACCESS_DENIED);
         }
 
         // 3. 이미 승인된 경우 체크
-        if (member.getIsBusinessApproved() != null && member.getIsBusinessApproved()) {
+        if (member.getIsBusinessApproved() == BusinessApprovalStatus.APPROVED) {
             log.warn("이미 승인된 사업자 - memberId: {}", memberId);
-//            throw new BadRequestException(ExceptionMessage.BUSINESS_ALREADY_APPROVED);
+            return; // 이미 승인된 경우 처리하지 않음
         }
 
         // 4. 승인 처리
-        member.approveBusinessRegistration();
+        Member.approveBusinessStatus(member);
         memberRepository.save(member);
 
         log.info("사업자 승인 처리 완료 - memberId: {}", memberId);
     }
+
+    /**
+     * 사업자 승인 상태 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isBusinessApproved(Long memberId) {
+        Member member = memberQueryService.findMemberById(memberId);
+        return member.getIsBusinessApproved() == BusinessApprovalStatus.APPROVED;
+    }
+
+    /**
+     * 사업자 승인 상태 조회
+     */
+    @Transactional(readOnly = true)
+    public BusinessApprovalStatus getBusinessApprovalStatus(Long memberId) {
+        Member member = memberQueryService.findMemberById(memberId);
+        return member.getIsBusinessApproved();
+    }
+
 
     /**
      * 새 위치 추가
@@ -111,15 +131,6 @@ public class MemberCommandService {
     }
 
     /**
-     * 사업자 승인 상태 확인
-     */
-    @Transactional(readOnly = true)
-    public boolean isBusinessApproved(Long memberId) {
-        Member member = memberQueryService.findMemberById(memberId);
-        return member.getIsBusinessApproved() != null && member.getIsBusinessApproved();
-    }
-
-    /**
      * 닉네임 수정
      */
     @Transactional
@@ -163,33 +174,4 @@ public class MemberCommandService {
                 .build();
     }
 
-    /**
-     * FCM 토큰 업데이트
-     */
-    @Transactional
-    @CacheEvict(value = "members", key = "'id:' + #memberId")
-    public void updateFcmToken(Long memberId, String fcmToken) {
-        log.info("FCM 토큰 업데이트 시작 - memberId: {}", memberId);
-
-        Member member = memberQueryService.findMemberById(memberId);
-        member.updateFcmToken(fcmToken);
-        memberRepository.save(member);
-
-        log.info("FCM 토큰 업데이트 완료 - memberId: {}", memberId);
-    }
-
-    /**
-     * FCM 토큰 삭제
-     */
-    @Transactional
-    @CacheEvict(value = "members", key = "'id:' + #memberId")
-    public void removeFcmToken(Long memberId) {
-        log.info("FCM 토큰 삭제 시작 - memberId: {}", memberId);
-
-        Member member = memberQueryService.findMemberById(memberId);
-        member.updateFcmToken(null);
-        memberRepository.save(member);
-
-        log.info("FCM 토큰 삭제 완료 - memberId: {}", memberId);
-    }
 }
