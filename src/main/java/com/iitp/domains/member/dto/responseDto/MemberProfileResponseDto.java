@@ -1,5 +1,6 @@
 package com.iitp.domains.member.dto.responseDto;
 
+import com.iitp.domains.member.domain.BusinessApprovalStatus;
 import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.JoinType;
 import com.iitp.domains.member.domain.Role;
@@ -15,12 +16,8 @@ public record MemberProfileResponseDto(
         String phone,
         Role role,
         JoinType joinType,
-        EnvironmentLevel environmentLevel,
-        Integer environmentPoint,
-        Integer orderCount,
-        Integer dishCount,
         String businessLicenseNumber,  // 사업자회원만 (개인회원은 null)
-        Boolean isBusinessApproved,    // 사업자회원만 (개인회원은 null)
+        BusinessApprovalStatus isBusinessApproved,    // 사업자회원만 (개인회원은 null)
         LocationResponseDto location   // 개인회원만 (사업자는 null)
 ) {
     /**
@@ -34,10 +31,6 @@ public record MemberProfileResponseDto(
                 .phone(member.getPhone())
                 .role(member.getRole())
                 .joinType(member.getJoinType())
-                .environmentLevel(member.getEnvironmentLevel())
-                .environmentPoint(member.getEnvironmentPoint())
-                .orderCount(member.getOrderCount())
-                .dishCount(member.getDishCount())
                 .businessLicenseNumber(null)
                 .isBusinessApproved(null)
                 .location(LocationResponseDto.from(location))
@@ -54,10 +47,6 @@ public record MemberProfileResponseDto(
                 .phone(member.getPhone())
                 .role(member.getRole())
                 .joinType(member.getJoinType())
-                .environmentLevel(null)
-                .environmentPoint(null)
-                .orderCount(null)
-                .dishCount(null)
                 .businessLicenseNumber(member.getBusinessLicenseNumber())
                 .isBusinessApproved(member.getIsBusinessApproved())
                 .location(null)
