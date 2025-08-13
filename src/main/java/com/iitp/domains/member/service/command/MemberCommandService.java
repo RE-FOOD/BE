@@ -126,7 +126,6 @@ public class MemberCommandService {
         member.markAsDeleted();
         // 4. 리프레시 토큰 제거
         member.removeRefreshToken();
-        memberRepository.save(member);
         log.info("회원 탈퇴 완료 - memberId: {}, email: {}", memberId, member.getEmail());
     }
 
@@ -156,7 +155,6 @@ public class MemberCommandService {
 
         // 4. 닉네임 업데이트
         member.updateNickname(request.nickname());
-        memberRepository.save(member);
 
         log.info("닉네임 수정 완료 - memberId: {}, newNickname: {}", memberId, request.nickname());
 
