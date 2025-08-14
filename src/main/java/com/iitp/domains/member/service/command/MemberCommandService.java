@@ -1,5 +1,9 @@
 package com.iitp.domains.member.service.command;
 
+import com.iitp.domains.member.domain.BusinessApprovalStatus;
+import com.iitp.domains.member.domain.Role;
+import com.iitp.domains.member.dto.requestDto.MemberUpdateNicknameRequestDto;
+import com.iitp.domains.member.dto.responseDto.MemberUpdateNicknameResponseDto;
 import com.iitp.global.config.security.KakaoApiClient;
 import com.iitp.global.jwt.JwtUtil;
 import com.iitp.domains.member.domain.entity.Location;
@@ -40,23 +44,42 @@ public class MemberCommandService {
         Member member = memberQueryService.findMemberById(memberId);
 
         // 2. 사업자 회원인지 확인
-        if (!member.getRole().name().equals("ROLE_STORE")) {
+        if (member.getRole() != Role.ROLE_STORE) {
             log.warn("사업자가 아닌 회원의 승인 요청 - memberId: {}, role: {}", memberId, member.getRole());
             throw new BadRequestException(ExceptionMessage.ACCESS_DENIED);
         }
 
         // 3. 이미 승인된 경우 체크
-        if (member.getIsBusinessApproved() != null && member.getIsBusinessApproved()) {
+        if (member.getIsBusinessApproved() == BusinessApprovalStatus.APPROVED) {
             log.warn("이미 승인된 사업자 - memberId: {}", memberId);
-//            throw new BadRequestException(ExceptionMessage.BUSINESS_ALREADY_APPROVED);
+            return; // 이미 승인된 경우 처리하지 않음
         }
 
         // 4. 승인 처리
-        member.approveBusinessRegistration();
+        Member.approveBusinessStatus(member);
         memberRepository.save(member);
 
         log.info("사업자 승인 처리 완료 - memberId: {}", memberId);
     }
+
+    /**
+     * 사업자 승인 상태 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isBusinessApproved(Long memberId) {
+        Member member = memberQueryService.findMemberById(memberId);
+        return member.getIsBusinessApproved() == BusinessApprovalStatus.APPROVED;
+    }
+
+    /**
+     * 사업자 승인 상태 조회
+     */
+    @Transactional(readOnly = true)
+    public BusinessApprovalStatus getBusinessApprovalStatus(Long memberId) {
+        Member member = memberQueryService.findMemberById(memberId);
+        return member.getIsBusinessApproved();
+    }
+
 
     /**
      * 새 위치 추가
@@ -86,25 +109,58 @@ public class MemberCommandService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "members", allEntries = true),
+            @CacheEvict(value = "mypage", allEntries = true),
             @CacheEvict(value = "locations", allEntries = true)
     })
     public void deleteMember(Long memberId) {
         log.info("회원 삭제 시작 - memberId: {}", memberId);
 
         Member member = memberQueryService.findMemberById(memberId);
-        member.markAsDeleted();
+        // 2. 이미 탈퇴한 회원인지 확인
+        if (member.getIsDeleted()) {
+            log.warn("이미 탈퇴한 회원 - memberId: {}", memberId);
+            throw new BadRequestException(ExceptionMessage.INVALID_REQUEST);
+        }
 
-        log.info("회원 삭제 완료 - memberId: {}", memberId);
+        // 3. 논리적 삭제 처리
+        member.markAsDeleted();
+        // 4. 리프레시 토큰 제거
+        member.removeRefreshToken();
+        log.info("회원 탈퇴 완료 - memberId: {}, email: {}", memberId, member.getEmail());
     }
 
     /**
-     * 사업자 승인 상태 확인
+     * 닉네임 수정
      */
-    @Transactional(readOnly = true)
-    public boolean isBusinessApproved(Long memberId) {
+    @Transactional
+    @CacheEvict(value = "members", allEntries = true)
+    public MemberUpdateNicknameResponseDto updateNickname(Long memberId, MemberUpdateNicknameRequestDto request) {
+        log.info("닉네임 수정 시작 - memberId: {}, newNickname: {}", memberId, request.nickname());
+
+        // 1. 회원 조회
         Member member = memberQueryService.findMemberById(memberId);
-        return member.getIsBusinessApproved() != null && member.getIsBusinessApproved();
+
+        // 2. 닉네임 중복 확인 (자신의 닉네임이 아닌 경우만)
+        if (!request.nickname().equals(member.getNickname()) &&
+                memberQueryService.isNicknameExists(request.nickname())) {
+            log.warn("닉네임 중복 - nickname: {}", request.nickname());
+            throw new BadRequestException(ExceptionMessage.NICKNAME_ALREADY_EXISTS);
+        }
+
+        // 3. 개인 회원인지 확인 (사업자는 닉네임이 없음)
+        if (member.getRole() != Role.ROLE_USER) {
+            log.warn("사업자 회원의 닉네임 수정 시도 - memberId: {}", memberId);
+            throw new BadRequestException(ExceptionMessage.ACCESS_DENIED);
+        }
+
+        // 4. 닉네임 업데이트
+        member.updateNickname(request.nickname());
+
+        log.info("닉네임 수정 완료 - memberId: {}, newNickname: {}", memberId, request.nickname());
+
+        return MemberUpdateNicknameResponseDto.from(member);
     }
+
 
     // 주소 생성
     private Location createLocation(Long memberId, String address) {
@@ -116,33 +172,4 @@ public class MemberCommandService {
                 .build();
     }
 
-    /**
-     * FCM 토큰 업데이트
-     */
-    @Transactional
-    @CacheEvict(value = "members", key = "'id:' + #memberId")
-    public void updateFcmToken(Long memberId, String fcmToken) {
-        log.info("FCM 토큰 업데이트 시작 - memberId: {}", memberId);
-
-        Member member = memberQueryService.findMemberById(memberId);
-        member.updateFcmToken(fcmToken);
-        memberRepository.save(member);
-
-        log.info("FCM 토큰 업데이트 완료 - memberId: {}", memberId);
-    }
-
-    /**
-     * FCM 토큰 삭제
-     */
-    @Transactional
-    @CacheEvict(value = "members", key = "'id:' + #memberId")
-    public void removeFcmToken(Long memberId) {
-        log.info("FCM 토큰 삭제 시작 - memberId: {}", memberId);
-
-        Member member = memberQueryService.findMemberById(memberId);
-        member.updateFcmToken(null);
-        memberRepository.save(member);
-
-        log.info("FCM 토큰 삭제 완료 - memberId: {}", memberId);
-    }
 }

@@ -28,6 +28,9 @@ public enum ExceptionMessage {
     INVALID_PASSWORD_FORMAT("비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다."),
     INCORRECT_PASSWORD("기존 비밀번호가 틀립니다 다시 입력해주세요"),
 
+    // 사업자 승인 관련
+    BUSINESS_APPROVAL_PENDING("사업자 등록 승인이 대기 중입니다. 승인 후 로그인해주세요."),
+
     // 권한 관련
     ACCESS_DENIED("접근 권한이 없습니다."),
     INSUFFICIENT_PERMISSION("해당 작업을 수행할 권한이 없습니다."),
