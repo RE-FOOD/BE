@@ -2,6 +2,10 @@ spring:
   application:
     name: IITP
 
+  # .env import
+  config:
+    import: optional:file:.env[.properties]
+
   # 최대 파일 사이즈 설정
   servlet:
     multipart:
