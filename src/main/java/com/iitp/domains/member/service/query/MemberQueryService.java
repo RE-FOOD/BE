@@ -39,41 +39,13 @@ public class MemberQueryService {
 
         // 2. 역할에 따라 다른 응답 생성
         if (member.getRole() == Role.ROLE_USER) {
-            // 개인회원 - 위치 정보까지 포함
+            // 개인회원 - 위치 정보 포함
             Optional<Location> location = findMostRecentLocation(memberId);
-            LocationResponseDto locationDto = location.map(loc ->
-                    LocationResponseDto.builder()
-                            .id(loc.getId())
-                            .address(loc.getAddress())
-                            .isMostRecent(loc.getIsMostRecent())
-                            .build()
-            ).orElse(null);
 
-            return MemberProfileResponseDto.forUser(
-                    member.getId(),
-                    member.getEmail(),
-                    member.getNickname(),
-                    member.getPhone(),
-                    member.getRole(),
-                    member.getJoinType(),
-                    member.getEnvironmentLevel(),
-                    member.getEnvironmentPoint(),
-                    member.getOrderCount(),
-                    member.getDishCount(),
-                    locationDto
-            );
-
+            return MemberProfileResponseDto.forUser(member, location.orElse(null));
         } else {
             // 사업자회원
-            return MemberProfileResponseDto.forStore(
-                    member.getId(),
-                    member.getEmail(),
-                    member.getPhone(),
-                    member.getRole(),
-                    member.getJoinType(),
-                    member.getBusinessLicenseNumber(),
-                    member.getIsBusinessApproved()
-            );
+            return MemberProfileResponseDto.forStore(member);
         }
     }
 

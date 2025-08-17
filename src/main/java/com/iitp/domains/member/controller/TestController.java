@@ -13,5 +13,9 @@ public class TestController {
         return "redirect:/login.html";
     }
 
+    @GetMapping("/mypage")
+    public String mypage() {
+        return "redirect:/mypage.html";
+    }
 }
 
