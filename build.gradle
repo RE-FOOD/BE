@@ -92,3 +92,13 @@ sourceSets {
 clean {
     delete file(generated)
 }
+
+// gradlew 빌드시 -plain.jar 생기는 설정 끄기 for Github Actions
+jar {
+    enabled = false
+}
+
+// gradlew 빌드시 jar 파일명 설정
+bootJar {
+    archiveFileName = "refood-server.jar"
+}

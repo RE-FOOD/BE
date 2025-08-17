@@ -2,6 +2,10 @@ spring:
   application:
     name: IITP
 
+  # .env import
+  config:
+    import: optional:file:.env[.properties]
+
   # 최대 파일 사이즈 설정
   servlet:
     multipart:
@@ -98,11 +102,11 @@ springdoc:
 cloud:
   aws:
     s3:
-      bucket: ${BUCKET} # 버킷 이름
+      bucket: ${AWS_S3_BUCKET} # 버킷 이름
     stack.auto: false
-    region.static: ${REGION} # 버킷 리전
+    region.static: ${AWS_REGION} # 버킷 리전
     credentials:
-      access-key: ${ACCESS_KEY}
-      secret-key: ${SECRET_KEY}
+      access-key: ${AWS_IAM_ACCESS_KEY}
+      secret-key: ${AWS_IAM_SECRET_KEY}
 
 
