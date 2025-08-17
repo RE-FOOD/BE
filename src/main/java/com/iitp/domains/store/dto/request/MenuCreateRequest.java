@@ -7,7 +7,7 @@ public record MenuCreateRequest(
         String name,
         String info,
         int price,
-        int dailyDiscountPercent,
+        int dailyDiscountPrice,
         int dailyQuantity,
         String imageKey
 ) {
@@ -17,8 +17,9 @@ public record MenuCreateRequest(
                 .name(this.name)
                 .info(this.info)
                 .price(this.price)
-                .dailyDiscountPercent(this.dailyDiscountPercent)
+                .dailyDiscountPercent((int) Math.round(((double)(this.price - this.dailyDiscountPrice) / this.price) * 100))
                 .dailyQuantity(this.dailyQuantity)
+                .discountPrice(this.dailyDiscountPrice)
                 .imageKey(imageKey)
                 .store(store)
                 .build();

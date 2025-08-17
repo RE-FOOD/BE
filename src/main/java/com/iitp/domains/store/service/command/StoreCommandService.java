@@ -10,7 +10,7 @@ import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import com.iitp.global.geoCode.GeocodingResult;
 import com.iitp.global.geoCode.KakaoGeocodingService;
-import com.iitp.global.redis.service.StoreCacheService;
+import com.iitp.global.redis.service.StoreRedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class StoreCommandService {
     private final KakaoGeocodingService  kakaoGeocodingService;
     private final StoreRepository storeRepository;
     private final StoreImageRepository storeImageRepository;
-    private final StoreCacheService cacheService;
+    private final StoreRedisService cacheService;
 
 
     public void createStore(StoreCreateRequest request, Long userId) {

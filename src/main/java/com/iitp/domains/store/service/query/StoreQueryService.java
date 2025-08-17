@@ -11,7 +11,7 @@ import com.iitp.domains.store.repository.store.StoreRepository;
 import com.iitp.global.common.constants.Constants;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
-import com.iitp.global.redis.service.StoreCacheService;
+import com.iitp.global.redis.service.StoreRedisService;
 import com.iitp.imageUpload.service.query.ImageGetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class StoreQueryService {
     private final StoreRepository storeRepository;
     private final ImageGetService imageGetService;
     private final MenuQueryService menuQueryService;
-    private final StoreCacheService cacheService;
+    private final StoreRedisService cacheService;
     private Long currentCachedStoreId = null;
 
     public List<StoreListResponse> findStores(Category category, String keyword, SortType sort, Long cursorId){

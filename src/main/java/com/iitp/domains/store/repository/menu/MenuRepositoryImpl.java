@@ -40,6 +40,7 @@ public class MenuRepositoryImpl implements MenuRepositoryCustom {
                         menu.price,
                         menu.dailyDiscountPercent,
                         menu.dailyQuantity,
+                        menu.discountPrice,
                         menu.imageKey))
                 .from(menu)
                 .where(

@@ -9,12 +9,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class StoreCacheService {
+public class StoreRedisService {
     private final RedisTemplate<String, String> redisTemplate;
     private final ObjectMapper objectMapper;
     private static final String STORE_CACHE_KEY = "store_detail";
