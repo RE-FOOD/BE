@@ -24,7 +24,15 @@ public class MenuCommandService {
     public void createMenu(MenuCreateRequest request, Long storeId) {
         Store store = validateStoreExists(storeId);
 
-        menuRepository.save(request.toEntity(store));
+        Menu menu = menuRepository.save(request.toEntity(store));
+
+        if(store.getMaxPercent() != 0) {
+            store.updatePercent(Math.max(store.getMaxPercent(), menu.getDailyDiscountPercent()));
+        }else{
+            store.updatePercent(menu.getDailyDiscountPercent());
+        }
+
+        store.updateStatus();
     }
 
 
