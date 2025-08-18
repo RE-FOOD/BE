@@ -2,7 +2,6 @@ package com.iitp.domains.member.controller.command;
 
 import com.iitp.domains.member.dto.requestDto.MemberUpdateNicknameRequestDto;
 import com.iitp.domains.member.dto.responseDto.MemberUpdateNicknameResponseDto;
-import com.iitp.domains.auth.dto.requestDto.FcmTokenUpdateRequestDto;
 import com.iitp.domains.member.domain.entity.Location;
 import com.iitp.domains.member.dto.requestDto.LocationCreateRequestDto;
 import com.iitp.domains.member.dto.responseDto.LocationResponseDto;
@@ -10,7 +9,6 @@ import com.iitp.global.config.security.SecurityUtil;
 import com.iitp.domains.member.service.command.MemberCommandService;
 import com.iitp.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
