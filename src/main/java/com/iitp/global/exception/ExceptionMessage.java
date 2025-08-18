@@ -52,6 +52,9 @@ public enum ExceptionMessage {
     INVALID_REVIEW_RATING("유효하지 않은 리뷰 별점입니다."),
     ALREADY_EXISTING_REVIEW("이미 해당 주문에 대해 존재하는 리뷰입니다."),
 
+    // 주문 관련
+    INVALID_ORDER_STATUS("유효하지 않은 주문 상태 종류입니다.")
+
     ;
 
     private final String message;
