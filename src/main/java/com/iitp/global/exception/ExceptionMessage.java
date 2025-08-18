@@ -45,7 +45,14 @@ public enum ExceptionMessage {
     RESOURCE_NOT_FOUND("요청한 리소스를 찾을 수 없습니다."),
 
     // 게시물 관련
-    DATA_NOT_FOUND("데이터 정보가 없음");
+    DATA_NOT_FOUND("데이터 정보가 없음"),
+
+    // 리뷰 관련
+    INVALID_REVIEW_CONTENT_LENGTH("유효하지 않은 리뷰 내용 길이입니다."),
+    INVALID_REVIEW_RATING("유효하지 않은 리뷰 별점입니다."),
+    ALREADY_EXISTING_REVIEW("이미 해당 주문에 대해 존재하는 리뷰입니다."),
+
+    ;
 
     private final String message;
 }
