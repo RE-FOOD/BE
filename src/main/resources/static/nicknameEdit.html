@@ -22,7 +22,6 @@
             margin: 0 auto;
             background-color: white;
             min-height: 100vh;
-            padding-bottom: 150px;
         }
 
         /* 헤더 */
@@ -32,6 +31,7 @@
             color: white;
             display: flex;
             align-items: center;
+            position: relative;
         }
 
         .back-btn {
@@ -43,6 +43,11 @@
             padding: 8px;
             margin-right: 16px;
             border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
         .header-title {
@@ -91,13 +96,17 @@
             margin-bottom: 8px;
         }
 
+        .input-container {
+            position: relative;
+        }
+
         .form-input {
             width: 100%;
             padding: 16px;
             border: 2px solid #e0e0e0;
             border-radius: 12px;
             font-size: 1rem;
-            margin-bottom: 12px;
+            transition: border-color 0.3s ease;
             background-color: #fafafa;
         }
 
@@ -107,26 +116,30 @@
             background-color: white;
         }
 
-        /* 버튼들 */
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 12px;
-            transition: all 0.3s ease;
+        .input-with-button {
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-with-button .form-input {
+            flex: 1;
         }
 
         .check-btn {
-            background: #2196F3;
+            background: #4CAF50;
             color: white;
+            border: none;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            white-space: nowrap;
         }
 
         .check-btn:hover {
-            background: #1976D2;
+            background: #45a049;
         }
 
         .check-btn:disabled {
@@ -134,27 +147,13 @@
             cursor: not-allowed;
         }
 
-        .submit-btn {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .submit-btn:hover {
-            background: #45a049;
-        }
-
-        .submit-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
         /* 검증 메시지 */
         .validation-message {
+            margin-top: 8px;
             padding: 12px;
             border-radius: 8px;
             font-size: 0.9rem;
             font-weight: 500;
-            margin-bottom: 16px;
         }
 
         .validation-message.success {
@@ -173,6 +172,68 @@
             display: none;
         }
 
+        /* 주의사항 */
+        .notice-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 32px;
+        }
+
+        .notice-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notice-content {
+            font-size: 0.9rem;
+            color: #856404;
+            line-height: 1.5;
+        }
+
+        /* 버튼 섹션 */
+        .button-section {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            padding: 20px 24px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* 상태 메시지 */
         .status-message {
             position: fixed;
@@ -185,6 +246,8 @@
             z-index: 1000;
             opacity: 0;
             transition: opacity 0.3s ease;
+            max-width: 90%;
+            text-align: center;
         }
 
         .status-message.show {
@@ -194,6 +257,37 @@
         .status-message.success { background: #d4edda; color: #155724; }
         .status-message.error { background: #f8d7da; color: #721c24; }
         .status-message.info { background: #d1ecf1; color: #0c5460; }
+
+        /* 로딩 상태 */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        /* 반응형 */
+        @media (max-width: 480px) {
+            .content {
+                padding: 24px 16px;
+            }
+
+            .button-section {
+                padding: 16px;
+            }
+
+            .input-with-button {
+                flex-direction: column;
+            }
+
+            .input-with-button .form-input {
+                margin-bottom: 8px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -216,28 +310,49 @@
         <div class="form-section">
             <div class="form-group">
                 <label class="form-label" for="newNickname">새 닉네임</label>
-                <input
-                        type="text"
-                        id="newNickname"
-                        class="form-input"
-                        placeholder="새 닉네임을 입력하세요"
-                        maxlength="30"
-                >
-
-                <!-- 중복확인 버튼 -->
-                <button type="button" class="btn check-btn" id="checkBtn" onclick="checkNickname()">
-                    중복확인
-                </button>
-
-                <!-- 검증 메시지 -->
+                <div class="input-with-button">
+                    <input
+                            type="text"
+                            id="newNickname"
+                            class="form-input"
+                            placeholder="새 닉네임을 입력하세요"
+                            maxlength="20"
+                    >
+                    <button type="button" class="check-btn" id="checkBtn" onclick="checkNickname()">
+                        중복확인
+                    </button>
+                </div>
                 <div id="validationMessage" class="validation-message hidden"></div>
-
-                <!-- 닉네임 변경 버튼 -->
-                <button type="button" class="btn submit-btn" id="submitBtn" onclick="updateNickname()">
-                    닉네임 변경하기
-                </button>
             </div>
         </div>
+
+        <!-- 주의사항 -->
+        <div class="notice-section">
+            <div class="notice-title">
+                <span>⚠️</span>
+                <span>닉네임 변경 안내</span>
+            </div>
+            <div class="notice-content">
+                • 닉네임은 2~20자 이내로 입력해주세요<br>
+                • 특수문자는 사용할 수 없습니다<br>
+                • 변경된 닉네임은 즉시 적용됩니다
+            </div>
+        </div>
+
+        <!-- 로딩 상태 -->
+        <div id="loadingSection" class="loading">
+            <div>사용자 정보를 불러오는 중...</div>
+        </div>
+
+        <!-- 하단 버튼 여백 -->
+        <div style="height: 100px;"></div>
+    </div>
+
+    <!-- 하단 버튼 -->
+    <div class="button-section">
+        <button type="button" class="submit-btn" id="submitBtn" onclick="updateNickname()" disabled>
+            닉네임 변경하기
+        </button>
     </div>
 </div>
 
@@ -259,10 +374,16 @@
 
         if (!accessToken) {
             showStatus('로그인이 필요합니다.', 'error');
+            setTimeout(() => {
+                window.location.href = '/login.html';
+            }, 1500);
             return;
         }
 
         try {
+            document.getElementById('loadingSection').classList.add('show');
+
+            // API 엔드포인트: /api/mypage/main
             const response = await fetch('http://localhost:8080/api/mypage/main', {
                 method: 'GET',
                 headers: {
@@ -274,14 +395,39 @@
             if (response.ok) {
                 const data = await response.json();
                 currentUserData = data.data;
-                document.getElementById('currentNickname').textContent = currentUserData.nickname || '정보 없음';
+
+                // 개인 회원이 아니면 접근 불가
+                if (!currentUserData.nickname) {
+                    showStatus('개인 회원만 닉네임을 변경할 수 있습니다.', 'error');
+                    setTimeout(() => {
+                        goBack();
+                    }, 2000);
+                    return;
+                }
+
+                displayUserInfo(currentUserData);
+            } else if (response.status === 401) {
+                showStatus('로그인이 만료되었습니다.', 'error');
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('userInfo');
+                setTimeout(() => {
+                    window.location.href = '/login.html';
+                }, 1500);
             } else {
                 showStatus('사용자 정보를 불러오는데 실패했습니다.', 'error');
             }
         } catch (error) {
             console.error('사용자 정보 로드 오류:', error);
             showStatus('네트워크 오류가 발생했습니다.', 'error');
+        } finally {
+            document.getElementById('loadingSection').classList.remove('show');
         }
+    }
+
+    // 사용자 정보 표시
+    function displayUserInfo(data) {
+        document.getElementById('currentNickname').textContent = data.nickname;
     }
 
     // 닉네임 중복 확인
@@ -293,13 +439,16 @@
             return;
         }
 
-        if (newNickname.length < 2 || newNickname.length > 30) {
-            showValidation('닉네임은 2~30자 이내로 입력해주세요.', 'error');
+        if (newNickname.length < 2 || newNickname.length > 20) {
+            showValidation('닉네임은 2~20자 이내로 입력해주세요.', 'error');
             return;
         }
 
+        // 현재 닉네임과 동일한지 확인
         if (currentUserData && newNickname === currentUserData.nickname) {
             showValidation('현재 닉네임과 동일합니다.', 'error');
+            isNicknameChecked = false;
+            updateSubmitButton();
             return;
         }
 
@@ -308,21 +457,21 @@
             document.getElementById('checkBtn').textContent = '확인중...';
 
             const response = await fetch(`http://localhost:8080/api/members/check/nickname?nickname=${encodeURIComponent(newNickname)}`);
+            const data = await response.json();
 
-            if (response.ok) {
+            if (data.data) {
                 showValidation('사용 가능한 닉네임입니다.', 'success');
                 isNicknameChecked = true;
-            } else if (response.status === 409) {
+            } else {
                 showValidation('이미 사용중인 닉네임입니다.', 'error');
                 isNicknameChecked = false;
-            } else {
-                showValidation('중복 확인 중 오류가 발생했습니다.', 'error');
-                isNicknameChecked = false;
             }
+
+            updateSubmitButton();
         } catch (error) {
-            console.error('닉네임 중복 확인 오류:', error);
-            showValidation('네트워크 오류가 발생했습니다.', 'error');
+            showValidation('중복 확인 중 오류가 발생했습니다.', 'error');
             isNicknameChecked = false;
+            updateSubmitButton();
         } finally {
             document.getElementById('checkBtn').disabled = false;
             document.getElementById('checkBtn').textContent = '중복확인';
@@ -332,11 +481,6 @@
     // 닉네임 변경
     async function updateNickname() {
         const newNickname = document.getElementById('newNickname').value.trim();
-
-        if (!newNickname) {
-            showStatus('닉네임을 입력해주세요.', 'error');
-            return;
-        }
 
         if (!isNicknameChecked) {
             showStatus('닉네임 중복 확인을 해주세요.', 'error');
@@ -352,6 +496,7 @@
         try {
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('submitBtn').textContent = '변경 중...';
+            showStatus('닉네임을 변경하고 있습니다...', 'info');
 
             const response = await fetch('http://localhost:8080/api/members/nickname', {
                 method: 'PATCH',
@@ -367,10 +512,16 @@
             if (response.ok) {
                 const data = await response.json();
                 showStatus('닉네임이 성공적으로 변경되었습니다!', 'success');
-                document.getElementById('currentNickname').textContent = newNickname;
-                document.getElementById('newNickname').value = '';
-                isNicknameChecked = false;
-                showValidation('', 'hidden');
+
+                // 로컬 스토리지 업데이트
+                const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+                userInfo.nickname = data.data.nickname;
+                localStorage.setItem('userInfo', JSON.stringify(userInfo));
+
+                // 2초 후 마이페이지로 이동
+                setTimeout(() => {
+                    window.location.href = '/mypage.html';
+                }, 2000);
             } else {
                 const errorData = await response.json();
                 showStatus('닉네임 변경 실패: ' + (errorData.message || '알 수 없는 오류'), 'error');
@@ -387,12 +538,14 @@
     // 검증 메시지 표시
     function showValidation(message, type) {
         const element = document.getElementById('validationMessage');
-        if (type === 'hidden') {
-            element.classList.add('hidden');
-        } else {
-            element.textContent = message;
-            element.className = `validation-message ${type}`;
-        }
+        element.textContent = message;
+        element.className = `validation-message ${type}`;
+    }
+
+    // 제출 버튼 상태 업데이트
+    function updateSubmitButton() {
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = !isNicknameChecked;
     }
 
     // 뒤로가기
@@ -414,7 +567,15 @@
     // 입력값 변경 시 중복 확인 상태 초기화
     document.getElementById('newNickname').addEventListener('input', function() {
         isNicknameChecked = false;
-        showValidation('', 'hidden');
+        updateSubmitButton();
+        document.getElementById('validationMessage').classList.add('hidden');
+    });
+
+    // 엔터키로 중복 확인
+    document.getElementById('newNickname').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            checkNickname();
+        }
     });
 </script>
 </body>

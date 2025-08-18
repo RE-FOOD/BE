@@ -4,8 +4,6 @@ import com.iitp.domains.member.dto.responseDto.MemberProfileResponseDto;
 import com.iitp.domains.member.service.query.MemberQueryService;
 import com.iitp.global.common.response.ApiResponse;
 import com.iitp.global.config.security.SecurityUtil;
-import com.iitp.global.exception.ConflictException;
-import com.iitp.global.exception.ExceptionMessage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,13 +40,11 @@ public class MemberQueryController {
 
     @Operation(summary = "닉네임 중복 확인", description = "닉네임 사용 가능 여부를 확인합니다.")
     @GetMapping("/check/nickname")
-    public ApiResponse<String> checkNickname(
+    public ApiResponse<Boolean> checkNickname(
             @Parameter(description = "확인할 닉네임")
             @RequestParam String nickname){
-        if (memberQueryService.isNicknameExists(nickname)) {
-            // 중복인 경우 409 Conflict 예외 발생
-            throw new ConflictException(ExceptionMessage.NICKNAME_ALREADY_EXISTS);
-        }
-        return ApiResponse.okWithoutData(200, "사용가능한 닉네임 입니다.");
+        boolean available =! memberQueryService.isNicknameExists(nickname);
+        return ApiResponse.ok(200, available, available?"사용가능": "이미 사용중");
     }
+
 }
