@@ -63,6 +63,10 @@ public class Store extends BaseEntity {
     @Column(name = "category", nullable = false)
     private Category category;
 
+    @Column(name = "max_percent")
+    private int maxPercent;
+
+
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoreImage> storeImages = new ArrayList<>();
 
@@ -78,5 +82,13 @@ public class Store extends BaseEntity {
         if(requestDto.origin() != null) this.origin = requestDto.origin();
         if(requestDto.openTime() != null) this.openTime = LocalTime.from(requestDto.openTime().toLocalDateTime());
         if(requestDto.closeTime() != null) this.closeTime = LocalTime.from(requestDto.closeTime().toLocalDateTime());
+    }
+
+    public void updatePercent(int maxPercent){
+        this.maxPercent = maxPercent;
+    }
+
+    public void updateStatus(){
+        this.status = StoreStatus.OPEN;
     }
 }
