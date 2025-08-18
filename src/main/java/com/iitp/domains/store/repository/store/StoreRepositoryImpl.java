@@ -14,6 +14,8 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,12 +34,14 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                         store.id,
                         store.name,
                         store.status,
-                        Expressions.stringTemplate("MIN({0})", storeImage.imageKey))) // MIN으로 첫 번째 이미지
+                        Expressions.stringTemplate("MIN({0})", storeImage.imageKey),
+                        store.maxPercent)) // MIN으로 첫 번째 이미지
                 .from(store)
                 .leftJoin(store.storeImages, storeImage)
                 .where(
                         store.isDeleted.eq(false),
-                        store.status.eq(StoreStatus.OPEN), // 영업중인 매장만
+                        store.openTime.after(LocalTime.now()),
+//                        store.status.eq(StoreStatus.OPEN), // 영업중인 매장만
                         eqCategory(category),
                         eqKeyword(keyword),
                         validCursorId(cursorId)
@@ -45,6 +49,10 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                 .groupBy(store.id, store.name, store.address, store.category) // storeId별로 그룹화
                 // TODO :: Sort 기준 필터 추가 (리뷰 연동되면)
 //                .orderBy(getOrderSpecifier(sort, sortAsc))
+                .orderBy(
+                        store.status.desc(),
+                        store.id.asc()       // 같은 상태 내에서는 ID 순
+                )
                 .limit(limit)
                 .fetch();
     }

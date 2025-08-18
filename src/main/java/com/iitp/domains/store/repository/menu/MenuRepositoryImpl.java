@@ -2,7 +2,9 @@ package com.iitp.domains.store.repository.menu;
 
 import com.iitp.domains.store.domain.entity.*;
 import com.iitp.domains.store.repository.mapper.MenuListQueryResult;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +49,21 @@ public class MenuRepositoryImpl implements MenuRepositoryCustom {
                         menu.store.id.eq(storeId),
                         menu.isDeleted.eq(false)
                 )
+                .orderBy(
+                        // 1순위: 재고 상태 (있음 > 없음)
+                        getQuantityOrderExpression(menu),
+                        // 2순위: 메뉴 이름 순
+                        menu.name.asc()
+                )
                 .fetch();
+    }
+
+
+    // 재고 상태별 정렬 표현식
+    private OrderSpecifier<?> getQuantityOrderExpression(QMenu menu) {
+        return new CaseBuilder()
+                .when(menu.dailyQuantity.gt(0)).then(1)  // 재고 있음: 1
+                .otherwise(2)                        // 재고 없음: 2
+                .asc();                              // 오름차순 (1이 먼저, 2가 나중에)
     }
 }
