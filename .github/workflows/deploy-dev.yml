@@ -115,6 +115,23 @@ jobs:
               -e TZ=Asia/Seoul \
               -p 8080:8080 \
               refood-server
-            
 
-                        
+            ## 서버 헬스 체크 (5초 대기 후 시작)
+            TARGET_URL=localhost PORT=8080
+            
+            echo "> Waiting WAS for 5 seconds..."
+            sleep 5
+            
+            code=$(curl -sS --retry 15 --retry-delay 6 --retry-connrefused --retry-all-errors \
+                    -m 3 --connect-timeout 2 -o /dev/null -w "%{http_code}" \
+                    $TARGET_URL:$PORT/health || true)
+            echo "> last http_code=$code"
+
+            if [ "$code" = "200" ]; then
+              echo "> New WAS successfully running"
+            else
+              echo "> Health check failed."
+              exit 1
+            fi
+
+            
