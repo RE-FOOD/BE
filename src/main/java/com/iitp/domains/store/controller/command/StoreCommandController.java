@@ -22,11 +22,11 @@ public class StoreCommandController {
 
     @Operation(summary = "가게 생성", description = "가게 정보를 입력 후 가게 생성합니다.")
     @PostMapping()
-    public ApiResponse<String> createStore(@RequestBody StoreCreateRequest request) {
+    public ApiResponse<Long> createStore(@RequestBody StoreCreateRequest request) {
         Long memberId = SecurityUtil.getCurrentMemberId();
-        storeCommandService.createStore(request,memberId);
+        Long storeId = storeCommandService.createStore(request,memberId);
 
-        return ApiResponse.ok(201, null,"게시글 생성 성공");
+        return ApiResponse.ok(201, storeId,"게시글 생성 성공");
     }
 
     @Operation(summary = "가게 수정", description = "가게 정보를 수정합니다.")
