@@ -1,5 +1,6 @@
 package com.iitp.domains.auth.dto.requestDto;
 
+import com.iitp.domains.member.domain.entity.Member;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
@@ -15,7 +16,13 @@ public record MemberSignupRequestDto(
         @NotBlank(message = "닉네임은 필수입니다.")
         String nickname,
 
-        @NotBlank(message = "주소는 필수입니다.")
-        String address
+        String address,
+
+        String roadAddress,
+
+        Double latitude,
+
+        Double longitude
 ) {
+
 }
