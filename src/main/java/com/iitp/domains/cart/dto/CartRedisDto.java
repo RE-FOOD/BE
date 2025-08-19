@@ -4,6 +4,7 @@ import com.iitp.domains.cart.domain.entity.Cart;
 import com.iitp.domains.cart.domain.entity.CartMenu;
 import com.iitp.domains.cart.dto.response.CartMenuResponse;
 import com.iitp.domains.store.domain.entity.Store;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,16 @@ public record CartRedisDto(
         int totalCoast,
         List<CartMenuRedisDto> menus
 ) {
+
+    public static Cart toEntity(Store store , Long memberId, CartRedisDto cartRedisDto) {
+        return Cart.builder()
+                .store(store)
+                .memberId(memberId)
+                .totalPrice(cartRedisDto.totalCoast)
+                .cartMenus(null)
+                .build();
+    }
+
     public static CartRedisDto fromEntity(Store store) {
         return new CartRedisDto(
                 store.getId(),

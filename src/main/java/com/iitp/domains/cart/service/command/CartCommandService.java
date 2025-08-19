@@ -1,5 +1,7 @@
 package com.iitp.domains.cart.service.command;
 
+import com.iitp.domains.cart.domain.entity.CartMenu;
+import com.iitp.domains.cart.dto.CartMenuRedisDto;
 import com.iitp.domains.cart.dto.CartRedisDto;
 import com.iitp.domains.cart.dto.request.CartCreateRequest;
 import com.iitp.domains.cart.dto.request.CartUpdateRequest;
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -78,16 +81,21 @@ public class CartCommandService {
         // 장바구니에 메뉴 추가
         cartRedisService.saveCartToRedis(cacheKey, cartRedisDto);
     }
-    /*
-        Long storeId,
-        List<CartMenuListRequest> menus
-){
-        public record CartMenuListRequest(
-                Long menuId,
-                int quantity
-        ) {
-        }
-     */
+
+    public void saveCart(Long memberId) {
+        String cacheKey = CART_CACHE_PREFIX + memberId;
+        CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
+
+        Store store = validateStoreExists(existingCart.id());
+        Cart cart = CartRedisDto.toEntity(store, memberId,existingCart );
+
+        List<CartMenu> cartMenus = existingCart.menus().stream()
+                        .map(menu ->
+                            CartMenuRedisDto.toEntity(existingCart.id(), menu.id(), menu)).toList();
+
+        cart.addMenu(cartMenus);
+        cartRepository.save(cart);
+    }
 
 
     private Store validateStoreExists(Long storeId) {
