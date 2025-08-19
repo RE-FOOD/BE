@@ -4,6 +4,7 @@ import com.iitp.domains.store.dto.request.StoreCreateRequest;
 import com.iitp.domains.store.dto.request.StoreUpdateRequest;
 import com.iitp.domains.store.service.command.StoreCommandService;
 import com.iitp.global.common.response.ApiResponse;
+import com.iitp.global.config.security.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,8 @@ public class StoreCommandController {
     @Operation(summary = "가게 생성", description = "가게 정보를 입력 후 가게 생성합니다.")
     @PostMapping()
     public ApiResponse<String> createStore(@RequestBody StoreCreateRequest request) {
-        Long userId = 1L;       // TODO :: 유저 연동되면 연결
-        storeCommandService.createStore(request,userId);
+        Long memberId = SecurityUtil.getCurrentMemberId(); // TODO :: User 연동되면 수정
+        storeCommandService.createStore(request,memberId);
 
         return ApiResponse.ok(201, null,"게시글 생성 성공");
     }
@@ -31,8 +32,8 @@ public class StoreCommandController {
     @Operation(summary = "가게 수정", description = "가게 정보를 수정합니다.")
     @PatchMapping("/{storeId}")
     public ApiResponse<String> updateStore(@RequestBody StoreUpdateRequest request, @PathVariable Long storeId) {
-        Long userId = 1L;       // TODO :: 유저 연동되면 연결
-        storeCommandService.updateStore(request,storeId, userId);
+        Long memberId = SecurityUtil.getCurrentMemberId(); // TODO :: User 연동되면 수정
+        storeCommandService.updateStore(request,storeId, memberId);
 
         return ApiResponse.ok(200, null,"게시글 수정 성공");
     }
@@ -40,8 +41,8 @@ public class StoreCommandController {
     @Operation(summary = "가게 삭제", description = "가게를 삭제합니다.")
     @DeleteMapping("/{storeId}")
     public ApiResponse<String> deleteStore( @PathVariable Long storeId) {
-        Long userId = 1L;       // TODO :: 유저 연동되면 연결
-        storeCommandService.deleteStore(storeId, userId);
+        Long memberId = SecurityUtil.getCurrentMemberId(); // TODO :: User 연동되면 수정
+        storeCommandService.deleteStore(storeId, memberId);
 
         return ApiResponse.ok(200, null,"게시글 수정 성공");
     }
