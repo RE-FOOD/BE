@@ -40,13 +40,60 @@ public record CartRedisDto(
         }
     }
 
-//    public CartRedisDto addPrice(int menuPrice) {
-//        return new CartRedisDto(id,imageKey, name, totalCoast + menuPrice, menus);
-//    }
+    // 기존 메뉴 수량 증가 (새 객체 생성하지 않고 기존 객체 수정)
+    public CartRedisDto updateMenuQuantity(Long menuId, int additionalQuantity) {
+        if (menus == null) {
+            return this; // menus가 null이면 변경 없음
+        }
 
-//    public void clearItems() {
-//
-//        menus.clear();
-//        totalCoast = 0;
-//    }
+        List<CartMenuRedisDto> updatedMenus = new ArrayList<>();
+        boolean menuFound = false;
+
+        for (CartMenuRedisDto menu : menus) {
+            if (menu.id().equals(menuId)) {
+                // 기존 메뉴 수량 증가
+                CartMenuRedisDto updatedMenu = new CartMenuRedisDto(
+                        menu.id(), menu.name(), menu.price(), menu.dailyDiscountPercent(),
+                        menu.dailyQuantity(), menu.orderQuantity() + additionalQuantity,
+                        menu.imageKey(), menu.discountPrice()
+                );
+                updatedMenus.add(updatedMenu);
+                menuFound = true;
+            } else {
+                // 다른 메뉴는 그대로 유지
+                updatedMenus.add(menu);
+            }
+        }
+
+        // 메뉴를 찾지 못했으면 기존 상태 유지
+        if (!menuFound) {
+            return this;
+        }
+
+        // 총 가격 재계산
+        int newTotalCoast = updatedMenus.stream()
+                .mapToInt(menu -> menu.discountPrice() * menu.orderQuantity())
+                .sum();
+
+        return new CartRedisDto(id, imageKey, name, newTotalCoast, updatedMenus);
+    }
+
+    // 메뉴 추가 (새로운 메뉴인 경우)
+    public CartRedisDto addNewMenu(CartMenuRedisDto newMenu) {
+        List<CartMenuRedisDto> updatedMenus = new ArrayList<>();
+
+        if (menus != null) {
+            updatedMenus.addAll(menus);
+        }
+
+        updatedMenus.add(newMenu);
+
+        // 총 가격 재계산
+        int newTotalCoast = updatedMenus.stream()
+                .mapToInt(menu -> menu.discountPrice() * menu.orderQuantity())
+                .sum();
+
+        return new CartRedisDto(id, imageKey, name, newTotalCoast, updatedMenus);
+    }
+
 }

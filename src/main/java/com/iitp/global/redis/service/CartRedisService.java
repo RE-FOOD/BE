@@ -34,10 +34,18 @@ public class CartRedisService {
         Menu menu = menuRepository.findById(menuId)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
 
-        CartMenuRedisDto cartMenu = CartMenuRedisDto.fromEntity(menu,quantity);
-        CartRedisDto dto = cart.addMenu(cartMenu,cartMenu.discountPrice() * quantity);
+        CartMenuRedisDto cartMenu = CartMenuRedisDto.fromEntity(menu, quantity);
 
-        return dto;
+        // 기존 메뉴가 있는지 확인
+        if (cart.menus() != null && isMenuExistsInCart(cart, menuId)) {
+            // 기존 메뉴 수량 증가
+            log.info("메뉴 ID {}가 이미 장바구니에 존재합니다. 수량을 {}만큼 증가시킵니다.", menuId, quantity);
+            return cart.updateMenuQuantity(menuId, quantity);
+        } else {
+            // 새로운 메뉴 추가
+            log.info("메뉴 ID {}를 장바구니에 새로 추가합니다.", menuId);
+            return cart.addNewMenu(cartMenu);
+        }
     }
 
     public void saveCartToRedis(String cacheKey, CartRedisDto cart) {
@@ -61,6 +69,16 @@ public class CartRedisService {
             redisTemplate.delete(cacheKey);
         }
         return null;
+    }
+
+    // 장바구니 내에서 메뉴 존재 여부 확인
+    private boolean isMenuExistsInCart(CartRedisDto cart, Long menuId) {
+        if (cart.menus() == null) {
+            return false;
+        }
+
+        return cart.menus().stream()
+                .anyMatch(menu -> menu.id().equals(menuId));
     }
 
 //    // 주문 완료 시 DB에 저장
