@@ -1,15 +1,14 @@
 package com.iitp.domains.auth.service.command;
 
+import com.iitp.domains.auth.dto.responseDto.*;
+import com.iitp.domains.member.domain.BusinessApprovalStatus;
+import com.iitp.domains.member.domain.Role;
 import com.iitp.domains.member.domain.entity.Location;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.dto.KakaoUserInfoDto;
 import com.iitp.domains.auth.dto.requestDto.MemberLogInRequestDto;
 import com.iitp.domains.auth.dto.requestDto.MemberSignupRequestDto;
 import com.iitp.domains.auth.dto.requestDto.StoreSignupRequestDto;
-import com.iitp.domains.auth.dto.responseDto.MemberLogInResponseDto;
-import com.iitp.domains.auth.dto.responseDto.MemberSignupResponseDto;
-import com.iitp.domains.auth.dto.responseDto.StoreSignupResponseDto;
-import com.iitp.domains.auth.dto.responseDto.TokenRefreshResponseDto;
 import com.iitp.domains.member.dto.responseDto.LocationResponseDto;
 import com.iitp.domains.member.repository.LocationRepository;
 import com.iitp.domains.member.repository.MemberRepository;
@@ -48,14 +47,14 @@ public class AuthCommandService {
             @CacheEvict(value = "locations", allEntries = true)
     })
     public MemberSignupResponseDto memberSignup(MemberSignupRequestDto request) {
-        log.info("회원가입 시작 - nickname: {}, phone: {}, address: {}",
-                request.nickname(), request.phone(), request.address());
+        log.info("회원가입 시작 - nickname: {}",
+                request.nickname());
 
-// 1. 카카오에서 사용자 정보 가져오기
+        // 1. 카카오에서 사용자 정보 가져오기
         KakaoUserInfoDto kakaoUserInfo = kakaoApiClient.getUserInfo(request.accessToken());
 
         // 2. 중복 검증
-        validateDuplicates(kakaoUserInfo.getEmail(), request.nickname(), request.phone());
+        validateDuplicates(request.nickname());
 
         // 3. 개인 회원 생성 및 저장
         Member member = Member.createMember(
@@ -73,7 +72,8 @@ public class AuthCommandService {
         String[] tokens = generateAndSaveTokens(savedMember);
 
         log.info("개인 회원가입 완료 - memberId: {}", savedMember.getId());
-        return buildSignupResponse(savedMember, savedLocation, tokens);
+
+        return MemberSignupResponseDto.forUser(savedMember, savedLocation, tokens[0], tokens[1]);
     }
 
     /**
@@ -90,10 +90,7 @@ public class AuthCommandService {
         // 1. 카카오에서 사용자 정보 가져오기
         KakaoUserInfoDto kakaoUserInfo = kakaoApiClient.getUserInfo(request.accessToken());
 
-        // 2. 중복 검증
-        validateStoreSignupDuplicates(kakaoUserInfo.getEmail(), request.phone(), request.businessLicenseNumber());
-
-        // 3. 사업자 회원 생성 및 저장
+        // 2. 사업자 회원 생성 및 저장
         Member member = Member.createStore(
                 kakaoUserInfo.getEmail(),
                 request.phone(),
@@ -118,15 +115,14 @@ public class AuthCommandService {
         }
 
         log.info("사업자 회원가입 완료 - memberId: {}", savedMember.getId());
-        return buildStoreSignupResponse(savedMember, tokens);
+        return StoreSignupResponseDto.from(savedMember, tokens[0], tokens[1]);
     }
 
     /**
      * 카카오 로그인
      */
     @Transactional
-    @CacheEvict(value = "members", key = "'id:' + #result.id")
-    public MemberLogInResponseDto signin(MemberLogInRequestDto request) {
+    public LoginResponseDto signin(MemberLogInRequestDto request) {
         log.info("로그인 시작");
 
         // 1. 카카오에서 사용자 정보 가져오기
@@ -135,15 +131,29 @@ public class AuthCommandService {
         // 2. 기존 회원 확인
         Member member = memberQueryService.findMemberByEmail(kakaoUserInfo.getEmail());
 
-        // 3. 위치 정보 조회
-        Location location = memberQueryService.findMostRecentLocation(member.getId()).orElse(null);
+        // 3. 사업자 회원인 경우 승인 상태 체크
+        if (member.getRole() == Role.ROLE_STORE) {
+            BusinessApprovalStatus approvalStatus = member.getIsBusinessApproved();
+            if (approvalStatus == BusinessApprovalStatus.PENDING) {
+                log.warn("승인 대기 중인 사업자 로그인 시도 - memberId: {}", member.getId());
+                throw new BadRequestException(ExceptionMessage.BUSINESS_APPROVAL_PENDING);
+            }
+        }
 
-        // 4. JWT 토큰 생성 및 갱신
+        // 4. FCM 토큰 업데이트
+        member.updateFcmToken(request.fcmToken());
+        log.info("로그인 시 FCM 토큰 업데이트 완료 - memberId: {}", member.getId());
+
+        // 5. JWT 토큰 생성 및 갱신
         String[] tokens = generateAndSaveTokens(member);
 
-        log.info("로그인 완료 - memberId: {}", member.getId());
+        // 6. 변경사항 저장
+        memberRepository.save(member);
 
-        return buildSigninResponse(member, location, tokens);
+        log.info("로그인 완료 - memberId: {}", member.getId());
+        log.info("로그인 완료 - memberFcmToken: {}", member.getFcmToken());
+
+        return LoginResponseDto.of(tokens[0], tokens[1], member.getFcmToken());
     }
 
     /**
@@ -159,7 +169,8 @@ public class AuthCommandService {
 
         Member member = memberQueryService.findMemberById(memberId);
         member.removeRefreshToken();
-
+        member.removeFcmToken();
+        memberRepository.save(member);
         log.info("로그아웃 완료 - memberId: {}", memberId);
     }
 
@@ -225,100 +236,11 @@ public class AuthCommandService {
         return new String[]{accessToken, refreshToken};
     }
 
-    /**
-     * 로그인 응답 생성
-     */
-    private MemberLogInResponseDto buildSigninResponse(Member member, Location location, String[] tokens) {
-        return MemberLogInResponseDto.builder()
-                .id(member.getId())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .phone(member.getPhone())
-                .role(member.getRole())
-                .joinType(member.getJoinType())
-                .environmentLevel(member.getEnvironmentLevel().getLevel())
-                .location(location != null ? LocationResponseDto.builder()
-                        .id(location.getId())
-                        .address(location.getAddress())
-                        .isMostRecent(location.getIsMostRecent())
-                        .build() : null)
-                .accessToken(tokens[0])
-                .refreshToken(tokens[1])
-                .build();
-    }
-
-    /**
-     * 개인 회원가입 응답 생성
-     */
-    private MemberSignupResponseDto buildSignupResponse(Member member, Location location, String[] tokens) {
-        return MemberSignupResponseDto.builder()
-                .id(member.getId())
-                .email(member.getEmail())
-                .nickname(member.getNickname())
-                .phone(member.getPhone())
-                .role(member.getRole())
-                .joinType(member.getJoinType())
-                .environmentLevel(member.getEnvironmentLevel().getLevel())
-                .businessLicenseNumber(member.getBusinessLicenseNumber())
-                .location(location != null ? LocationResponseDto.builder()
-                        .id(location.getId())
-                        .address(location.getAddress())
-                        .isMostRecent(location.getIsMostRecent())
-                        .build() : null)
-                .accessToken(tokens[0])
-                .refreshToken(tokens[1])
-                .build();
-    }
-
-    /**
-     * 사업자 회원가입 응답 생성
-     */
-    private StoreSignupResponseDto buildStoreSignupResponse(Member member, String[] tokens) {
-        return StoreSignupResponseDto.builder()
-                .id(member.getId())
-                .email(member.getEmail())
-                .phone(member.getPhone())
-                .role(member.getRole())
-                .businessLicenseNumber(member.getBusinessLicenseNumber())
-                .isBusinessApproved(member.getIsBusinessApproved() != null ? member.getIsBusinessApproved().toString() : "미승인")
-                .accessToken(tokens[0])
-                .refreshToken(tokens[1])
-                .build();
-    }
-
-    // 사업자 회원가입 중복 확인 메서드
-    private void validateStoreSignupDuplicates(String email, String phone, String businessLicenseNumber) {
-        if (memberQueryService.isEmailExists(email)) {
-            log.warn("이메일 중복 - email: {}", email);
-            throw new BadRequestException(ExceptionMessage.EMAIL_ALREADY_EXISTS);
-        }
-
-        if (phone != null && memberQueryService.isPhoneExists(phone)) {
-            log.warn("전화번호 중복 - phone: {}", phone);
-            throw new BadRequestException(ExceptionMessage.PHONE_ALREADY_EXISTS);
-        }
-
-        if (memberQueryService.isBusinessLicenseNumberExists(businessLicenseNumber)) {
-            log.warn("사업자번호 중복 - businessLicenseNumber: {}", businessLicenseNumber);
-            throw new BadRequestException(ExceptionMessage.BusinessLicenseNumber_ALREADY_EXISTS);
-        }
-    }
-
     // 일반회원 중복 확인 메서드
-    private void validateDuplicates(String email, String nickname, String phone) {
-        if (memberQueryService.isEmailExists(email)) {
-            log.warn("이메일 중복 - email: {}", email);
-            throw new BadRequestException(ExceptionMessage.EMAIL_ALREADY_EXISTS);
-        }
-
+    private void validateDuplicates(String nickname) {
         if (memberQueryService.isNicknameExists(nickname)) {
             log.warn("닉네임 중복 - nickname: {}", nickname);
             throw new BadRequestException(ExceptionMessage.NICKNAME_ALREADY_EXISTS);
-        }
-
-        if (memberQueryService.isPhoneExists(phone)) {
-            log.warn("전화번호 중복 - phone: {}", phone);
-            throw new BadRequestException(ExceptionMessage.PHONE_ALREADY_EXISTS);
         }
     }
 }
