@@ -63,8 +63,7 @@ public class StoreCommandService {
 
 
     private void validateUserHasPermission(Store store, Long userId) {
-        if (store.getMemberId() != userId) {
-            log.info(String.valueOf(store.getMemberId() == userId));
+        if (store.getMemberId().equals(userId)) {
             throw new IllegalArgumentException();
         }
     }

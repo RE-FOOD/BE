@@ -1,5 +1,6 @@
 package com.iitp.domains.store.domain.entity;
 
+import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.StoreStatus;
 import com.iitp.domains.store.dto.request.StoreUpdateRequest;
@@ -24,7 +25,6 @@ public class Store extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TODO :: 유저 연동되면 연결
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 

@@ -23,7 +23,7 @@ public class StoreCommandController {
     @Operation(summary = "가게 생성", description = "가게 정보를 입력 후 가게 생성합니다.")
     @PostMapping()
     public ApiResponse<String> createStore(@RequestBody StoreCreateRequest request) {
-        Long memberId = SecurityUtil.getCurrentMemberId(); // TODO :: User 연동되면 수정
+        Long memberId = SecurityUtil.getCurrentMemberId();
         storeCommandService.createStore(request,memberId);
 
         return ApiResponse.ok(201, null,"게시글 생성 성공");
@@ -32,7 +32,7 @@ public class StoreCommandController {
     @Operation(summary = "가게 수정", description = "가게 정보를 수정합니다.")
     @PatchMapping("/{storeId}")
     public ApiResponse<String> updateStore(@RequestBody StoreUpdateRequest request, @PathVariable Long storeId) {
-        Long memberId = SecurityUtil.getCurrentMemberId(); // TODO :: User 연동되면 수정
+        Long memberId = SecurityUtil.getCurrentMemberId();
         storeCommandService.updateStore(request,storeId, memberId);
 
         return ApiResponse.ok(200, null,"게시글 수정 성공");
@@ -41,7 +41,7 @@ public class StoreCommandController {
     @Operation(summary = "가게 삭제", description = "가게를 삭제합니다.")
     @DeleteMapping("/{storeId}")
     public ApiResponse<String> deleteStore( @PathVariable Long storeId) {
-        Long memberId = SecurityUtil.getCurrentMemberId(); // TODO :: User 연동되면 수정
+        Long memberId = SecurityUtil.getCurrentMemberId();
         storeCommandService.deleteStore(storeId, memberId);
 
         return ApiResponse.ok(200, null,"게시글 수정 성공");
