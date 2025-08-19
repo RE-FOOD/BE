@@ -8,6 +8,7 @@ public record StoreListQueryResult(
         Long id,
         String name,
         StoreStatus status,
-        String imageKey
+        String imageKey,
+        int maxPercent
 ) {
 }

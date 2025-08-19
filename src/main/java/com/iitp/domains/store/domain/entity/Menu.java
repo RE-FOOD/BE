@@ -14,7 +14,8 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 @Getter
-public class Menu extends BaseEntity {
+public class
+Menu extends BaseEntity {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +36,9 @@ public class Menu extends BaseEntity {
     @Column(name = "daily_quantity", nullable = false)
     private int dailyQuantity;
 
+    @Column(name = "discount_price", nullable = false)
+    private int discountPrice;
+
     @Column(name = "image_key", nullable = false)
     private String imageKey;
 
@@ -47,8 +51,6 @@ public class Menu extends BaseEntity {
     public void update(MenuUpdateRequest requestDto) {
         if (requestDto.name() != null) this.name = requestDto.name();
         if(requestDto.info() != null) this.info = requestDto.info();
-        if(requestDto.price() > 0 ) this.price = requestDto.price();
-        if(requestDto.dailyDiscountPercent() > 0) this.dailyDiscountPercent = requestDto.dailyDiscountPercent();
         if(requestDto.dailyQuantity()  > 0) this.dailyQuantity = requestDto.dailyQuantity();
         if(requestDto.imageKey() != null) this.imageKey = requestDto.imageKey();
     }
