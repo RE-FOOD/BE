@@ -2,6 +2,7 @@ package com.iitp.domains.store.service.query;
 
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
+import com.iitp.domains.store.domain.StoreStatus;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.dto.response.MenuListResponse;
 import com.iitp.domains.store.dto.response.StoreDetailResponse;
@@ -11,7 +12,7 @@ import com.iitp.domains.store.repository.store.StoreRepository;
 import com.iitp.global.common.constants.Constants;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
-import com.iitp.global.redis.service.StoreCacheService;
+import com.iitp.global.redis.service.StoreRedisService;
 import com.iitp.imageUpload.service.query.ImageGetService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class StoreQueryService {
     private final StoreRepository storeRepository;
     private final ImageGetService imageGetService;
     private final MenuQueryService menuQueryService;
-    private final StoreCacheService cacheService;
+    private final StoreRedisService cacheService;
     private Long currentCachedStoreId = null;
 
     public List<StoreListResponse> findStores(Category category, String keyword, SortType sort, Long cursorId){
@@ -37,8 +38,8 @@ public class StoreQueryService {
 
         List<StoreListResponse> stores = new  ArrayList<>();
 
+
         // TODO :: 리뷰 연동되면 수정
-        int percent = 10;
         double rating = 3.5;
         int count = 100;
         double distance = 5.5;
@@ -47,7 +48,13 @@ public class StoreQueryService {
                         .forEach(result -> {
                             // S3 이미지 경로 호출
                             String imageUrl = imageGetService.getGetS3Url(result.imageKey()).preSignedUrl();
-                            stores.add(StoreListResponse.fromQueryResult(result, imageUrl,percent,rating,count,distance));
+                            stores.add(StoreListResponse.fromQueryResult(
+                                    result,
+                                    imageUrl,
+                                    result.maxPercent(),
+                                    rating,
+                                    count,
+                                    distance));
                         });
 
         return stores;

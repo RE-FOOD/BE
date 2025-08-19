@@ -7,6 +7,7 @@ public record MenuListResponse(
         String name,
         int price,
         int dailyDiscountPercent,
+        int discountPrice,
         int dailyQuantity,
         String imageUrl
 ) {
@@ -17,6 +18,7 @@ public record MenuListResponse(
                 result.name(),
                 result.price(),
                 result.dailyDiscountPercent(),
+                result.discountPrice(),
                 result.dailyQuantity(),
                 imageUrl
         );
