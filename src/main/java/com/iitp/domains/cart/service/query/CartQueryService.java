@@ -5,6 +5,7 @@ import com.iitp.domains.cart.dto.CartRedisDto;
 import com.iitp.domains.cart.dto.response.CartMenuResponse;
 import com.iitp.domains.cart.dto.response.CartResponse;
 import com.iitp.domains.cart.repository.CartRepository;
+import com.iitp.global.exception.ConflictException;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import com.iitp.global.redis.service.CartRedisService;
@@ -24,6 +25,24 @@ public class CartQueryService {
     private final ImageGetService imageGetService;
 
     private static final String CART_CACHE_PREFIX = "cart:";
+
+
+
+    public String getCartDuplicate(Long storeId, Long memberId) {
+        String cacheKey = CART_CACHE_PREFIX + memberId;
+
+        // 기존 카트에 저장된 데이터 호출
+        CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
+
+        if(existingCart == null) {
+            return "장바구니 데이터 없음";
+        }else if(existingCart.id().equals(storeId)) {
+            return "동일 가게 데이터 존재";
+        }else{
+            throw new ConflictException(ExceptionMessage.CART_DATA_DEFERENCE);
+        }
+    }
+
 
 
     public CartResponse getCartFromRedis(Long memberId) {
@@ -52,4 +71,5 @@ public class CartQueryService {
         return cartRepository.findCartData(storeId, memberId)
                 .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
     }
+
 }
