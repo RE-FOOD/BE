@@ -32,7 +32,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "menu")
+@Table(name = "review")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -80,4 +80,5 @@ public class Review extends BaseEntity {
     private boolean isRatingRangeValid(int rating) {
         return rating >= MIN_REVIEW_RATING_VALUE && rating <= MAX_REVIEW_RATING_VALUE;
     }
+
 }
