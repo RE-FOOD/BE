@@ -27,7 +27,7 @@ public class StoreCommandService {
     private final StoreRedisService cacheService;
 
 
-    public void createStore(StoreCreateRequest request, Long userId) {
+    public Long createStore(StoreCreateRequest request, Long userId) {
         // 주소로 위/경도 조회
         GeocodingResult geocodingResult = kakaoGeocodingService.getCoordinates(request.address());
 
@@ -38,6 +38,8 @@ public class StoreCommandService {
         for(String img : request.imageKey()){
              storeImageRepository.save(new StoreImage(img, store));
         }
+
+        return store.getId();
     }
 
     public void updateStore(StoreUpdateRequest request,Long storeId, Long userId) {
