@@ -26,12 +26,14 @@ public class StoreQueryController {
             @RequestParam(value = "category", required=false) Category category,
             @RequestParam(value = "keyword", required=false) String keyword,
             @RequestParam(value = "sort", required=false)SortType sort,
-            @RequestParam(value = "cursorId",  required=false)Long cursorId
+            @RequestParam(value = "cursorId",  defaultValue = "0")Long cursorId,
+            @RequestParam(value="direction", defaultValue = "true")boolean direction,
+            @RequestParam(value="limit", defaultValue = "15") int limit
             ) {
 
-        List<StoreListResponse> responses = storeQueryService.findStores(category,keyword,sort,cursorId);
+        List<StoreListResponse> responses = storeQueryService.findStores(category,keyword,sort,cursorId, direction, limit);
 
-        return ApiResponse.ok(200,  responses, "상세 게시글 호출 성공");
+        return ApiResponse.ok(200,  responses, "가게 리스트 호출 성공");
     }
 
 
