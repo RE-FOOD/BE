@@ -7,6 +7,7 @@ import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.dto.response.MenuListResponse;
 import com.iitp.domains.store.dto.response.StoreDetailResponse;
 import com.iitp.domains.store.dto.response.StoreListResponse;
+import com.iitp.domains.store.dto.response.StoreListTotalResponse;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import com.iitp.domains.store.repository.store.StoreRepository;
 import com.iitp.global.common.constants.Constants;
@@ -37,7 +38,7 @@ public class StoreQueryService {
     private final StoreRedisService cacheService;
     private Long currentCachedStoreId = null;
 
-    public List<StoreListResponse> findStores(Category category, String keyword, SortType sort, Long cursorId, boolean direction, int limit) {
+    public StoreListTotalResponse findStores(Category category, String keyword, SortType sort, Long cursorId, boolean direction, int limit) {
 
         List<StoreListQueryResult> results = storeRepository.findStores(category,keyword,sort,cursorId,direction, limit);
 
@@ -64,7 +65,7 @@ public class StoreQueryService {
                                     ((result.openTime().isBefore(LocalTime.now())) && (LocalTime.now().isBefore(result.closeTime()))) ? result.status(): StoreStatus.CLOSED));
                         });
 
-        return stores;
+        return new StoreListTotalResponse(stores.getFirst().id(), stores.getLast().id(), stores);
     }
 
     public StoreDetailResponse findStoreData(Long storeId) {
