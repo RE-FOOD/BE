@@ -16,8 +16,10 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class StoreRepositoryImpl implements StoreRepositoryCustom {
@@ -26,36 +28,143 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
     private static final QStore store = QStore.store;
     QStoreImage storeImage = QStoreImage.storeImage;
 
-    @Override
-    public List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId, int limit) {
 
-        return queryFactory
-                .selectDistinct(Projections.constructor(StoreListQueryResult.class,
-                        store.id,
-                        store.name,
-                        store.status,
-                        Expressions.stringTemplate("MIN({0})", storeImage.imageKey),
-                        store.maxPercent)) // MIN으로 첫 번째 이미지
-                .from(store)
-                .leftJoin(store.storeImages, storeImage)
-                .where(
-                        store.isDeleted.eq(false),
-                        store.openTime.after(LocalTime.now()),
-//                        store.status.eq(StoreStatus.OPEN), // 영업중인 매장만
-                        eqCategory(category),
-                        eqKeyword(keyword),
-                        validCursorId(cursorId)
-                )
-                .groupBy(store.id, store.name, store.address, store.category) // storeId별로 그룹화
-                // TODO :: Sort 기준 필터 추가 (리뷰 연동되면)
-//                .orderBy(getOrderSpecifier(sort, sortAsc))
-                .orderBy(
-                        store.status.desc(),
-                        store.id.asc()       // 같은 상태 내에서는 ID 순
-                )
-                .limit(limit)
-                .fetch();
+    @Override
+    public List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId, boolean direction, int limit) {
+
+        // direction = true: 다음 페이지 (9, 10, 11, ..., 18)
+        if (direction) {
+            return queryFactory
+                    .selectDistinct(Projections.constructor(StoreListQueryResult.class,
+                            store.id,
+                            store.name,
+                            store.status,
+                            Expressions.stringTemplate("MIN({0})", storeImage.imageKey),
+                            store.maxPercent,
+                            store.openTime,
+                            store.closeTime))
+                    .from(store)
+                    .leftJoin(store.storeImages, storeImage)
+                    .where(
+                            store.isDeleted.eq(false),
+                            cursorId != null ? store.id.gt(cursorId) : null,  // cursorId보다 큰 ID
+                            eqCategory(category),
+                            eqKeyword(keyword)
+                    )
+                    .groupBy(store.id, store.name, store.address, store.category)
+                    .orderBy(
+                            store.status.desc(),
+                            store.id.asc()  // ID 오름차순 정렬
+                    )
+                    .limit(limit)
+                    .fetch();
+        }
+        // direction = false: 이전 페이지 (cursorId 이전의 값들 + 부족하면 cursorId 이후도 포함)
+        else{
+            // 1단계: cursorId 이전의 값들을 먼저 조회
+            List<StoreListQueryResult> beforeResults = queryFactory
+                    .selectDistinct(Projections.constructor(StoreListQueryResult.class,
+                            store.id,
+                            store.name,
+                            store.status,
+                            Expressions.stringTemplate("MIN({0})", storeImage.imageKey),
+                            store.maxPercent,
+                            store.openTime,
+                            store.closeTime))
+                    .from(store)
+                    .leftJoin(store.storeImages, storeImage)
+                    .where(
+                            store.isDeleted.eq(false),
+                            cursorId != null ? store.id.lt(cursorId) : null,  // cursorId보다 작은 ID
+                            eqCategory(category),
+                            eqKeyword(keyword)
+                    )
+                    .groupBy(store.id, store.name, store.address, store.category)
+                    .orderBy(
+                            store.status.desc(),
+                            store.id.desc()  // ID 내림차순 정렬
+                    )
+                    .limit(limit)
+                    .fetch();
+
+            // 2단계: cursorId 이전의 값들이 limit에 못 미치면, cursorId 이후의 값들도 조회
+            if (beforeResults.size() < limit) {
+                int remainingLimit = limit - beforeResults.size();
+
+                List<StoreListQueryResult> afterResults = queryFactory
+                        .selectDistinct(Projections.constructor(StoreListQueryResult.class,
+                                store.id,
+                                store.name,
+                                store.status,
+                                Expressions.stringTemplate("MIN({0})", storeImage.imageKey),
+                                store.maxPercent,
+                                store.openTime,
+                                store.closeTime))
+                        .from(store)
+                        .leftJoin(store.storeImages, storeImage)
+                        .where(
+                                store.isDeleted.eq(false),
+                                cursorId != null ? store.id.goe(cursorId) : null,  // cursorId 이상의 ID
+                                eqCategory(category),
+                                eqKeyword(keyword)
+                        )
+                        .groupBy(store.id, store.name, store.address, store.category)
+                        .orderBy(
+                                store.status.desc(),
+                                store.id.asc()  // ID 오름차순 정렬
+                        )
+                        .limit(remainingLimit)
+                        .fetch();
+
+                // 3단계: 두 결과를 합치고 ID 오름차순으로 정렬
+                List<StoreListQueryResult> combinedResults = new ArrayList<>();
+                combinedResults.addAll(beforeResults);
+                combinedResults.addAll(afterResults);
+
+                return combinedResults.stream()
+                        .sorted((a, b) -> a.id().compareTo(b.id()))  // ID 오름차순으로 정렬
+                        .collect(Collectors.toList());
+            }
+
+            // cursorId 이전의 값들만으로 limit를 채운 경우
+            return beforeResults.stream()
+                    .sorted((a, b) -> a.id().compareTo(b.id()))  // ID 오름차순으로 정렬
+                    .collect(Collectors.toList());
+        }
     }
+
+
+
+//    @Override
+//    public List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId, boolean direction, int limit) {
+//
+//        return queryFactory
+//                .selectDistinct(Projections.constructor(StoreListQueryResult.class,
+//                        store.id,
+//                        store.name,
+//                        store.status,
+//                        Expressions.stringTemplate("MIN({0})", storeImage.imageKey),        // MIN으로 첫 번째 이미지
+//                        store.maxPercent,
+//                        store.openTime,
+//                        store.closeTime))
+//                .from(store)
+//                .leftJoin(store.storeImages, storeImage)
+//                .where(
+//                        store.isDeleted.eq(false),
+//                        validCursorId(cursorId),
+//                        eqCategory(category),
+//                        eqKeyword(keyword)
+//                )
+//                .groupBy(store.id, store.name, store.address, store.category) // storeId별로 그룹화
+//                // TODO :: Sort 기준 필터 추가 (리뷰 연동되면)
+////                .orderBy(getOrderSpecifier(sort, sortAsc))
+//                .orderBy(
+//                        store.status.desc(),
+//                        store.id.asc()       // 같은 상태 내에서는 ID 순
+//                )
+//                .limit(limit)
+//                .fetch();
+//    }
 
     @Override
     public Optional<Store> findByStoreId(Long storeId) {

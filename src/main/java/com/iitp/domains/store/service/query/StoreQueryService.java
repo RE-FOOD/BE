@@ -7,6 +7,7 @@ import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.dto.response.MenuListResponse;
 import com.iitp.domains.store.dto.response.StoreDetailResponse;
 import com.iitp.domains.store.dto.response.StoreListResponse;
+import com.iitp.domains.store.dto.response.StoreListTotalResponse;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import com.iitp.domains.store.repository.store.StoreRepository;
 import com.iitp.global.common.constants.Constants;
@@ -15,8 +16,12 @@ import com.iitp.global.exception.NotFoundException;
 import com.iitp.global.redis.service.StoreRedisService;
 import com.iitp.imageUpload.service.query.ImageGetService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,6 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class StoreQueryService {
     private final StoreRepository storeRepository;
     private final ImageGetService imageGetService;
@@ -32,9 +38,9 @@ public class StoreQueryService {
     private final StoreRedisService cacheService;
     private Long currentCachedStoreId = null;
 
-    public List<StoreListResponse> findStores(Category category, String keyword, SortType sort, Long cursorId){
+    public StoreListTotalResponse findStores(Category category, String keyword, SortType sort, Long cursorId, boolean direction, int limit) {
 
-        List<StoreListQueryResult> results = storeRepository.findStores(category,keyword,sort,cursorId,Constants.PAGING_LIMIT);
+        List<StoreListQueryResult> results = storeRepository.findStores(category,keyword,sort,cursorId,direction, limit);
 
         List<StoreListResponse> stores = new  ArrayList<>();
 
@@ -48,16 +54,18 @@ public class StoreQueryService {
                         .forEach(result -> {
                             // S3 이미지 경로 호출
                             String imageUrl = imageGetService.getGetS3Url(result.imageKey()).preSignedUrl();
+                            log.info(String.valueOf(result.openTime().isAfter(LocalTime.now())));
                             stores.add(StoreListResponse.fromQueryResult(
                                     result,
                                     imageUrl,
                                     result.maxPercent(),
                                     rating,
                                     count,
-                                    distance));
+                                    distance,
+                                    ((result.openTime().isBefore(LocalTime.now())) && (LocalTime.now().isBefore(result.closeTime()))) ? result.status(): StoreStatus.CLOSED));
                         });
 
-        return stores;
+        return new StoreListTotalResponse(stores.getFirst().id(), stores.getLast().id(), stores);
     }
 
     public StoreDetailResponse findStoreData(Long storeId) {

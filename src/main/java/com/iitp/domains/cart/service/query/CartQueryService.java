@@ -28,16 +28,21 @@ public class CartQueryService {
 
 
 
-    public String getCartDuplicate(Long storeId, Long memberId) {
+    public String[] getCartDuplicate(Long storeId, Long memberId) {
         String cacheKey = CART_CACHE_PREFIX + memberId;
 
         // 기존 카트에 저장된 데이터 호출
         CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
 
+        String[] response = new String[2];
         if(existingCart == null) {
-            return "장바구니 데이터 없음";
+            response[0] = "201";
+            response[1] = "장바구니 데이터 없음";
+            return response;
         }else if(existingCart.id().equals(storeId)) {
-            return "동일 가게 데이터 존재";
+            response[0] = "200";
+            response[1] = "동일 가게 데이터 존재";
+            return response;
         }else{
             throw new ConflictException(ExceptionMessage.CART_DATA_DEFERENCE);
         }
