@@ -151,7 +151,7 @@ jobs:
             fi
             
             pong=$(docker exec redis redis-cli ping)
-            echo "> redis ping #$i: $pong"
+            echo "> redis ping=$pong"
             
             if [ "$pong" = "PONG" ]; then
               echo "> Redis is healthy"
