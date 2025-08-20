@@ -16,54 +16,53 @@ public class SecurityUtil {
      * 현재 로그인한 사용자의 회원 ID를 가져옵니다.
      */
     public static Long getCurrentMemberId() {
-        return getCurrentMemberPrincipal().getMemberId();
+        return getCurrentUserDetails().getMemberId();
     }
 
     /**
      * 현재 로그인한 사용자의 이메일을 가져옵니다.
      */
     public static String getCurrentMemberEmail() {
-        return getCurrentMemberPrincipal().getEmail();
+        return getCurrentUserDetails().getEmail();
     }
 
     /**
      * 현재 로그인한 사용자의 역할을 가져옵니다.
      */
     public static Role getCurrentMemberRole() {
-        return getCurrentMemberPrincipal().getRole();
+        return getCurrentUserDetails().getRole();
     }
 
     /**
      * 현재 로그인한 사용자가 일반 사용자인지 확인합니다.
      */
     public static boolean isCurrentMemberUser() {
-        return "ROLE_USER".equals(getCurrentMemberRole().name());
+        return Role.ROLE_USER.equals(getCurrentMemberRole());
     }
 
     /**
      * 현재 로그인한 사용자가 사장님인지 확인합니다.
      */
     public static boolean isCurrentMemberStore() {
-        return "ROLE_STORE".equals(getCurrentMemberRole().name());
+        return Role.ROLE_STORE.equals(getCurrentMemberRole());
     }
 
     /**
-     * 현재 로그인한 사용자의 MemberPrincipal을 가져옵니다.
+     * 현재 로그인한 사용자의 CustomUserDetails를 가져옵니다.
      */
-    public static MemberPrincipal getCurrentMemberPrincipal() {
+    public static CustomUserDetails getCurrentUserDetails() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new AuthenticationException(ExceptionMessage.AUTHENTICATION_MISSING) {
-            };
+            throw new AuthenticationException(ExceptionMessage.AUTHENTICATION_MISSING);
         }
 
         Object principal = authentication.getPrincipal();
-        if (!(principal instanceof MemberPrincipal)) {
+        if (!(principal instanceof CustomUserDetails)) {
             throw new AuthenticationException(ExceptionMessage.INVALID_PRINCIPAL_TYPE);
         }
 
-        return (MemberPrincipal) principal;
+        return (CustomUserDetails) principal;
     }
 
     /**
@@ -71,6 +70,8 @@ public class SecurityUtil {
      */
     public static boolean isAuthenticated() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof MemberPrincipal;
+        return authentication != null &&
+                authentication.isAuthenticated() &&
+                authentication.getPrincipal() instanceof CustomUserDetails;
     }
 }
