@@ -6,6 +6,8 @@ import lombok.Builder;
 @Builder
 public record LocationCreateRequestDto(
         @NotBlank(message = "주소는 필수입니다.")
-        String address
+        String address, // 전체 주소
+
+        String roadAddress //도로명 주소
 ) {
 }
