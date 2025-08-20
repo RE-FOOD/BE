@@ -23,8 +23,8 @@ public class CartQueryController {
     @GetMapping("/check")
     public ApiResponse<String> checkDuplicate(@RequestParam Long storeId) {
         Long memberId = SecurityUtil.getCurrentMemberId(); // TODO :: User 연동되면 수정
-        String message = cartQueryService.getCartDuplicate(storeId, memberId);
-        return ApiResponse.ok(200,null,message);
+        String[] response = cartQueryService.getCartDuplicate(storeId, memberId);
+        return ApiResponse.ok(Integer.valueOf(response[0]),null,response[1]);
     }
 
 
