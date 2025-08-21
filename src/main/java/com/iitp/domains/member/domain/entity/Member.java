@@ -159,4 +159,11 @@ public class Member extends BaseEntity {
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
     }
+
+    /**
+     * 연관관계 편의 메서드
+     */
+    public void addReview(Review review) {
+        this.reviews.add(review);
+    }
 }
