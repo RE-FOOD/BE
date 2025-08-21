@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long>, ReviewRepositoryCustom {
     Boolean existsByMemberIdAndOrderId(Long memberId, Long orderId);
+    Optional<Review> findByIdAndMemberIdAndStoreIdAndOrderId(Long reviewId, Long memberId, Long storeId, Long orderId);
 }

@@ -14,6 +14,7 @@ import com.iitp.domains.store.service.query.StoreQueryService;
 import com.iitp.global.exception.BadRequestException;
 import com.iitp.global.exception.ConflictException;
 import com.iitp.global.exception.ExceptionMessage;
+import com.iitp.global.exception.NotFoundException;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +33,7 @@ public class ReviewCommandService {
     private final StoreQueryService storeQueryService;
     private final OrderQueryService orderQueryService;
 
-    // 리뷰 생성
+
     public void writeReview(Long memberId, Long storeId, Long orderId, ReviewCreateRequest request) {
         Member member = memberQueryService.findMemberById(memberId);    // 리팩토링 고민: 회원 조회 쿼리
         Store store = storeQueryService.findExistingStore(storeId);
@@ -69,7 +70,33 @@ public class ReviewCommandService {
         );
     }
 
-    // 리뷰 삭제
-    // 작성자인지 여부
+    public void deleteReview(Long memberId, Long storeId, Long orderId, Long reviewId) {
+        // 각 데이터에 대해 존재 여부 검증
+        Member member = memberQueryService.findMemberById(memberId);    // 리팩토링 고민: 회원 조회 쿼리
+        storeQueryService.findExistingStore(storeId);
+        orderQueryService.findExistingOrder(orderId);
+        Review review = findExistingReview(reviewId);   // 리팩토링 고민: 조회할 때 storeId, orderId를 모두 써야 하나. 일치 여부 검증?
+
+        // 분기: 작성자인지 여부 검증
+        validateIsAuthor(member, review);
+
+        review.markAsDeleted();
+    }
+
+    private static void validateIsAuthor(Member member, Review review) {
+        boolean isPresent = member.getReviews().stream().anyMatch(it -> it.equals(review));
+        if (!isPresent) {
+            throw new BadRequestException(ExceptionMessage.ACCESS_DENIED_NOT_AUTHOR);
+        }
+    }
+
+    public Review findExistingReview(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new NotFoundException(ExceptionMessage.REVIEW_NOT_FOUND));
+        if (review.getIsDeleted()) {
+            throw new NotFoundException(ExceptionMessage.REVIEW_NOT_FOUND);
+        }
+        return review;
+    }
 
 }
