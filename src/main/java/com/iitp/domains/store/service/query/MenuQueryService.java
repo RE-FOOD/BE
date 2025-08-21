@@ -32,9 +32,7 @@ public class MenuQueryService {
 
         String imageUrl = getImageUrl(menu.getImageKey());
 
-        int totalCoast = (int) (menu.getPrice() * (100 - menu.getDailyDiscountPercent()) * 0.01);
-
-        return MenuResponse.fromEntity(menu,totalCoast,imageUrl);
+        return MenuResponse.fromEntity(menu,imageUrl);
     }
 
 

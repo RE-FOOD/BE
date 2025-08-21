@@ -10,7 +10,7 @@ import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import com.iitp.global.geoCode.GeocodingResult;
 import com.iitp.global.geoCode.KakaoGeocodingService;
-import com.iitp.global.redis.service.StoreCacheService;
+import com.iitp.global.redis.service.StoreRedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,10 +24,10 @@ public class StoreCommandService {
     private final KakaoGeocodingService  kakaoGeocodingService;
     private final StoreRepository storeRepository;
     private final StoreImageRepository storeImageRepository;
-    private final StoreCacheService cacheService;
+    private final StoreRedisService cacheService;
 
 
-    public void createStore(StoreCreateRequest request, Long userId) {
+    public Long createStore(StoreCreateRequest request, Long userId) {
         // 주소로 위/경도 조회
         GeocodingResult geocodingResult = kakaoGeocodingService.getCoordinates(request.address());
 
@@ -38,6 +38,8 @@ public class StoreCommandService {
         for(String img : request.imageKey()){
              storeImageRepository.save(new StoreImage(img, store));
         }
+
+        return store.getId();
     }
 
     public void updateStore(StoreUpdateRequest request,Long storeId, Long userId) {
@@ -63,8 +65,7 @@ public class StoreCommandService {
 
 
     private void validateUserHasPermission(Store store, Long userId) {
-        if (store.getMemberId() != userId) {
-            log.info(String.valueOf(store.getMemberId() == userId));
+        if (store.getMemberId().equals(userId)) {
             throw new IllegalArgumentException();
         }
     }

@@ -18,7 +18,7 @@ public record MemberProfileResponseDto(
         JoinType joinType,
         String businessLicenseNumber,  // 사업자회원만 (개인회원은 null)
         BusinessApprovalStatus isBusinessApproved,    // 사업자회원만 (개인회원은 null)
-        LocationResponseDto location   // 개인회원만 (사업자는 null)
+        String address  // 개인회원만 (사업자는 null)
 ) {
     /**
      * 개인회원용
@@ -33,7 +33,7 @@ public record MemberProfileResponseDto(
                 .joinType(member.getJoinType())
                 .businessLicenseNumber(null)
                 .isBusinessApproved(null)
-                .location(LocationResponseDto.from(location))
+                .address(location.getAddress())
                 .build();
     }
     /**
@@ -49,7 +49,7 @@ public record MemberProfileResponseDto(
                 .joinType(member.getJoinType())
                 .businessLicenseNumber(member.getBusinessLicenseNumber())
                 .isBusinessApproved(member.getIsBusinessApproved())
-                .location(null)
+                .address(null)
                 .build();
     }
 }

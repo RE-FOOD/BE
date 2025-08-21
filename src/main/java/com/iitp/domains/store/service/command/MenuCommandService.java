@@ -8,7 +8,7 @@ import com.iitp.domains.store.repository.menu.MenuRepository;
 import com.iitp.domains.store.repository.store.StoreRepository;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
-import com.iitp.global.redis.service.StoreCacheService;
+import com.iitp.global.redis.service.StoreRedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,12 +19,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class MenuCommandService {
     private final StoreRepository storeRepository;
     private final MenuRepository menuRepository;
-    private final StoreCacheService cacheService;
+    private final StoreRedisService cacheService;
 
     public void createMenu(MenuCreateRequest request, Long storeId) {
         Store store = validateStoreExists(storeId);
 
-        menuRepository.save(request.toEntity(store));
+        Menu menu = menuRepository.save(request.toEntity(store));
+
+        if(store.getMaxPercent() != 0) {
+            store.updatePercent(Math.max(store.getMaxPercent(), menu.getDailyDiscountPercent()));
+        }else{
+            store.updatePercent(menu.getDailyDiscountPercent());
+        }
+
+        store.updateStatus();
     }
 
 

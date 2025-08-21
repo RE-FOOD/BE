@@ -14,11 +14,11 @@ public record StoreListResponse(
         double distance                     // 내 위치부터 가게까지 거리
 ) {
 
-    public static StoreListResponse fromQueryResult(StoreListQueryResult storeListQueryResult,String imageUrl, int percent, double rating, int count, double distance) {
+    public static StoreListResponse fromQueryResult(StoreListQueryResult storeListQueryResult,String imageUrl, int percent, double rating, int count, double distance, StoreStatus status) {
         return new StoreListResponse(
                 storeListQueryResult.id(),
                 storeListQueryResult.name(),
-                storeListQueryResult.status(),
+                status,
                 imageUrl,
                 percent,
                 rating,

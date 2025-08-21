@@ -9,11 +9,11 @@ public record MenuResponse(
         int price,
         int dailyDiscountPercent,
         int dailyQuantity,
-        int totalCoast,
+        int discountPrice,
         String imageUrl
 ) {
 
-    public static MenuResponse fromEntity(Menu menu, int totalCoast, String imageUrl) {
+    public static MenuResponse fromEntity(Menu menu,String imageUrl) {
         return new MenuResponse(
                 menu.getId(),
                 menu.getName(),
@@ -21,7 +21,7 @@ public record MenuResponse(
                 menu.getPrice(),
                 menu.getDailyDiscountPercent(),
                 menu.getDailyQuantity(),
-                totalCoast,
+                menu.getDiscountPrice(),
                 imageUrl
         );
     }

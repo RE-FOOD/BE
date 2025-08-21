@@ -6,6 +6,7 @@ public record MenuListQueryResult(
         int price,
         int dailyDiscountPercent,
         int dailyQuantity,
+        int discountPrice,
         String imageKey
 ) {
 }
