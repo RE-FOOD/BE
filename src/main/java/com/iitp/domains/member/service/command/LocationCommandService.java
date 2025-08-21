@@ -139,6 +139,7 @@ public class LocationCommandService {
         try {
             // 카카오 API로 좌표 변환
             GeocodingResult geocodingResult = kakaoGeocodingService.getCoordinates(request.address());
+
             return Location.builder()
                     .memberId(memberId)
                     .address(request.address())
