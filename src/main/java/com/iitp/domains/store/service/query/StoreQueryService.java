@@ -104,8 +104,12 @@ public class StoreQueryService {
 
 
     public Store findExistingStore(Long storeId) {
-        return storeRepository.findByStoreId(storeId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
+        Store store = storeRepository.findByStoreId(storeId)
+                .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
+        if (store.getIsDeleted()) {
+            throw new NotFoundException(ExceptionMessage.DATA_NOT_FOUND);
+        }
+        return store;
     }
 
     private String getImageUrl(String imageKey) {

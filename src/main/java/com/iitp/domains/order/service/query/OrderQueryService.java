@@ -15,7 +15,11 @@ public class OrderQueryService {
     private final OrderRepository orderRepository;
 
     public Order findExistingOrder(Long orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND));
+        if (order.getIsDeleted()) {
+            throw new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND);
+        }
+        return order;
     }
 }
