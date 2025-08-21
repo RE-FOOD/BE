@@ -139,7 +139,6 @@ public class LocationCommandService {
         try {
             // 카카오 API로 좌표 변환
             GeocodingResult geocodingResult = kakaoGeocodingService.getCoordinates(request.address());
-
             return Location.builder()
                     .memberId(memberId)
                     .address(request.address())
@@ -150,7 +149,7 @@ public class LocationCommandService {
                     .build();
         }
         catch (Exception ex) {
-            log.warn("주소 좌표 변환 실패 - fullAddress: {}, error: {}", request.address(), ex.getMessage());
+            log.warn("주소 좌표 변환 실패 - address: {}, error: {}", request.address(), ex.getMessage());
             throw new BadRequestException(ExceptionMessage.ADDRESS_GEOCODING_FAILED);
         }
     }
