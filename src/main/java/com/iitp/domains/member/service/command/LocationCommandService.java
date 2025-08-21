@@ -148,15 +148,10 @@ public class LocationCommandService {
                     .longitude(geocodingResult.longitude())
                     .isMostRecent(true)
                     .build();
-        } catch (Exception e) {
-            log.warn("주소 좌표 변환 실패 - fullAddress: {}, error: {}", request.address(), e.getMessage());
-            // 좌표 변환 실패 시 입력된 주소만 저장
-            return Location.builder()
-                    .memberId(memberId)
-                    .address(request.address())
-                    .roadAddress(request.roadAddress())
-                    .isMostRecent(true)
-                    .build();
+        }
+        catch (Exception ex) {
+            log.warn("주소 좌표 변환 실패 - address: {}, error: {}", request.address(), ex.getMessage());
+            throw new BadRequestException(ExceptionMessage.ADDRESS_GEOCODING_FAILED);
         }
     }
 }
