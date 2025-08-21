@@ -24,9 +24,12 @@ public enum ExceptionMessage {
     EMAIL_ALREADY_EXISTS("이미 사용 중인 이메일입니다."),
     NICKNAME_ALREADY_EXISTS("이미 사용 중인 닉네임입니다."),
     PHONE_ALREADY_EXISTS("이미 사용 중인 핸드폰번호입니다."),
-    BusinessLicenseNumber_ALREADY_EXISTS("이미 사용 중인 사업자번호입니다."),
+    BUSINESSLICENSENUMBER_ALREADY_EXISTS("이미 사용 중인 사업자번호입니다."),
     INVALID_PASSWORD_FORMAT("비밀번호는 8자 이상, 영문/숫자/특수문자를 포함해야 합니다."),
     INCORRECT_PASSWORD("기존 비밀번호가 틀립니다 다시 입력해주세요"),
+
+    // 주소 관련 에러 메시지 추가
+    ADDRESS_GEOCODING_FAILED("주소를 찾을 수 없습니다. 주소를 다시 확인해주세요."),
 
     // 사업자 승인 관련
     BUSINESS_APPROVAL_PENDING("사업자 등록 승인이 대기 중입니다. 승인 후 로그인해주세요."),
@@ -46,6 +49,8 @@ public enum ExceptionMessage {
 
     // 게시물 관련
     DATA_NOT_FOUND("데이터 정보가 없음"),
+    CART_DATA_DEFERENCE("다른 가게 장바구니 데이터 존재"),
+    DATA_NOT_FOUND("데이터 정보가 없음"),
 
     // 리뷰 관련
     INVALID_REVIEW_CONTENT_LENGTH("유효하지 않은 리뷰 내용 길이입니다."),
@@ -53,7 +58,7 @@ public enum ExceptionMessage {
     ALREADY_EXISTING_REVIEW("이미 해당 주문에 대해 존재하는 리뷰입니다."),
 
     // 주문 관련
-    INVALID_ORDER_STATUS("유효하지 않은 주문 상태 종류입니다.")
+    INVALID_ORDER_STATUS("유효하지 않은 주문 상태 종류입니다."),
 
     ;
 

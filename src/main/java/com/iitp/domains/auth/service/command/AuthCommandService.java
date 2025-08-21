@@ -17,6 +17,8 @@ import com.iitp.domains.member.service.query.MemberQueryService;
 import com.iitp.global.config.security.KakaoApiClient;
 import com.iitp.global.exception.BadRequestException;
 import com.iitp.global.exception.ExceptionMessage;
+import com.iitp.global.geoCode.GeocodingResult;
+import com.iitp.global.geoCode.KakaoGeocodingService;
 import com.iitp.global.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +38,7 @@ public class AuthCommandService {
     private final KakaoApiClient kakaoApiClient;
     private final JwtUtil jwtUtil;
     private final EmailCreateService emailCreateService;
-
+    private final KakaoGeocodingService kakaoGeocodingService;
 
     /**
      * 개인회원 카카오 회원가입
@@ -64,8 +66,15 @@ public class AuthCommandService {
         );
         Member savedMember = memberRepository.save(member);
 
+
         // 4. 위치 정보 생성 및 저장
-        Location location = createLocation(savedMember.getId(), request.address());
+        Location location = createLocationWithCoordinates(
+                savedMember.getId(),
+                request.address(),
+                request.roadAddress(),
+                request.latitude(),
+                request.longitude()
+        );
         Location savedLocation = locationRepository.save(location);
 
         // 5. JWT 토큰 생성 및 저장
@@ -213,11 +222,12 @@ public class AuthCommandService {
     }
 
     // 주소 생성
-    private Location createLocation(Long memberId, String address) {
+    private Location createLocation(Long memberId, String address, String roadAddress) {
 
         return Location.builder()
                 .memberId(memberId)
                 .address(address)
+                .roadAddress(roadAddress)
                 .isMostRecent(true)
                 .build();
     }
@@ -243,4 +253,39 @@ public class AuthCommandService {
             throw new BadRequestException(ExceptionMessage.NICKNAME_ALREADY_EXISTS);
         }
     }
+
+    private Location createLocationWithCoordinates(Long memberId, String address, String roadAddress, Double latitude, Double longitude) {
+        try {
+            log.info("주소 좌표 변환 시작 - fullAddress: {}", address);
+
+            // 카카오 지오코딩 API로 좌표 변환
+            GeocodingResult geocodingResult = kakaoGeocodingService.getCoordinates(address);
+
+            log.info("좌표 변환 성공 - lat: {}, lng: {}",
+                    geocodingResult.latitude(), geocodingResult.longitude());
+
+            return Location.builder()
+                    .memberId(memberId)
+                    .address(address)
+                    .roadAddress(roadAddress)
+                    .latitude(geocodingResult.latitude())
+                    .longitude(geocodingResult.longitude())
+                    .isMostRecent(true)
+                    .build();
+
+        } catch (Exception e) {
+            log.warn("좌표 변환 실패 - fullAddress: {}, error: {}", address, e.getMessage());
+
+            // 🔥 좌표 변환 실패 시에도 주소 정보는 저장
+            return Location.builder()
+                    .memberId(memberId)
+                    .address(address)
+                    .roadAddress(roadAddress)
+                    .latitude(null)  // null로 저장
+                    .longitude(null) // null로 저장
+                    .isMostRecent(true)
+                    .build();
+        }
+    }
+
 }
