@@ -48,9 +48,9 @@ jobs:
       - name: 도커 이미지 생성 및 도커 허브 Push
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/refood-server .
-          docker tag ${{ secrets.DOCKER_USERNAME }}/refood-server ${{ secrets.DOCKER_USERNAME }}/refood-server:${GITHUB_SHA::7}
-          docker push ${{ secrets.DOCKER_USERNAME }}/refood-server:${GITHUB_SHA::7}  # Github에서 기본적으로 제공하는 환경변수 commit SHA
+          docker compose -f docker-compose.yml build
+          docker tag refood-server ${{ secrets.DOCKER_USERNAME }}/refood-server:${GITHUB_SHA::7}
+          docker push ${{ secrets.DOCKER_USERNAME }}/refood-server:${GITHUB_SHA::7}
 
       - name: 도커 허브 Pull 및 서버 실행
         uses: appleboy/ssh-action@master
@@ -73,11 +73,13 @@ jobs:
           AWS_RDS_URL: ${{ secrets.AWS_RDS_URL }}
           AWS_RDS_USERNAME: ${{ secrets.AWS_RDS_USERNAME }}
           AWS_RDS_PASSWORD: ${{ secrets.AWS_RDS_PASSWORD }}
+          REDIS_HOST: ${{ secrets.REDIS_HOST }}
+          REDIS_PORT: ${{ secrets.REDIS_PORT }}
         with:
           host: ${{ secrets.AWS_EC2_PUBLIC_IP }}
           username: ubuntu
           key: ${{ secrets.AWS_EC2_PEM_KEY }}
-          envs: GITHUB_SHA,JWT_SECRET,JWT_ACCESS_TOKEN_EXPIRATION,JWT_REFRESH_TOKEN_EXPIRATION,KAKAO_CLIENT_ID,KAKAO_CLIENT_SECRET,KAKAO_REST_API_KEY,KAKAO_GEO_API_KEY,MAIL_USERNAME,MAIL_PASSWORD,BUSINESS_APPROVAL_BASE_URL,AWS_REGION,AWS_S3_BUCKET,AWS_IAM_ACCESS_KEY,AWS_IAM_SECRET_KEY,AWS_RDS_URL,AWS_RDS_USERNAME,AWS_RDS_PASSWORD
+          envs: GITHUB_SHA,JWT_SECRET,JWT_ACCESS_TOKEN_EXPIRATION,JWT_REFRESH_TOKEN_EXPIRATION,KAKAO_CLIENT_ID,KAKAO_CLIENT_SECRET,KAKAO_REST_API_KEY,KAKAO_GEO_API_KEY,MAIL_USERNAME,MAIL_PASSWORD,BUSINESS_APPROVAL_BASE_URL,AWS_REGION,AWS_S3_BUCKET,AWS_IAM_ACCESS_KEY,AWS_IAM_SECRET_KEY,AWS_RDS_URL,AWS_RDS_USERNAME,AWS_RDS_PASSWORD, REDIS_HOST, REDIS_PORT
           script: |
             set -euo pipefail
             
@@ -105,18 +107,32 @@ jobs:
             AWS_RDS_URL=${AWS_RDS_URL}
             AWS_RDS_USERNAME=${AWS_RDS_USERNAME}
             AWS_RDS_PASSWORD=${AWS_RDS_PASSWORD}
+            REDIS_HOST=${REDIS_HOST}
+            REDIS_PORT=${REDIS_PORT}
             EOF
             
             docker rm -f server || true
-            ## .env 파일 적용해서 도커 실행
-            docker run -d --name server \
-              --restart always \
+            docker rm -f redis || true
+            
+            ## 서버-redis 컨테이너간 네트워크 생성
+            docker network inspect appnet >/dev/null 2>&1 || docker network create appnet
+            
+            ## redis 컨테이너 실행
+            docker run --rm -d --name redis \
+              --network appnet \
+              -v /srv/refood/redis-data:/data \
+              redis:7-alpine \
+              redis-server --appendonly yes
+            
+            ## server 컨테이너 실행
+            docker run --rm -d --name server \
+              --network appnet \
               --env-file /home/ubuntu/app/.env \
               -e TZ=Asia/Seoul \
               -p 8080:8080 \
               refood-server
 
-            ## 서버 헬스 체크 (5초 대기 후 시작)
+            ## 서버 & 레디스 헬스 체크 (5초 대기 후 시작)
             TARGET_URL=localhost PORT=8080
             
             echo "> Waiting WAS for 5 seconds..."
@@ -130,8 +146,17 @@ jobs:
             if [ "$code" = "200" ]; then
               echo "> New WAS successfully running"
             else
-              echo "> Health check failed."
+              echo "> Server health check failed."
               exit 1
             fi
-
+            
+            pong=$(docker exec redis redis-cli ping)
+            echo "> redis ping=$pong"
+            
+            if [ "$pong" = "PONG" ]; then
+              echo "> Redis is healthy"
+            else
+              echo "> Redis health check failed."
+              exit 1
+            fi
             

@@ -1,5 +1,6 @@
 package com.iitp.domains.store.domain.entity;
 
+import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.favorite.domain.entity.Favorite;
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.StoreStatus;
@@ -25,7 +26,6 @@ public class Store extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // TODO :: 유저 연동되면 연결
     @Column(name = "member_id", nullable = false)
     private Long memberId;
 
@@ -64,6 +64,10 @@ public class Store extends BaseEntity {
     @Column(name = "category", nullable = false)
     private Category category;
 
+    @Column(name = "max_percent")
+    private int maxPercent;
+
+
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StoreImage> storeImages = new ArrayList<>();
 
@@ -82,5 +86,13 @@ public class Store extends BaseEntity {
         if(requestDto.origin() != null) this.origin = requestDto.origin();
         if(requestDto.openTime() != null) this.openTime = LocalTime.from(requestDto.openTime().toLocalDateTime());
         if(requestDto.closeTime() != null) this.closeTime = LocalTime.from(requestDto.closeTime().toLocalDateTime());
+    }
+
+    public void updatePercent(int maxPercent){
+        this.maxPercent = maxPercent;
+    }
+
+    public void updateStatus(){
+        this.status = StoreStatus.OPEN;
     }
 }

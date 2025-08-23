@@ -39,10 +39,10 @@ public class MemberQueryService {
 
         // 2. 역할에 따라 다른 응답 생성
         if (member.getRole() == Role.ROLE_USER) {
-            // 개인회원 - 위치 정보 포함
-            Optional<Location> location = findMostRecentLocation(memberId);
+            // 개인회원 - 가장 최근 위치의 주소만 가져오기
+            Optional<Location> mostRecentLocation = findMostRecentLocation(memberId);
 
-            return MemberProfileResponseDto.forUser(member, location.orElse(null));
+            return MemberProfileResponseDto.forUser(member, mostRecentLocation.orElse(null));
         } else {
             // 사업자회원
             return MemberProfileResponseDto.forStore(member);

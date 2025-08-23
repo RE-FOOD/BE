@@ -1,7 +1,6 @@
 package com.iitp.global.jwt;
 
-import com.iitp.domains.member.domain.Role;
-import com.iitp.global.config.security.MemberPrincipal;
+import com.iitp.global.config.security.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,8 +8,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -23,6 +23,7 @@ import java.util.List;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
+    private final CustomUserDetailsService userDetailsService;
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
@@ -35,7 +36,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = extractTokenFromRequest(request);
 
             if (token != null && jwtUtil.isValidToken(token) && jwtUtil.isAccessToken(token)) {
-                setAuthentication(token);
+                setAuthentication(token, request);
             }
         } catch (Exception e) {
             log.warn("JWT 인증 처리 중 오류 발생: {}", e.getMessage());
@@ -55,17 +56,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private void setAuthentication(String token) {
-        Long memberId = jwtUtil.getMemberIdFromToken(token);
-        String email = jwtUtil.getEmailFromToken(token);
-        Role role = jwtUtil.getRoleFromToken(token);
+    private void setAuthentication(String token, HttpServletRequest request) {
+        try {
+            // JWT에서 사용자 ID 추출
+            Long memberId = jwtUtil.getMemberIdFromToken(token);
 
-        List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(role.name()));
+            // DB에서 사용자 정보 조회
+            UserDetails userDetails = userDetailsService.loadUserById(memberId);
 
-        MemberPrincipal principal = new MemberPrincipal(memberId, email, role);
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(principal, null, authorities);
+            // Authentication 객체 생성
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+            // SecurityContext에 설정
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            log.debug("인증 설정 완료 - memberId: {}", memberId);
+
+        } catch (Exception e) {
+            log.warn("인증 설정 실패: {}", e.getMessage());
+            SecurityContextHolder.clearContext();
+        }
     }
 }

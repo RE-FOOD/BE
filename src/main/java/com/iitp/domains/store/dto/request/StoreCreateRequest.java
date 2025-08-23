@@ -25,7 +25,7 @@ public record StoreCreateRequest (
                 .name(this.name)
                 .memberId(memberId)
                 .phoneNumber(this.phoneNumber)
-                .status(StoreStatus.OPEN)
+                .status(StoreStatus.CLOSED)
                 .address(this.address)
                 .latitude(lat)
                 .longitude(lon)

@@ -7,6 +7,9 @@ import lombok.Builder;
 public record LocationResponseDto(
         Long id,
         String address,
+        String roadAddress,
+        Double latitude, // 위도
+        Double longitude, // 경도
         Boolean isMostRecent
 ) {
     public static LocationResponseDto from(Location location) {
@@ -17,6 +20,9 @@ public record LocationResponseDto(
         return LocationResponseDto.builder()
                 .id(location.getId())
                 .address(location.getAddress())
+                .roadAddress(location.getRoadAddress())
+                .latitude(location.getLatitude())
+                .longitude(location.getLongitude())
                 .isMostRecent(location.getIsMostRecent())
                 .build();
     }

@@ -15,5 +15,5 @@ import java.util.Optional;
 @Repository
 public interface StoreRepositoryCustom {
     Optional<Store> findByStoreId(Long storeId);
-    List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId, int limit);
+    List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId, boolean direction, int limit);
 }
