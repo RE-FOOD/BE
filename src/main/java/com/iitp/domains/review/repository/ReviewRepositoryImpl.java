@@ -4,8 +4,6 @@ import static com.iitp.domains.member.domain.entity.QMember.member;
 import static com.iitp.domains.order.domain.entity.QOrder.order;
 import static com.iitp.domains.review.domain.entity.QReview.review;
 
-import com.iitp.domains.member.domain.entity.QMember;
-import com.iitp.domains.order.domain.entity.QOrder;
 import com.iitp.domains.review.domain.entity.Review;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -22,8 +20,26 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom{
         List<Review> result = queryFactory.selectFrom(review)
                 .join(review.order, order).fetchJoin()
                 .join(review.member, member).fetchJoin()
-                .where(review.store.isDeleted.isFalse())
                 .where(review.store.id.eq(storeId))
+                .where(review.store.isDeleted.isFalse())
+                // 기본 정렬: 최신순
+                .where(ltCursorId(cursorId))
+                .orderBy(review.id.desc())
+                // 개수 제한
+                .limit(limit)
+                .fetch();
+
+        return result;
+    }
+
+    @Override
+    public List<Review> findReviewsByMember(long memberId, long cursorId, int limit) {
+        // 존재하는 Store 조회 (isDeleted)
+        List<Review> result = queryFactory.selectFrom(review)
+                .join(review.order, order).fetchJoin()
+                .join(review.member, member).fetchJoin()
+                .where(review.member.id.eq(memberId))
+                .where(review.member.isDeleted.isFalse())
                 // 기본 정렬: 최신순
                 .where(ltCursorId(cursorId))
                 .orderBy(review.id.desc())

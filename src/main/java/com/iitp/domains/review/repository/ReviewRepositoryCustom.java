@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ReviewRepositoryCustom {
-    public List<Review> findReviewsByStore(long storeId, long cursorId, int limit);
-
+    List<Review> findReviewsByStore(long storeId, long cursorId, int limit);
+    List<Review> findReviewsByMember(long memberId, long cursorId, int limit);
 }
