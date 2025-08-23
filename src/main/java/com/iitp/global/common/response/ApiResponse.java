@@ -20,6 +20,10 @@ public class ApiResponse<T> {
         return new ApiResponse<>(OK_CODE, DEFAULT_MESSAGE, null);
     }
 
+    public static <T> ApiResponse<T> ok(T data) {
+        return new ApiResponse<>(OK_CODE, DEFAULT_MESSAGE, data);
+    }
+
     public static <T> ApiResponse<T> ok(String message) {
         return new ApiResponse<>(OK_CODE, message, null);
     }
