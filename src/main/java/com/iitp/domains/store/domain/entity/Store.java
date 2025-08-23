@@ -64,7 +64,7 @@ public class Store extends BaseEntity {
     private Category category;
 
     @Column(name = "max_percent")
-    private int maxPercent;
+    private Integer maxPercent;
 
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
