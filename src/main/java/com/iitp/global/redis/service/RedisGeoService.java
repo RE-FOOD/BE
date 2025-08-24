@@ -2,15 +2,25 @@ package com.iitp.global.redis.service;
 
 import com.iitp.domains.map.dto.StoreLocationDto;
 import com.iitp.domains.store.domain.entity.Store;
+import com.iitp.global.exception.ExceptionMessage;
+import com.iitp.global.exception.NotFoundException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.geo.*;
+import org.springframework.data.geo.Circle;
+import org.springframework.data.geo.Distance;
+import org.springframework.data.geo.GeoResults;
+import org.springframework.data.geo.Metrics;
+import org.springframework.data.geo.Point;
 import org.springframework.data.redis.connection.RedisGeoCommands;
+import org.springframework.data.redis.connection.RedisGeoCommands.GeoLocation;
+import org.springframework.data.redis.connection.RedisGeoCommands.GeoRadiusCommandArgs;
+import org.springframework.data.redis.core.GeoOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +29,7 @@ public class RedisGeoService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private static final String STORE_GEO_KEY = "store:geo";
+    public static final String MEMBER_TEMPLATE_KEY = "tmp:user";
 
     /**
      * 가게 위치 정보를 Redis GEO에 추가 및 업데이트
@@ -118,5 +129,16 @@ public class RedisGeoService {
             log.error("모든 가게 위치 정보 Redis 삭제 실패 - error: {}", e.getMessage());
         }
     }
+
+    public double getKiloMeterDistanceToStore(long storeId, double latitude, double longitude) {
+        String tmpMember = MEMBER_TEMPLATE_KEY + UUID.randomUUID();
+        GeoOperations<String, String> geo = redisTemplate.opsForGeo();
+
+        geo.add(STORE_GEO_KEY, new Point(longitude, latitude), tmpMember); // (lon, lat)
+        Distance distance = geo.distance(STORE_GEO_KEY, tmpMember, String.valueOf(storeId), Metrics.KILOMETERS);
+        redisTemplate.opsForZSet().remove(STORE_GEO_KEY, tmpMember);
+        return distance.getValue();
+    }
+
 
 }
