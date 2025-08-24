@@ -80,6 +80,18 @@ public class RedisGeoService {
     }
 
     /**
+     * 가게 위치 정보 삭제
+     */
+    public void removeStoreLocation(Long storeId) {
+        try {
+            redisTemplate.opsForGeo().remove(STORE_GEO_KEY, storeId.toString());
+            log.debug("가게 위치 정보 Redis 삭제 완료 - storeId: {}", storeId);
+        } catch (Exception e) {
+            log.error("가게 위치 정보 Redis 삭제 실패 - storeId: {}, error: {}", storeId, e.getMessage());
+        }
+    }
+
+    /**
      * 모든 가게 위치 정보 삭제 (초기화용)
      */
     public void clearAllStoreLocations() {
