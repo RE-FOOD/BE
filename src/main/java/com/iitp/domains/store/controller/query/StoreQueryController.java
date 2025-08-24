@@ -48,9 +48,12 @@ public class StoreQueryController {
 
     @Operation(summary = "가게 세부 내용 호출", description = "가게 세부 내용 출력합니다.")
     @GetMapping("/{storeId}")
-    public ApiResponse<StoreDetailResponse> findStore(@PathVariable Long storeId) {
-
-        StoreDetailResponse responses = storeQueryService.findStoreData(storeId);
+    public ApiResponse<StoreDetailResponse> findStore(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @PathVariable Long storeId
+    ) {
+        Long memberId = userDetails.getMemberId();
+        StoreDetailResponse responses = storeQueryService.findStoreData(memberId, storeId);
 
         return ApiResponse.ok(200, responses, "상세 가게 호출 성공");
     }
