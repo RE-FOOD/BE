@@ -26,6 +26,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .join(review.member, member).fetchJoin()
                 .where(review.store.id.eq(storeId))
                 .where(review.store.isDeleted.isFalse())
+                .where(review.isDeleted.isFalse())
                 // 기본 정렬: 최신순
                 .where(ltCursorId(cursorId))
                 .orderBy(review.id.desc())
@@ -58,6 +59,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
                 .join(review.member, member).fetchJoin()
                 .where(review.member.id.eq(memberId))
                 .where(review.member.isDeleted.isFalse())
+                .where(review.isDeleted.isFalse())
                 // 기본 정렬: 최신순
                 .where(ltCursorId(cursorId))
                 .orderBy(review.id.desc())
