@@ -70,8 +70,7 @@ public class StoreQueryController {
         TwoWayCursorListResponse<StoreListResponse> responses = storeQueryService
                 .findFavoriteStores(memberId, sort, cursorId, limit);
 
-        // TODO: ok 리팩토링 반영
-        return ApiResponse.ok(200, responses, "가게 리스트 호출 성공");
+        return ApiResponse.ok(responses);
     }
 
 }
