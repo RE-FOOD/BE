@@ -154,8 +154,58 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         );
     }
 
+    @Override
+    public List<StoreListQueryResult> findFavoriteStores(long memberId, SortType sort, long cursorId, int limit) {
+        // 정렬 방법에 따라서 cursorId 다르게 지정
+        // 기본 -> ORDER BY favorite.id DESC
+        // TODO: 정렬 방법에 따라 다르게 정렬
+        // NEAR -> 현재 회원의 위도경도 비교해서
+        // REVIEW -> review 수에 따라서 정렬
+        // RATING -> review rating에 따라서 정렬
+        List<Store> stores = queryFactory.selectFrom(store)
+                .leftJoin(store.favorites, favorite)
+                .leftJoin(store.reviews, review)
+                .leftJoin(store.storeImages, storeImage)
+                .where(favorite.member.id.eq(memberId))
+                .where(ltCursorId(cursorId))
+                .orderBy(favorite.id.desc())
+                .limit(limit)
+                .fetch();
 
+        stores.forEach(it -> System.out.println("it.getName() = " + it.getName()));
 
+        // review.rating.avg(), review.count()
+        // store.openTime, closeTime -> Status 여기서 결정해버리기
+        List<StoreListQueryResult> resultList = queryFactory
+                .select(Projections.constructor(StoreListQueryResult.class,
+                        store.id,
+                        store.name,
+                        store.status,
+                        getImageKeyPath(storeImage.imageKey),
+                        store.maxPercent,
+                        review.rating.avg(),
+                        review.countDistinct(),
+                        store.openTime,
+                        store.closeTime)
+                )
+                .from(store)
+                .leftJoin(store.favorites, favorite)
+                .leftJoin(store.reviews, review)
+                .leftJoin(store.storeImages, storeImage)
+                .where(
+                        store.isDeleted.eq(false),
+                        favorite.member.id.eq(memberId),
+                        ltCursorId(cursorId)
+                )
+                .orderBy(
+                        store.status.desc(),
+                        favorite.id.desc()  // 찜한 순서대로 ID 내림차순 정렬
+                )
+                .limit(limit)
+                .fetch();
+
+        return resultList;
+    }
 
     private BooleanExpression eqWriterId(Long userId) {
         return userId != null ? store.memberId.eq(userId) : null;

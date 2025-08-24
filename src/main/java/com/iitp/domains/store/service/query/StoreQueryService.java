@@ -1,5 +1,7 @@
 package com.iitp.domains.store.service.query;
 
+import com.iitp.domains.member.domain.entity.Member;
+import com.iitp.domains.member.service.query.MemberQueryService;
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
 import com.iitp.domains.store.domain.StoreStatus;
@@ -10,21 +12,18 @@ import com.iitp.domains.store.dto.response.StoreListResponse;
 import com.iitp.domains.store.dto.response.StoreListTotalResponse;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import com.iitp.domains.store.repository.store.StoreRepository;
-import com.iitp.global.common.constants.Constants;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import com.iitp.global.redis.service.StoreRedisService;
 import com.iitp.imageUpload.service.query.ImageGetService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -35,6 +34,7 @@ public class StoreQueryService {
     private final StoreRepository storeRepository;
     private final ImageGetService imageGetService;
     private final MenuQueryService menuQueryService;
+    private final MemberQueryService memberQueryService;
     private final StoreRedisService cacheService;
     private Long currentCachedStoreId = null;
 
@@ -44,10 +44,7 @@ public class StoreQueryService {
 
         List<StoreListResponse> stores = new  ArrayList<>();
 
-
-        // TODO :: 리뷰 연동되면 수정
-        double rating = 3.5;
-        int count = 100;
+        // TODO: 거리 계산?
         double distance = 5.5;
 
         results.stream()
@@ -58,9 +55,6 @@ public class StoreQueryService {
                             stores.add(StoreListResponse.fromQueryResult(
                                     result,
                                     imageUrl,
-                                    result.maxPercent(),
-                                    rating,
-                                    count,
                                     distance,
                                     ((result.openTime().isBefore(LocalTime.now())) && (LocalTime.now().isBefore(result.closeTime()))) ? result.status(): StoreStatus.CLOSED));
                         });
@@ -102,6 +96,17 @@ public class StoreQueryService {
         return response;
     }
 
+    public List<StoreListResponse> findFavoriteStores(long memberId, SortType sort, long cursorId, int limit) {
+        Member member = memberQueryService.findMemberById(memberId);
+        // Repository단 조회
+        List<StoreListQueryResult> favoriteStores = storeRepository.findFavoriteStores(memberId, sort, cursorId, limit);
+        favoriteStores.forEach(it->{
+            System.out.println("it.name() = " + it.name());
+            System.out.println("it.maxPercent() = " + it.maxPercent());
+        });
+
+        return null;
+    }
 
     public Store findExistingStore(Long storeId) {
         Store store = storeRepository.findByStoreId(storeId)
