@@ -1,8 +1,10 @@
 package com.iitp.domains.store.repository.store;
 
+import static com.iitp.domains.favorite.domain.entity.QFavorite.favorite;
+import static com.iitp.domains.review.domain.entity.QReview.review;
+
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
-import com.iitp.domains.store.domain.StoreStatus;
 import com.iitp.domains.store.domain.entity.QStore;
 import com.iitp.domains.store.domain.entity.QStoreImage;
 import com.iitp.domains.store.domain.entity.Store;
@@ -10,16 +12,15 @@ import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
-import lombok.RequiredArgsConstructor;
-
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class StoreRepositoryImpl implements StoreRepositoryCustom {
@@ -30,56 +31,43 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
 
     @Override
-    public List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId, boolean direction, int limit) {
+    public List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId,
+                                                 boolean direction, int limit) {
 
-        // direction = true: 다음 페이지 (9, 10, 11, ..., 18)
+        JPAQuery<StoreListQueryResult> baseQuery = queryFactory
+                .selectDistinct(Projections.constructor(StoreListQueryResult.class,
+                        store.id,
+                        store.name,
+                        store.status,
+                        getImageKeyPath(storeImage.imageKey),
+                        store.maxPercent,
+                        review.rating.avg(),
+                        review.countDistinct(),
+                        store.openTime,
+                        store.closeTime))
+                .from(store)
+                .leftJoin(store.storeImages, storeImage)
+                .leftJoin(store.reviews, review)
+                .where(
+                        store.isDeleted.eq(false),
+                        eqCategory(category),
+                        eqKeyword(keyword))
+                .groupBy(store.id, store.name, store.address, store.category);
+
+        // direction = true: 다음 페이지 (9, 10, 11, ..., 18). 오름차순 정렬
+        // direction = false: 이전 페이지 (cursorId 이전의 값들 + 부족하면 cursorId 이후도 포함). 내림차순 정렬
         if (direction) {
-            return queryFactory
-                    .selectDistinct(Projections.constructor(StoreListQueryResult.class,
-                            store.id,
-                            store.name,
-                            store.status,
-                            Expressions.stringTemplate("MIN({0})", storeImage.imageKey),
-                            store.maxPercent,
-                            store.openTime,
-                            store.closeTime))
-                    .from(store)
-                    .leftJoin(store.storeImages, storeImage)
-                    .where(
-                            store.isDeleted.eq(false),
-                            cursorId != null ? store.id.gt(cursorId) : null,  // cursorId보다 큰 ID
-                            eqCategory(category),
-                            eqKeyword(keyword)
-                    )
-                    .groupBy(store.id, store.name, store.address, store.category)
+            return baseQuery
+                    .where(gtCursorId(cursorId))
                     .orderBy(
                             store.status.desc(),
-                            store.id.asc()  // ID 오름차순 정렬
-                    )
+                            store.id.asc())
                     .limit(limit)
                     .fetch();
-        }
-        // direction = false: 이전 페이지 (cursorId 이전의 값들 + 부족하면 cursorId 이후도 포함)
-        else{
+        } else {
             // 1단계: cursorId 이전의 값들을 먼저 조회
-            List<StoreListQueryResult> beforeResults = queryFactory
-                    .selectDistinct(Projections.constructor(StoreListQueryResult.class,
-                            store.id,
-                            store.name,
-                            store.status,
-                            Expressions.stringTemplate("MIN({0})", storeImage.imageKey),
-                            store.maxPercent,
-                            store.openTime,
-                            store.closeTime))
-                    .from(store)
-                    .leftJoin(store.storeImages, storeImage)
-                    .where(
-                            store.isDeleted.eq(false),
-                            cursorId != null ? store.id.lt(cursorId) : null,  // cursorId보다 작은 ID
-                            eqCategory(category),
-                            eqKeyword(keyword)
-                    )
-                    .groupBy(store.id, store.name, store.address, store.category)
+            List<StoreListQueryResult> beforeResults = baseQuery
+                    .where(ltCursorId(cursorId))  // cursorId보다 작은 ID)
                     .orderBy(
                             store.status.desc(),
                             store.id.desc()  // ID 내림차순 정렬
@@ -91,24 +79,8 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
             if (beforeResults.size() < limit) {
                 int remainingLimit = limit - beforeResults.size();
 
-                List<StoreListQueryResult> afterResults = queryFactory
-                        .selectDistinct(Projections.constructor(StoreListQueryResult.class,
-                                store.id,
-                                store.name,
-                                store.status,
-                                Expressions.stringTemplate("MIN({0})", storeImage.imageKey),
-                                store.maxPercent,
-                                store.openTime,
-                                store.closeTime))
-                        .from(store)
-                        .leftJoin(store.storeImages, storeImage)
-                        .where(
-                                store.isDeleted.eq(false),
-                                cursorId != null ? store.id.goe(cursorId) : null,  // cursorId 이상의 ID
-                                eqCategory(category),
-                                eqKeyword(keyword)
-                        )
-                        .groupBy(store.id, store.name, store.address, store.category)
+                List<StoreListQueryResult> afterResults = baseQuery
+                        .where(goeCursorId(cursorId))
                         .orderBy(
                                 store.status.desc(),
                                 store.id.asc()  // ID 오름차순 정렬
@@ -134,6 +106,9 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
     }
 
 
+    private com.querydsl.core.types.dsl.StringTemplate getImageKeyPath(StringPath path) {
+        return Expressions.stringTemplate("MIN({0})", path);
+    }
 
 //    @Override
 //    public List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId, boolean direction, int limit) {
@@ -181,6 +156,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
 
 
+
     private BooleanExpression eqWriterId(Long userId) {
         return userId != null ? store.memberId.eq(userId) : null;
     }
@@ -190,12 +166,35 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
     }
 
     private BooleanExpression eqKeyword(String keyword) {
-        return keyword != null ? store.origin.containsIgnoreCase(keyword).or(store.name.containsIgnoreCase(keyword)) : null;
+        return keyword != null
+                ? store.origin.containsIgnoreCase(keyword).or(store.name.containsIgnoreCase(keyword))
+                : null;
     }
 
-    private BooleanExpression validCursorId(Long cursorId) {
-        return cursorId!=null ? store.id.gt(cursorId) : null;
+    private static BooleanExpression gtCursorId(Long cursorId) {
+        if (cursorId == null || cursorId == 0) {
+            return null;
+        } else {
+            return store.id.gt(cursorId);
+        }
     }
+
+    private static BooleanExpression ltCursorId(Long cursorId) {
+        if (cursorId == null || cursorId == 0) {
+            return null;
+        } else {
+            return store.id.lt(cursorId);
+        }
+    }
+
+    private static BooleanExpression goeCursorId(Long cursorId) {
+        if (cursorId == null || cursorId == 0) {
+            return null;
+        } else {
+            return store.id.goe(cursorId);
+        }
+    }
+
 //    private OrderSpecifier<?> getOrderSpecifier(String sort) {
 //        Order order =  Order.ASC ;
 //
