@@ -9,6 +9,7 @@ import com.iitp.domains.store.domain.entity.QStore;
 import com.iitp.domains.store.domain.entity.QStoreImage;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
+import com.iitp.global.util.query.QueryExpressionFormatter;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -42,7 +43,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                         store.id,
                         store.name,
                         store.status,
-                        getImageKeyPath(storeImage.imageKey),
+                        QueryExpressionFormatter.getImageKeyPath(storeImage.imageKey),
                         store.maxPercent,
                         review.rating.avg(),
                         review.countDistinct(),
@@ -108,11 +109,6 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         }
     }
 
-
-    private com.querydsl.core.types.dsl.StringTemplate getImageKeyPath(StringPath path) {
-        return Expressions.stringTemplate("MIN({0})", path);
-    }
-
 //    @Override
 //    public List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId, boolean direction, int limit) {
 //
@@ -173,7 +169,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                         store.id,
                         store.name,
                         store.status,
-                        getImageKeyPath(storeImage.imageKey),
+                        QueryExpressionFormatter.getImageKeyPath(storeImage.imageKey),
                         store.maxPercent,
                         review.rating.avg(),
                         review.countDistinct(),
@@ -238,7 +234,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
     }
 
     private OrderSpecifier<?> getOrderSpecifier(String sort) {
-        Order order =  Order.DESC ;
+        Order order = Order.DESC;
 
         if (Objects.isNull(sort)) {
             return new OrderSpecifier<>(order, store.id);
