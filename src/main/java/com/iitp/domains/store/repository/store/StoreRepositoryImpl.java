@@ -38,7 +38,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                         store.status,
                         QueryExpressionFormatter.getImageKeyPath(storeImage.imageKey),
                         store.maxPercent,
-                        review.rating.avg(),
+                        QueryExpressionFormatter.roundDoubleByFirstDecimalPlace(review.rating.avg()),
                         review.countDistinct(),
                         store.openTime,
                         store.closeTime))
@@ -164,7 +164,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                         store.status,
                         QueryExpressionFormatter.getImageKeyPath(storeImage.imageKey),
                         store.maxPercent,
-                        review.rating.avg(),
+                        QueryExpressionFormatter.roundDoubleByFirstDecimalPlace(review.rating.avg()),
                         review.countDistinct(),
                         store.openTime,
                         store.closeTime)
