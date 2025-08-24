@@ -36,6 +36,7 @@ public enum ExceptionMessage {
 
     // 권한 관련
     ACCESS_DENIED("접근 권한이 없습니다."),
+    ACCESS_DENIED_NOT_AUTHOR("해당 데이터의 작성자가 아닙니다."),
     INSUFFICIENT_PERMISSION("해당 작업을 수행할 권한이 없습니다."),
 
     // 카카오 관련
@@ -49,7 +50,21 @@ public enum ExceptionMessage {
 
     // 게시물 관련
     DATA_NOT_FOUND("데이터 정보가 없음"),
-    CART_DATA_DEFERENCE("다른 가게 장바구니 데이터 존재");
+    CART_DATA_DEFERENCE("다른 가게 장바구니 데이터 존재"),
+
+    // 리뷰 관련
+    INVALID_REVIEW_CONTENT_LENGTH("유효하지 않은 리뷰 내용 길이입니다."),
+    INVALID_REVIEW_RATING("유효하지 않은 리뷰 별점입니다."),
+    ALREADY_EXISTING_REVIEW_OF_ORDER("해당 주문에 대해 이미 리뷰가 존재합니다"),
+    REVIEW_NOT_FOUND("리뷰를 찾을 수 없습니다."),
+
+
+    // 주문 관련
+    INVALID_ORDER_STATUS("유효하지 않은 주문 상태 종류입니다."),
+    ORDER_NOT_FOUND("주문을 찾을 수 없습니다."),
+    ORDER_STATUS_NOT_COMPLETED("주문이 아직 완료되지 않았습니다."),
+
+    ;
 
     private final String message;
 }
