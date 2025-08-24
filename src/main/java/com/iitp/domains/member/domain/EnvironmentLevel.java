@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum EnvironmentLevel {
-    SPROUT(0), //새싹
-    SEEDLING(1), // 묘목
-    TREE(2), // 나무
-    FRUIT(3); // 열매
+    SPROUT(1), //새싹
+    SEEDLING(2), // 묘목
+    TREE(3), // 나무
+    FRUIT(4); // 열매
 
     private final int level;
 }
