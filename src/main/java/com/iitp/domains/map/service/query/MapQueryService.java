@@ -4,6 +4,8 @@ import com.iitp.domains.map.dto.responseDto.MapListResponseDto;
 import com.iitp.domains.map.dto.responseDto.MapMarkerResponseDto;
 import com.iitp.domains.map.dto.responseDto.MapSummaryResponseDto;
 import com.iitp.domains.map.repository.MapRepository;
+import com.iitp.domains.review.dto.response.ReviewResponse;
+import com.iitp.domains.review.service.query.ReviewQueryService;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
@@ -31,6 +33,7 @@ public class MapQueryService {
     private final RedisGeoService redisGeoService;
     private final ImageGetService imageGetService;
     private final DistanceCalculator distanceCalculator;
+    private final ReviewQueryService reviewQueryService;
 
     /**
      * 근처 가게 마커 조회
@@ -79,11 +82,25 @@ public class MapQueryService {
         // 픽업 가능 시간 생성
         String pickupTime = generatePickupTime(store);
 
-        // TODO: 리뷰 정보 조회 (임시 데이터)
-        Double rating = 3.5;
-        Integer reviewCount = 1030;
 
-        return MapSummaryResponseDto.from(store, imageUrl, pickupTime, distance, rating, reviewCount);
+        // 리뷰 조회
+        List<ReviewResponse> reviews = reviewQueryService.readStoreReviews(
+                null, storeId, 0L, Integer.MAX_VALUE);
+
+        Double rating = 0.0;
+        Integer reviewCount = 0;
+
+        if (!reviews.isEmpty()) {
+            rating = reviews.stream()
+                    .mapToInt(ReviewResponse::rating)
+                    .average()
+                    .orElse(0.0);
+            rating = Math.round(rating * 10.0) / 10.0;
+            reviewCount = reviews.size();
+        }
+
+        return MapSummaryResponseDto.from(store, imageUrl, pickupTime, distance,
+                rating, reviewCount);
     }
 
     /**
@@ -115,9 +132,21 @@ public class MapQueryService {
                             latitude, longitude,
                             store.getLatitude(), store.getLongitude());
 
-                    // TODO: 리뷰 정보 조회 (임시 데이터)
-                    Double rating = 3.5;
-                    Integer reviewCount = 1030;
+                    // 리뷰 조회
+                    List<ReviewResponse> reviews = reviewQueryService.readStoreReviews(
+                            null, store.getId(), 0L, Integer.MAX_VALUE);
+
+                    Double rating = 0.0;
+                    Integer reviewCount = 0;
+
+                    if (!reviews.isEmpty()) {
+                        rating = reviews.stream()
+                                .mapToInt(ReviewResponse::rating)
+                                .average()
+                                .orElse(0.0);
+                        rating = Math.round(rating * 10.0) / 10.0;
+                        reviewCount = reviews.size();
+                    }
 
                     return MapListResponseDto.from(store, imageUrl, distance, rating, reviewCount);
                 })
