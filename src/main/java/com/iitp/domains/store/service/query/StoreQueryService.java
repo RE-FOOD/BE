@@ -1,6 +1,7 @@
 package com.iitp.domains.store.service.query;
 
-import com.iitp.domains.member.domain.entity.Member;
+import com.iitp.domains.member.domain.entity.Location;
+import com.iitp.domains.member.service.query.LocationQueryService;
 import com.iitp.domains.member.service.query.MemberQueryService;
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
@@ -12,12 +13,13 @@ import com.iitp.domains.store.dto.response.StoreListResponse;
 import com.iitp.domains.store.dto.response.StoreListTotalResponse;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import com.iitp.domains.store.repository.store.StoreRepository;
+import com.iitp.global.common.response.TwoWayCursorListResponse;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
+import com.iitp.global.redis.service.RedisGeoService;
 import com.iitp.global.redis.service.StoreRedisService;
 import com.iitp.imageUpload.service.query.ImageGetService;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -35,32 +37,20 @@ public class StoreQueryService {
     private final ImageGetService imageGetService;
     private final MenuQueryService menuQueryService;
     private final MemberQueryService memberQueryService;
+    private final LocationQueryService locationQueryService;
     private final StoreRedisService cacheService;
+    private final RedisGeoService redisGeoService;
     private Long currentCachedStoreId = null;
 
-    public StoreListTotalResponse findStores(Category category, String keyword, SortType sort, Long cursorId, boolean direction, int limit) {
-
-        List<StoreListQueryResult> results = storeRepository.findStores(category,keyword,sort,cursorId,direction, limit);
-
-        List<StoreListResponse> stores = new  ArrayList<>();
-
-        // TODO: 거리 계산?
-        double distance = 5.5;
-
-        results.stream()
-                        .forEach(result -> {
-                            // S3 이미지 경로 호출
-                            String imageUrl = imageGetService.getGetS3Url(result.imageKey()).preSignedUrl();
-                            log.info(String.valueOf(result.openTime().isAfter(LocalTime.now())));
-                            stores.add(StoreListResponse.fromQueryResult(
-                                    result,
-                                    imageUrl,
-                                    distance,
-                                    ((result.openTime().isBefore(LocalTime.now())) && (LocalTime.now().isBefore(result.closeTime()))) ? result.status(): StoreStatus.CLOSED));
-                        });
+    public StoreListTotalResponse findStores(Long memberId, Category category, String keyword, SortType sort,
+                                             Long cursorId, boolean direction, int limit) {
+        Location memberLocation = locationQueryService.getMemberBaseLocation(memberId);
+        List<StoreListQueryResult> results = storeRepository.findStores(category, keyword, sort, cursorId, direction, limit);
+        List<StoreListResponse> stores = convertQueryResultToResponse(results, memberLocation);
 
         return new StoreListTotalResponse(stores.getFirst().id(), stores.getLast().id(), stores);
     }
+
 
     public StoreDetailResponse findStoreData(Long storeId) {
         // 캐시된 데이터가 있고, 다른 가게를 요청하는 경우
@@ -79,7 +69,7 @@ public class StoreQueryService {
 
         List<String> imageUrls = store.getStoreImages().stream()
                 .map(result -> getImageUrl(result.getImageKey()))
-                .collect(Collectors.toList());;
+                .collect(Collectors.toList());
 
         List<MenuListResponse> menus = menuQueryService.findMenus(storeId);
 
@@ -88,7 +78,7 @@ public class StoreQueryService {
         double ratingAvg = 3.5;
         int count = 100;
 
-        StoreDetailResponse response = StoreDetailResponse.from(store,imageUrls,menus, like, ratingAvg, count);
+        StoreDetailResponse response = StoreDetailResponse.from(store, imageUrls, menus, like, ratingAvg, count);
 
         // 캐시에 저장
 //        cacheService.cacheStoreDetail(response);
@@ -96,16 +86,17 @@ public class StoreQueryService {
         return response;
     }
 
-    public List<StoreListResponse> findFavoriteStores(long memberId, SortType sort, long cursorId, int limit) {
-        Member member = memberQueryService.findMemberById(memberId);
-        // Repository단 조회
-        List<StoreListQueryResult> favoriteStores = storeRepository.findFavoriteStores(memberId, sort, cursorId, limit);
-        favoriteStores.forEach(it->{
-            System.out.println("it.name() = " + it.name());
-            System.out.println("it.maxPercent() = " + it.maxPercent());
-        });
+    public TwoWayCursorListResponse<StoreListResponse> findFavoriteStores(
+            long memberId,
+            SortType sort,
+            long cursorId,
+            int limit
+    ) {
+        List<StoreListQueryResult> result = storeRepository.findFavoriteStores(memberId, sort, cursorId, limit);
+        Location baseLocation = locationQueryService.getMemberBaseLocation(memberId);
+        List<StoreListResponse> stores = convertQueryResultToResponse(result, baseLocation);
 
-        return null;
+        return new TwoWayCursorListResponse<>(stores.getFirst().id(), stores.getLast().id(), stores);
     }
 
     public Store findExistingStore(Long storeId) {
@@ -119,5 +110,32 @@ public class StoreQueryService {
 
     private String getImageUrl(String imageKey) {
         return imageGetService.getGetS3Url(imageKey).preSignedUrl();
+    }
+
+    private List<StoreListResponse> convertQueryResultToResponse(
+            List<StoreListQueryResult> results,
+            Location location
+    ) {
+
+        return results.stream()
+                .map(result -> {
+                    String imageUrl = imageGetService.getGetS3Url(result.imageKey()).preSignedUrl();
+                    double distance = redisGeoService.getKiloMeterDistanceToStore(
+                            result.id(),
+                            location.getLatitude(),
+                            location.getLongitude());
+
+                    log.info(String.valueOf(result.openTime().isAfter(LocalTime.now())));
+
+                    return StoreListResponse.fromQueryResult(
+                            result,
+                            imageUrl,
+                            distance,
+                            ((result.openTime().isBefore(LocalTime.now())) && (LocalTime.now()
+                                    .isBefore(result.closeTime())))
+                                    ? result.status()
+                                    : StoreStatus.CLOSED
+                    );
+                }).toList();
     }
 }

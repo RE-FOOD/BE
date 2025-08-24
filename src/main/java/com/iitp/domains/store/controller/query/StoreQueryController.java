@@ -7,6 +7,7 @@ import com.iitp.domains.store.dto.response.StoreListResponse;
 import com.iitp.domains.store.dto.response.StoreListTotalResponse;
 import com.iitp.domains.store.service.query.StoreQueryService;
 import com.iitp.global.common.response.ApiResponse;
+import com.iitp.global.common.response.TwoWayCursorListResponse;
 import com.iitp.global.config.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +30,7 @@ public class StoreQueryController {
     @Operation(summary = "가게 리스트 호출", description = "필터에 적합한 가게 리스트를 출력합니다.")
     @GetMapping("")
     public ApiResponse<StoreListTotalResponse> findStores(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "category", required = false) Category category,
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "sort", required = false) SortType sort,
@@ -36,9 +38,9 @@ public class StoreQueryController {
             @RequestParam(value = "direction", defaultValue = "true") boolean direction,
             @RequestParam(value = "limit", defaultValue = "15") int limit
     ) {
-
+        Long memberId = userDetails.getMemberId();
         StoreListTotalResponse responses = storeQueryService
-                .findStores(category, keyword, sort, cursorId, direction, limit);
+                .findStores(memberId, category, keyword, sort, cursorId, direction, limit);
 
         return ApiResponse.ok(200, responses, "가게 리스트 호출 성공");
     }
@@ -55,14 +57,14 @@ public class StoreQueryController {
 
     @GetMapping("/favorites/me")
     @Operation(summary = "회원의 찜한 가게 목록 조회", description = "필터에 적합한 찜한 가게들을 출력합니다.")
-    public ApiResponse<List<StoreListResponse>> findMyFavoriteStores(
+    public ApiResponse<TwoWayCursorListResponse<StoreListResponse>> findMyFavoriteStores(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "sort", required = false) SortType sort,
             @RequestParam(value = "cursorId", defaultValue = "0") Long cursorId,
             @RequestParam(value = "limit", defaultValue = "15") int limit
     ) {
         Long memberId = userDetails.getMemberId();
-        List<StoreListResponse> responses = storeQueryService
+        TwoWayCursorListResponse<StoreListResponse> responses = storeQueryService
                 .findFavoriteStores(memberId, sort, cursorId, limit);
 
         // TODO: ok 리팩토링 반영

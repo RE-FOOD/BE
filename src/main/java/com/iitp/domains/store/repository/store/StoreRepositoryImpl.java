@@ -9,6 +9,8 @@ import com.iitp.domains.store.domain.entity.QStore;
 import com.iitp.domains.store.domain.entity.QStoreImage;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -18,6 +20,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -156,25 +159,14 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
     @Override
     public List<StoreListQueryResult> findFavoriteStores(long memberId, SortType sort, long cursorId, int limit) {
+
         // 정렬 방법에 따라서 cursorId 다르게 지정
         // 기본 -> ORDER BY favorite.id DESC
         // TODO: 정렬 방법에 따라 다르게 정렬
         // NEAR -> 현재 회원의 위도경도 비교해서
+        // TODO: 위도 경도 비교 어떻게? SQL로 해결할 수 있는 문제인지 아니면...
         // REVIEW -> review 수에 따라서 정렬
         // RATING -> review rating에 따라서 정렬
-        List<Store> stores = queryFactory.selectFrom(store)
-                .leftJoin(store.favorites, favorite)
-                .leftJoin(store.reviews, review)
-                .leftJoin(store.storeImages, storeImage)
-                .where(favorite.member.id.eq(memberId))
-                .where(ltCursorId(cursorId))
-                .orderBy(favorite.id.desc())
-                .limit(limit)
-                .fetch();
-
-        stores.forEach(it -> System.out.println("it.getName() = " + it.getName()));
-
-        // review.rating.avg(), review.count()
         // store.openTime, closeTime -> Status 여기서 결정해버리기
         List<StoreListQueryResult> resultList = queryFactory
                 .select(Projections.constructor(StoreListQueryResult.class,
@@ -189,18 +181,18 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                         store.closeTime)
                 )
                 .from(store)
-                .leftJoin(store.favorites, favorite)
+                .leftJoin(store.favorites, favorite).where(favorite.member.id.eq(memberId))
                 .leftJoin(store.reviews, review)
                 .leftJoin(store.storeImages, storeImage)
                 .where(
                         store.isDeleted.eq(false),
-                        favorite.member.id.eq(memberId),
                         ltCursorId(cursorId)
                 )
                 .orderBy(
                         store.status.desc(),
-                        favorite.id.desc()  // 찜한 순서대로 ID 내림차순 정렬
+                        favorite.id.desc()
                 )
+                .groupBy(store.id, favorite.id)
                 .limit(limit)
                 .fetch();
 
@@ -245,19 +237,18 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         }
     }
 
-//    private OrderSpecifier<?> getOrderSpecifier(String sort) {
-//        Order order =  Order.ASC ;
-//
-//        if (sort == null) {
-//            return new OrderSpecifier<>(order, store.createdAt);
-//        }
-//
-//
-//        return switch (sort) {
-//            case "NEAR" -> new OrderSpecifier<>(order, store.createdAt);
-//            case "REVIEW" -> new OrderSpecifier<>(order, store.deadline);
-//            case "RATING" -> new OrderSpecifier<>(order, store.currentPerson);
-//            default -> new OrderSpecifier<>(order, store.createdAt);
-//        };
-//    }
+    private OrderSpecifier<?> getOrderSpecifier(String sort) {
+        Order order =  Order.DESC ;
+
+        if (Objects.isNull(sort)) {
+            return new OrderSpecifier<>(order, store.id);
+        }
+
+        return switch (sort) {
+            case "NEAR" -> new OrderSpecifier<>(order, store.createdAt);
+            case "REVIEW" -> new OrderSpecifier<>(order, review.countDistinct());
+            case "RATING" -> new OrderSpecifier<>(order, review.rating.avg());
+            default -> new OrderSpecifier<>(order, store.id);
+        };
+    }
 }
