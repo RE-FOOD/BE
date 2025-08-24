@@ -65,8 +65,9 @@ public class Store extends BaseEntity {
     @Column(name = "category", nullable = false)
     private Category category;
 
-    @Column(name = "max_percent")
-    private Integer maxPercent;
+    @Builder.Default
+    @Column(name = "max_percent", nullable = false)
+    private Integer maxPercent = 0;
 
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)

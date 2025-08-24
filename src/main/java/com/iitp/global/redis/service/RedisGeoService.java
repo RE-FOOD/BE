@@ -1,6 +1,7 @@
 package com.iitp.global.redis.service;
 
 import com.iitp.domains.map.dto.StoreLocationDto;
+import com.iitp.domains.store.domain.entity.Store;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.geo.*;
@@ -20,16 +21,17 @@ public class RedisGeoService {
     private static final String STORE_GEO_KEY = "store:geo";
 
     /**
-     * 가게 위치 정보를 Redis GEO에 추가
+     * 가게 위치 정보를 Redis GEO에 추가 및 업데이트
      */
-    public void addStoreLocation(Long storeId, Double latitude, Double longitude) {
+    public void updateStoreLocation(StoreLocationDto storeLocation) {
         try {
-            Point point = new Point(longitude, latitude);
-            redisTemplate.opsForGeo().add(STORE_GEO_KEY, point, storeId.toString());
+            Point point = new Point(storeLocation.longitude(), storeLocation.latitude());
+            redisTemplate.opsForGeo().add(STORE_GEO_KEY, point, storeLocation.storeId().toString());
             log.debug("가게 위치 정보 Redis 저장 완료 - storeId: {}, lat: {}, lng: {}",
-                    storeId, latitude, longitude);
+                    storeLocation.storeId(), storeLocation.latitude(), storeLocation.longitude());
         } catch (Exception e) {
-            log.error("가게 위치 정보 Redis 저장 실패 - storeId: {}, error: {}", storeId, e.getMessage());
+            log.error("가게 위치 정보 Redis 저장 실패 - storeId: {}, error: {}",
+                    storeLocation.storeId(), e.getMessage());
         }
     }
 
@@ -76,6 +78,32 @@ public class RedisGeoService {
             log.error("근처 가게 조회 실패 - lat: {}, lng: {}, radius: {}km, error: {}",
                     latitude, longitude, radiusKm, e.getMessage());
             return List.of();
+        }
+    }
+
+    /**
+     * Store 엔티티로부터 직접 Redis Geo 업데이트
+     */
+    public void updateStoreLocationFromEntity(Store store) {
+        if (store == null || store.getIsDeleted()) {
+            log.warn("삭제된 상점이거나 null 상점입니다 - storeId: {}",
+                    store != null ? store.getId() : "null");
+            return;
+        }
+
+        StoreLocationDto storeLocation = StoreLocationDto.fromStore(store);
+        updateStoreLocation(storeLocation);
+    }
+
+    /**
+     * 가게 위치 정보 삭제
+     */
+    public void removeStoreLocation(Long storeId) {
+        try {
+            redisTemplate.opsForGeo().remove(STORE_GEO_KEY, storeId.toString());
+            log.debug("가게 위치 정보 Redis 삭제 완료 - storeId: {}", storeId);
+        } catch (Exception e) {
+            log.error("가게 위치 정보 Redis 삭제 실패 - storeId: {}, error: {}", storeId, e.getMessage());
         }
     }
 
