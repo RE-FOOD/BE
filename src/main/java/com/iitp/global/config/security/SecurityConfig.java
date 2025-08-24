@@ -50,6 +50,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 인증 없이 접근 가능한 경로
                         .requestMatchers(
+                                "/**",
+
                                 // Swagger
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
