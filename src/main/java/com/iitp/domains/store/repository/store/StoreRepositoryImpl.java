@@ -2,11 +2,11 @@ package com.iitp.domains.store.repository.store;
 
 import static com.iitp.domains.favorite.domain.entity.QFavorite.favorite;
 import static com.iitp.domains.review.domain.entity.QReview.review;
+import static com.iitp.domains.store.domain.entity.QStore.store;
+import static com.iitp.domains.store.domain.entity.QStoreImage.storeImage;
 
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
-import com.iitp.domains.store.domain.entity.QStore;
-import com.iitp.domains.store.domain.entity.QStoreImage;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import com.iitp.global.util.query.QueryExpressionFormatter;
@@ -14,11 +14,8 @@ import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -28,11 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class StoreRepositoryImpl implements StoreRepositoryCustom {
-    private final EntityManager entityManager;
     private final JPAQueryFactory queryFactory;
-    private static final QStore store = QStore.store;
-    QStoreImage storeImage = QStoreImage.storeImage;
-
 
     @Override
     public List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId,
