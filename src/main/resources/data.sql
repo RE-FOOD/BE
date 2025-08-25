@@ -52,6 +52,49 @@ INSERT INTO store (member_id, name, phone_number, status, address, description, 
            (1, '마포 분식', '02-1234-5725', 'OPEN', '서울 마포구 마포동 901-23', '마포 맛집 분식', '국내산', 37.2765, 127.2080, '09:00:00', '20:00:00', 'SNACKFOOD', 9, NOW(), NOW(), false),
            (1, '서대문 중식', '02-1234-5726', 'OPEN', '서울 서대문구 서대문동 012-34', '서대문 맛집 중식', '국내산', 37.2665, 127.2180, '11:00:00', '21:00:00', 'CHFOOD', 14, NOW(), NOW(), false);
 
+-- 혜화 지역 가게들 (10개)
+
+-- 가게 1번: 혜화 한식당
+INSERT INTO store (member_id, name, phone_number, status, address, description, origin, latitude, longitude, open_time, close_time, category, max_percent, created_at, updated_at, is_deleted) VALUES
+    (1, '혜화 전통 한식당', '02-1234-5678', 'OPEN', '서울 종로구 혜화동 123-45', '전통 한식의 맛을 느낄 수 있는 곳', '국내산', 37.5825, 127.0010, '09:00:00', '22:00:00', 'KRFOOD', 15, NOW(), NOW(), false);
+
+-- 가게 2번: 혜화 스테이크 하우스
+INSERT INTO store (member_id, name, phone_number, status, address, description, origin, latitude, longitude, open_time, close_time, category, max_percent, created_at, updated_at, is_deleted) VALUES
+    (1, '혜화 프리미엄 스테이크', '02-1234-5679', 'OPEN', '서울 종로구 혜화동 234-56', '프리미엄 스테이크 전문점', '호주산', 37.5835, 127.0020, '11:00:00', '23:00:00', 'ENFOOD', 20, NOW(), NOW(), false);
+
+-- 가게 3번: 혜화 중식당
+INSERT INTO store (member_id, name, phone_number, status, address, description, origin, latitude, longitude, open_time, close_time, category, max_percent, created_at, updated_at, is_deleted) VALUES
+    (1, '혜화 중국집', '02-1234-5680', 'OPEN', '서울 종로구 혜화동 345-67', '정통 중국 요리의 맛', '국내산', 37.5845, 127.0030, '10:00:00', '21:00:00', 'CHFOOD', 18, NOW(), NOW(), false);
+
+-- 가게 4번: 혜화 일식당
+INSERT INTO store (member_id, name, phone_number, status, address, description, origin, latitude, longitude, open_time, close_time, category, max_percent, created_at, updated_at, is_deleted) VALUES
+    (1, '혜화 스시바', '02-1234-5681', 'OPEN', '서울 종로구 혜화동 456-78', '신선한 초밥과 회', '일본산', 37.5855, 127.0040, '11:00:00', '22:00:00', 'JPFOOD', 16, NOW(), NOW(), false);
+
+-- 가게 5번: 혜화 양식당
+INSERT INTO store (member_id, name, phone_number, status, address, description, origin, latitude, longitude, open_time, close_time, category, max_percent, created_at, updated_at, is_deleted) VALUES
+    (1, '혜화 이탈리안 레스토랑', '02-1234-5682', 'OPEN', '서울 종로구 혜화동 567-89', '정통 이탈리안 요리', '이탈리아산', 37.5865, 127.0050, '12:00:00', '22:00:00', 'ENFOOD', 17, NOW(), NOW(), false);
+
+-- 가게 6번: 혜화 분식점
+INSERT INTO store (member_id, name, phone_number, status, address, description, origin, latitude, longitude, open_time, close_time, category, max_percent, created_at, updated_at, is_deleted) VALUES
+    (1, '혜화 맛있는 분식', '02-1234-5683', 'OPEN', '서울 종로구 혜화동 678-90', '정통 분식의 맛', '국내산', 37.5875, 127.0060, '10:00:00', '21:00:00', 'KRFOOD', 12, NOW(), NOW(), false);
+
+-- 가게 7번: 혜화 커피숍
+INSERT INTO store (member_id, name, phone_number, status, address, description, origin, latitude, longitude, open_time, close_time, category, max_percent, created_at, updated_at, is_deleted) VALUES
+    (1, '혜화 아늑한 카페', '02-1234-5684', 'OPEN', '서울 종로구 혜화동 789-01', '아늑한 분위기의 카페', '국내산', 37.5885, 127.0070, '08:00:00', '22:00:00', 'DESSERT', 10, NOW(), NOW(), false);
+
+-- 가게 8번: 혜화 베이커리
+INSERT INTO store (member_id, name, phone_number, status, address, description, origin, latitude, longitude, open_time, close_time, category, max_percent, created_at, updated_at, is_deleted) VALUES
+    (1, '혜화 수제 베이커리', '02-1234-5685', 'OPEN', '서울 종로구 혜화동 890-12', '수제 빵과 케이크', '국내산', 37.5895, 127.0080, '07:00:00', '20:00:00', 'SNACKFOOD', 13, NOW(), NOW(), false);
+
+-- 가게 9번: 혜화 치킨집
+INSERT INTO store (member_id, name, phone_number, status, address, description, origin, latitude, longitude, open_time, close_time, category, max_percent, created_at, updated_at, is_deleted) VALUES
+    (1, '혜화 맛있는 치킨', '02-1234-5686', 'OPEN', '서울 종로구 혜화동 901-23', '바삭하고 맛있는 치킨', '국내산', 37.5905, 127.0090, '12:00:00', '24:00:00', 'KRFOOD', 15, NOW(), NOW(), false);
+
+-- 가게 10번: 혜화 피자집
+INSERT INTO store (member_id, name, phone_number, status, address, description, origin, latitude, longitude, open_time, close_time, category, max_percent, created_at, updated_at, is_deleted) VALUES
+    (1, '혜화 이탈리안 피자', '02-1234-5687', 'OPEN', '서울 종로구 혜화동 012-34', '정통 이탈리안 피자', '이탈리아산', 37.5915, 127.0100, '11:00:00', '23:00:00', 'ENFOOD', 16, NOW(), NOW(), false);
+
+
 -- StoreImage 더미데이터 (각 가게당 1개씩)
 INSERT INTO store_image (image_key, store_id) VALUES
           ('profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', 1),
@@ -104,6 +147,57 @@ INSERT INTO store_image (image_key, store_id) VALUES
           ('profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', 48),
           ('profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', 49),
           ('profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', 50);
+
+-- StoreImage 데이터 (가게당 2개씩 이미지)
+
+-- 가게 50번: 혜화 한식당
+INSERT INTO store_image (store_id, image_key) VALUES
+          (50, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg');
+
+-- 가게 51번: 혜화 스테이크 하우스
+INSERT INTO store_image (store_id, image_key) VALUES
+
+          (51, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg');
+
+-- 가게 52번: 혜화 중식당
+INSERT INTO store_image (store_id, image_key) VALUES
+
+          (52, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg');
+
+-- 가게 53번: 혜화 일식당
+INSERT INTO store_image (store_id, image_key) VALUES
+
+          (53, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg');
+
+-- 가게 54번: 혜화 양식당
+INSERT INTO store_image (store_id, image_key) VALUES
+
+          (54, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg');
+
+-- 가게 55번: 혜화 분식점
+INSERT INTO store_image (store_id, image_key) VALUES
+
+          (55, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg');
+
+-- 가게 56번: 혜화 커피숍
+INSERT INTO store_image (store_id, image_key) VALUES
+
+          (56, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg');
+
+-- 가게 57번: 혜화 베이커리
+INSERT INTO store_image (store_id, image_key) VALUES
+
+          (57, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg');
+
+-- 가게 58번: 혜화 치킨집
+INSERT INTO store_image (store_id, image_key) VALUES
+
+          (58, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg');
+
+-- 가게 59번: 혜화 피자집
+INSERT INTO store_image (store_id, image_key) VALUES
+
+          (59, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg');
 
 
 -- 가게 1번: 강남 맛집 한식당
@@ -397,3 +491,64 @@ INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_pe
 INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
                                                                                                                                                            (50, '떡볶이', 5200, '매콤달콤한 떡볶이', 4700, 10, 22, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
                                                                                                                                                            (50, '김밥', 4800, '신선한 김밥', 4300, 10, 18, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false);
+
+
+
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                           (50, '갈비찜', 28000, '부드럽고 달콤한 갈비찜', 24000, 14, 12, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (50, '된장찌개', 13000, '집에서 먹는 듯한 된장찌개', 11000, 15, 20, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (50, '김치찌개', 14000, '매콤한 김치찌개', 12000, 14, 18, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false);
+
+-- 가게 51번: 혜화 스테이크 하우스
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                           (51, '립 스테이크', 38000, '부드러운 립 스테이크', 32000, 16, 8, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (51, '티본 스테이크', 48000, '프리미엄 티본 스테이크', 40000, 17, 5, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (51, '샐러드', 9000, '신선한 채소 샐러드', 8000, 11, 25, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false);
+
+-- 가게 52번: 혜화 중식당
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                           (52, '짜장면', 9000, '진한 짜장면', 8000, 11, 25, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (52, '탕수육', 20000, '바삭한 탕수육', 17000, 15, 15, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (52, '깐풍기', 18000, '달콤한 소스가 발린 깐풍기', 15000, 17, 12, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false);
+
+-- 가게 53번: 혜화 일식당
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                           (53, '모듬초밥 12pcs', 28000, '신선한 생선으로 만든 프리미엄 모듬초밥', 24000, 14, 10, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (53, '연어초밥', 9000, '노르웨이산 연어의 부드러운 맛', 8000, 11, 20, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (53, '우동', 12000, '쫄깃한 우동', 10000, 17, 18, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false);
+
+-- 가게 54번: 혜화 양식당
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                           (54, '까르보나라', 20000, '계란 노른자와 파마산 치즈의 완벽한 조화', 17000, 15, 15, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (54, '토마토 파스타', 18000, '신선한 토마토 소스의 시트러스한 맛', 15000, 17, 18, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (54, '마르게리타 피자', 25000, '토마토 소스와 모짜렐라 치즈의 클래식', 21000, 16, 12, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false);
+
+-- 가게 55번: 혜화 분식점
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                           (55, '떡볶이', 4500, '매콤달콤한 국물떡볶이', 4000, 11, 30, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (55, '김밥', 4000, '신선한 재료로 만든 김밥', 3500, 13, 25, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (55, '순대', 5500, '쫄깃한 순대와 양념', 5000, 9, 20, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false);
+
+-- 가게 56번: 혜화 커피숍
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                           (56, '아메리카노', 5000, '깊고 진한 에스프레소', 4500, 10, 50, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (56, '카페라떼', 6000, '부드러운 우유와 에스프레소', 5500, 8, 40, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (56, '바닐라라떼', 6500, '달콤한 바닐라 시럽이 들어간 라떼', 6000, 8, 30, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false);
+
+-- 가게 57번: 혜화 베이커리
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                           (57, '크로아상', 4000, '바삭하고 부드러운 크로아상', 3500, 13, 25, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (57, '베이글', 4500, '쫄깃한 식감의 베이글', 4000, 11, 20, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (57, '티라미수', 7000, '진한 커피향의 티라미수', 6200, 11, 15, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false);
+
+-- 가게 58번: 혜화 치킨집
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                           (58, '후라이드 치킨', 20000, '바삭하고 촉촉한 후라이드 치킨', 17000, 15, 25, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (58, '양념치킨', 21000, '달콤하고 매콤한 양념치킨', 18000, 14, 20, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (58, '간장치킨', 22000, '진한 간장의 깊은 맛', 19000, 14, 18, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false);
+
+-- 가게 59번: 혜화 피자집
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                           (59, '마르게리타 피자', 24000, '토마토 소스와 모짜렐라 치즈의 클래식', 20000, 17, 15, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (59, '페퍼로니 피자', 27000, '매콤한 페퍼로니와 치즈의 조화', 23000, 15, 12, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                           (59, '불고기 피자', 30000, '한국식 불고기와 피자의 만남', 26000, 13, 10, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false);
