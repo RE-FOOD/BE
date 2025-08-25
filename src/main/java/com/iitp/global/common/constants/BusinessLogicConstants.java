@@ -16,25 +16,32 @@ public class BusinessLogicConstants {
      * Environment
      * 친환경 관련 상수
      *
-     * 각 레벨당 요구 포인트는 다음 레벨로 가기 위해 필요한 포인트를 의미함.
-     * 각 레벨당 요구 포인트는 누적이 아니라 단순 합계.
-     * ex. 총 주문 메뉴 1개 => 1*10 = 10 포인트  => 2레벨 0포인트
-     * ex. 총 주문 메뉴 5개 => 5*10 = 50 포인트  => 3레벨 20포인트
+     * 새로운 환경 포인트 로직:
+     * - 주문금액 250원당 1포인트 (최대 200포인트)
+     * - 다회용기 사용시 50포인트
+     * - 레벨업 요구 포인트: L2=800p, L3=1600p, L4=3200p
      */
-    public static final int ENVIRONMENT_LEVEL_ONE_REQUIRED_POINT = 10;
-    public static final int ENVIRONMENT_LEVEL_TWO_REQUIRED_POINT = 30;
-    public static final int ENVIRONMENT_LEVEL_THREE_REQUIRED_POINT = 70;
-    public static final int ENVIRONMENT_LEVEL_FOUR_REQUIRED_POINT = 150;
 
-    public static final int ENVIRONMENT_POINT_PER_ORDERED_MENU = 10;
-    public static final int ENVIRONMENT_POINT_PER_REUSING_CONTAINER = 2;
+    // 레벨업 요구 포인트 (새로운 기준)
+    public static final int ENVIRONMENT_LEVEL_ONE_REQUIRED_POINT = 800;    // L2 요구 포인트
+    public static final int ENVIRONMENT_LEVEL_TWO_REQUIRED_POINT = 2400;   // L3 요구 포인트
+    public static final int ENVIRONMENT_LEVEL_THREE_REQUIRED_POINT = 5600; // L4 요구 포인트
+    public static final int ENVIRONMENT_LEVEL_FOUR_REQUIRED_POINT = 5600;  // 최고 레벨 (더 이상 올라갈 레벨 없음)
 
-    public static final double SAVED_TREE_PER_ORDERED_MENU = 0.1;
-    public static final double SAVED_TREE_PER_REUSING_CONTAINER = 0.02;
+    // 환경 포인트 부여 기준
+    public static final int ENVIRONMENT_MAX_POINT_PER_ORDER = 200;         // 주문당 최대 포인트
+    public static final int ENVIRONMENT_POINT_PER_REUSING_CONTAINER = 50;  // 다회용기 사용시 포인트
 
-    public static final double SAVED_CARBON_KG_PER_ORDERED_MENU = 1.25;
-    public static final double SAVED_CARBON_KG_PER_REUSING_CONTAINER = 0.17;
+    // 포인트 계산용 상수
+    public static final int PRICE_UNIT_FOR_POINT = 250;                    // 250원당 1포인트
 
+    // 환경 기여도 계산 (탄소 절약량)
+    public static final double SAVED_CARBON_KG_PER_ORDERED_MENU = 0.3;           // 픽업 주문당 절약되는 CO2 (kg)
+    public static final double SAVED_CARBON_KG_PER_REUSING_CONTAINER = 0.18;     // 다회용기당 절약되는 CO2 (kg)
+
+    // 환경 기여도 계산 (나무 절약량)
+    public static final double SAVED_TREE_PER_ORDERED_MENU = 0.045;              // 픽업 주문당 절약되는 나무 (그루)
+    public static final double SAVED_TREE_PER_REUSING_CONTAINER = 0.027;         // 다회용기당 절약되는 나무 (그루)
     /**
      * Auth
      */
