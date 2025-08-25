@@ -67,7 +67,7 @@ public class CartQueryService {
                         CartMenuResponse.insertImgURL(result, imageGetService.getGetS3Url(result.imageKey()).preSignedUrl()))
                 .toList();
 
-        CartResponse response = new CartResponse(storeImageUrl, existingCart.name(), existingCart.totalCoast(), menuResponse);
+        CartResponse response = new CartResponse(existingCart.id(), storeImageUrl, existingCart.name(), existingCart.totalCoast(), menuResponse);
 
         return response;
     }
