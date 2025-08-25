@@ -1,5 +1,6 @@
 package com.iitp.domains.store.domain.entity;
 
+import com.iitp.domains.review.domain.entity.Review;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.StoreStatus;
@@ -63,8 +64,9 @@ public class Store extends BaseEntity {
     @Column(name = "category", nullable = false)
     private Category category;
 
-    @Column(name = "max_percent")
-    private int maxPercent;
+    @Builder.Default
+    @Column(name = "max_percent", nullable = false)
+    private Integer maxPercent = 0;
 
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -72,6 +74,9 @@ public class Store extends BaseEntity {
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menu> menus = new ArrayList<>();
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
 
 
     public void update(StoreUpdateRequest requestDto) {
