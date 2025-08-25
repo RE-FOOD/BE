@@ -1,5 +1,7 @@
 package com.iitp.domains.map.dto;
 
+import com.iitp.domains.store.domain.entity.Store;
+
 public record StoreLocationDto(
         Long storeId,
         Double latitude,
@@ -9,7 +11,7 @@ public record StoreLocationDto(
         return new StoreLocationDto(storeId, latitude, longitude);
     }
 
-    public static StoreLocationDto fromStore(com.iitp.domains.store.domain.entity.Store store) {
+    public static StoreLocationDto fromStore(Store store) {
         return new StoreLocationDto(
                 store.getId(),
                 store.getLatitude(),

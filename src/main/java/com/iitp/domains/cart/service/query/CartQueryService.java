@@ -49,12 +49,16 @@ public class CartQueryService {
     }
 
 
-
     public CartResponse getCartFromRedis(Long memberId) {
         String cacheKey = CART_CACHE_PREFIX + memberId;
 
         // 기존 카트에 저장된 데이터 호출
         CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
+
+        // 기존 카트에 저장된 데이터가 없을 경우 빈 껍데기 반환
+        if(existingCart == null) {
+            return CartResponse.createEmptyCartResponse();
+        }
 
         String storeImageUrl = imageGetService.getGetS3Url(existingCart.imageKey()).preSignedUrl();
 
@@ -63,13 +67,10 @@ public class CartQueryService {
                         CartMenuResponse.insertImgURL(result, imageGetService.getGetS3Url(result.imageKey()).preSignedUrl()))
                 .toList();
 
-        CartResponse response = new CartResponse(storeImageUrl, existingCart.name(), existingCart.totalCoast(), menuResponse);
+        CartResponse response = new CartResponse(existingCart.id(), storeImageUrl, existingCart.name(), existingCart.totalCoast(), menuResponse);
 
         return response;
     }
-
-
-
 
 
     private Cart validateCartExists(Long storeId, Long memberId) {

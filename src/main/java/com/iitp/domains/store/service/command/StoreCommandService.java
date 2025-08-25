@@ -10,6 +10,7 @@ import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import com.iitp.global.geoCode.GeocodingResult;
 import com.iitp.global.geoCode.KakaoGeocodingService;
+import com.iitp.global.redis.service.RedisGeoService;
 import com.iitp.global.redis.service.StoreRedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,7 @@ public class StoreCommandService {
     private final StoreRepository storeRepository;
     private final StoreImageRepository storeImageRepository;
     private final StoreRedisService cacheService;
+    private final RedisGeoService redisGeoService;
 
 
     public Long createStore(StoreCreateRequest request, Long userId) {
@@ -38,6 +40,14 @@ public class StoreCommandService {
         for(String img : request.imageKey()){
              storeImageRepository.save(new StoreImage(img, store));
         }
+        // Redis Geo에 상점 위치 정보 추가
+        try {
+            redisGeoService.updateStoreLocationFromEntity(store);
+            log.info("상점 생성 완료 및 Redis Geo 업데이트 - storeId: {}", store.getId());
+        } catch (Exception e) {
+            log.warn("Redis Geo 업데이트 실패하였지만 상점 생성은 완료 - storeId: {}, error: {}",
+                    store.getId(), e.getMessage());
+        }
 
         return store.getId();
     }
@@ -49,6 +59,15 @@ public class StoreCommandService {
 
         store.update(request);
 
+        // 위치 정보가 변경된 경우 Redis Geo 업데이트
+        try {
+            redisGeoService.updateStoreLocationFromEntity(store);
+            log.info("상점 수정 완료 및 Redis Geo 업데이트 - storeId: {}", storeId);
+        } catch (Exception e) {
+            log.warn("Redis Geo 업데이트 실패하였지만 상점 수정은 완료 - storeId: {}, error: {}",
+                    storeId, e.getMessage());
+        }
+
         // 캐시 삭제
         cacheService.clearCache();
     }
@@ -59,6 +78,15 @@ public class StoreCommandService {
 
         validateUserHasPermission(store, userId);
         store.markAsDeleted();
+
+        // Redis Geo에서 상점 위치 정보 삭제
+        try {
+            redisGeoService.removeStoreLocation(storeId);
+            log.info("상점 삭제 완료 및 Redis Geo에서 제거 - storeId: {}", storeId);
+        } catch (Exception e) {
+            log.warn("Redis Geo 제거 실패하였지만 상점 삭제는 완료 - storeId: {}, error: {}",
+                    storeId, e.getMessage());
+        }
 
         cacheService.clearCache();
     }
