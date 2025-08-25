@@ -2,12 +2,14 @@ package com.iitp.global.redis.service;
 
 import com.iitp.domains.map.dto.StoreLocationDto;
 import com.iitp.domains.store.domain.entity.Store;
+import com.iitp.domains.store.repository.store.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.geo.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +21,7 @@ public class RedisGeoService {
 
     private final RedisTemplate<String, String> redisTemplate;
     private static final String STORE_GEO_KEY = "store:geo";
+    private final StoreRepository storeRepository;
 
     /**
      * 가게 위치 정보를 Redis GEO에 추가 및 업데이트
@@ -33,6 +36,37 @@ public class RedisGeoService {
             log.error("가게 위치 정보 Redis 저장 실패 - storeId: {}, error: {}",
                     storeLocation.storeId(), e.getMessage());
         }
+    }
+
+    /**
+     * DB의 모든 상점 데이터를 Redis Geo에 동기화
+     */
+    @Transactional(readOnly = true)
+    public int syncAllStoreLocations() {
+        log.info("Redis Geo 전체 동기화 시작");
+
+        // 1. DB에서 활성 상점 조회
+        List<Store> activeStores = storeRepository.findAll().stream()
+                .filter(store -> !store.getIsDeleted())
+                .filter(store -> store.getLatitude() != null && store.getLongitude() != null)
+                .collect(Collectors.toList());
+
+        if (activeStores.isEmpty()) {
+            log.warn("동기화할 상점이 없습니다");
+            return 0;
+        }
+
+        // 2. StoreLocationDto로 변환
+        List<StoreLocationDto> storeLocations = activeStores.stream()
+                .map(StoreLocationDto::fromStore)
+                .collect(Collectors.toList());
+
+        // 3. 기존 데이터 삭제 후 새로 추가
+        clearAllStoreLocations();
+        addStoreLocations(storeLocations);
+
+        log.info("Redis Geo 전체 동기화 완료 - {}개 상점", storeLocations.size());
+        return storeLocations.size();
     }
 
     /**
