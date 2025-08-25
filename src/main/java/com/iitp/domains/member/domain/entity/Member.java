@@ -6,8 +6,8 @@ import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.JoinType;
 import com.iitp.domains.member.domain.Role;
 import com.iitp.domains.review.domain.entity.Review;
-import com.iitp.global.common.constants.BusinessLogicConstants;
 import com.iitp.global.common.entity.BaseEntity;
+import com.iitp.global.util.environment.EnvironmentPointCalculator;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -185,27 +185,12 @@ public class Member extends BaseEntity {
     }
 
     /**
-     * 환경 포인트에 따른 레벨 자동 업데이트
+     * 환경 포인트에 따른 레벨 자동 업데이트 (EnvironmentPointCalculator 사용)
      */
     private void updateEnvironmentLevel() {
-        EnvironmentLevel newLevel = calculateEnvironmentLevel(this.environmentPoint);
+        EnvironmentLevel newLevel = EnvironmentPointCalculator.calculateEnvironmentLevel(this.environmentPoint);
         if (this.environmentLevel != newLevel) {
-            EnvironmentLevel oldLevel = this.environmentLevel;
             this.environmentLevel = newLevel;
-        }
-    }
-    /**
-     * 환경 포인트에 따른 레벨 계산
-     */
-    private EnvironmentLevel calculateEnvironmentLevel(int points) {
-        if (points >= BusinessLogicConstants.ENVIRONMENT_LEVEL_THREE_REQUIRED_POINT) {
-            return EnvironmentLevel.FRUIT;    // 320점 이상 - 열매
-        } else if (points >= BusinessLogicConstants.ENVIRONMENT_LEVEL_TWO_REQUIRED_POINT) {
-            return EnvironmentLevel.TREE;     // 160점 이상 - 나무  
-        } else if (points >= BusinessLogicConstants.ENVIRONMENT_LEVEL_ONE_REQUIRED_POINT) {
-            return EnvironmentLevel.SEEDLING; // 80점 이상 - 묘목
-        } else {
-            return EnvironmentLevel.SPROUT;   // 80점 미만 - 새싹
         }
     }
 }
