@@ -24,9 +24,9 @@ public class BusinessLogicConstants {
 
     // 레벨업 요구 포인트 (새로운 기준)
     public static final int ENVIRONMENT_LEVEL_ONE_REQUIRED_POINT = 800;    // L2 요구 포인트
-    public static final int ENVIRONMENT_LEVEL_TWO_REQUIRED_POINT = 1600;   // L3 요구 포인트
-    public static final int ENVIRONMENT_LEVEL_THREE_REQUIRED_POINT = 3200; // L4 요구 포인트
-    public static final int ENVIRONMENT_LEVEL_FOUR_REQUIRED_POINT = 3200;  // 최고 레벨 (더 이상 올라갈 레벨 없음)
+    public static final int ENVIRONMENT_LEVEL_TWO_REQUIRED_POINT = 2400;   // L3 요구 포인트
+    public static final int ENVIRONMENT_LEVEL_THREE_REQUIRED_POINT = 5600; // L4 요구 포인트
+    public static final int ENVIRONMENT_LEVEL_FOUR_REQUIRED_POINT = 5600;  // 최고 레벨 (더 이상 올라갈 레벨 없음)
 
     // 환경 포인트 부여 기준
     public static final int ENVIRONMENT_MAX_POINT_PER_ORDER = 200;         // 주문당 최대 포인트
