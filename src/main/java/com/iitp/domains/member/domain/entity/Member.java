@@ -5,6 +5,7 @@ import com.iitp.domains.member.domain.BusinessApprovalStatus;
 import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.JoinType;
 import com.iitp.domains.member.domain.Role;
+import com.iitp.domains.review.domain.entity.Review;
 import com.iitp.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -78,6 +79,9 @@ public class Member extends BaseEntity {
 
     @OneToMany(mappedBy = "memberId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Location> locations = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>();
 
     @Builder
     public Member(String email, String nickname, String phone,
@@ -154,5 +158,12 @@ public class Member extends BaseEntity {
 
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
+    }
+
+    /**
+     * 연관관계 편의 메서드
+     */
+    public void addReview(Review review) {
+        this.reviews.add(review);
     }
 }

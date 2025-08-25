@@ -5,6 +5,7 @@ import java.util.List;
 
 
 public record CartResponse(
+        Long id,
         String imageUrl,
         String name,
         int totalCoast,
@@ -13,6 +14,7 @@ public record CartResponse(
 
     public static CartResponse createEmptyCartResponse() {
         return new  CartResponse(
+                null,
                 null,
                 null,
                 0,
