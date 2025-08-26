@@ -8,6 +8,8 @@ import com.iitp.domains.member.domain.JoinType;
 import com.iitp.domains.member.domain.Role;
 import com.iitp.domains.review.domain.entity.Review;
 import com.iitp.global.common.entity.BaseEntity;
+import com.iitp.global.util.environment.EnvironmentPointCalculator;
+import jakarta.persistence.*;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -183,6 +185,32 @@ public class Member extends BaseEntity {
      */
     public void addReview(Review review) {
         this.reviews.add(review);
+    }
+
+
+    public void addEnvironmentPoint(int points) {
+        this.environmentPoint += points;
+        updateEnvironmentLevel(); // 포인트 추가 후 레벨 업데이트
+    }
+
+    // 주문 횟수
+    public void incrementOrderCount() {
+        this.orderCount++;
+    }
+
+    // 다회용기 사용 횟수
+    public void incrementDishCount() {
+        this.dishCount++;
+    }
+
+    /**
+     * 환경 포인트에 따른 레벨 자동 업데이트 (EnvironmentPointCalculator 사용)
+     */
+    private void updateEnvironmentLevel() {
+        EnvironmentLevel newLevel = EnvironmentPointCalculator.calculateEnvironmentLevel(this.environmentPoint);
+        if (this.environmentLevel != newLevel) {
+            this.environmentLevel = newLevel;
+        }
     }
 
     public void addFavorite(Favorite favorite) {
