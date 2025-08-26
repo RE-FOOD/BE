@@ -38,13 +38,13 @@ public record DiscountMenuResponseDto(
                 .ratingAvg(ratingAvg)
                 .build();
     }
-    public static DiscountMenuResponseDto from(Menu menu, Double ratingAvg) {
+    public static DiscountMenuResponseDto from(Menu menu, Double ratingAvg, String imageUrl) {
         return DiscountMenuResponseDto.builder()
                 .storeId(menu.getStore().getId())
                 .menuId(menu.getId())
                 .name(menu.getStore().getName())        // 가게 이름
                 .menuName(menu.getName())               // 메뉴 이름
-                .imageUrl(null)                         // 이미지 URL은 별도 처리 필요
+                .imageUrl(imageUrl)
                 .price(menu.getPrice())
                 .discountPercent(menu.getDailyDiscountPercent())
                 .discountPrice(menu.getDiscountPrice())

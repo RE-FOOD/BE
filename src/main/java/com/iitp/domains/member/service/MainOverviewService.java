@@ -155,7 +155,9 @@ public class MainOverviewService {
             return discountMenus.stream()
                     .map(menu -> {
                         Double rating = storeRatings.get(menu.getStore().getId());
-                        return DiscountMenuResponseDto.from(menu, rating);
+                        // 메뉴 이미지 URL 생성
+                        String imageUrl = getMenuImageUrl(menu);
+                        return DiscountMenuResponseDto.from(menu, rating, imageUrl);
                     })
                     .collect(Collectors.toList());
 
@@ -234,5 +236,12 @@ public class MainOverviewService {
             return imageGetService.getGetS3Url(imageKey).preSignedUrl();
         }
         return null;
+    }
+
+    private String getMenuImageUrl(Menu menu) {
+        if (menu.getImageKey() != null && !menu.getImageKey().isEmpty()) {
+            return imageGetService.getGetS3Url(menu.getImageKey()).preSignedUrl();
+        }
+        return null; // 기본 이미지 또는 null
     }
 }
