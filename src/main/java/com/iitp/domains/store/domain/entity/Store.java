@@ -2,6 +2,7 @@ package com.iitp.domains.store.domain.entity;
 
 import com.iitp.domains.review.domain.entity.Review;
 import com.iitp.domains.member.domain.entity.Member;
+import com.iitp.domains.favorite.domain.entity.Favorite;
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.StoreStatus;
 import com.iitp.domains.store.dto.request.StoreUpdateRequest;
@@ -77,6 +78,9 @@ public class Store extends BaseEntity {
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Favorite> favorites = new ArrayList<>();
 
 
     public void update(StoreUpdateRequest requestDto) {

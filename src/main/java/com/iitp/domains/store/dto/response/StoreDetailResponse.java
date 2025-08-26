@@ -3,7 +3,7 @@ package com.iitp.domains.store.dto.response;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.entity.Store;
-
+import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -23,11 +23,18 @@ public record StoreDetailResponse(
         List<String> imageUrl,
         List<MenuListResponse> menus,
         boolean like,
-        double ratingAvg,
-        int count
+        Double ratingAvg,
+        long count
 ) {
 
-    public static StoreDetailResponse from(Store store, List<String> imageUrls, List<MenuListResponse> menus, boolean like, double ratingAvg, int count) {
+    public static StoreDetailResponse from(
+            Store store,
+            List<String> imageUrls,
+            List<MenuListResponse> menus,
+            boolean like,
+            Double ratingAvg,
+            long count
+    ) {
         return new StoreDetailResponse(
                 store.getName(),
                 store.getPhoneNumber(),

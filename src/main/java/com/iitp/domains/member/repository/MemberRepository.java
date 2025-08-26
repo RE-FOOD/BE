@@ -36,4 +36,12 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     @Transactional
     @Query("UPDATE Member m SET m.refreshToken = null WHERE m.id = :memberId")
     void clearRefreshToken(@Param("memberId") Long memberId);
+
+    //전체 회원의 픽업 주문 횟수 합계 조회
+    @Query("SELECT COALESCE(SUM(m.orderCount), 0) FROM Member m")
+    Integer sumAllOrderCount();
+
+    //전체 회원의 다회용기 사용 횟수 합계 조회
+    @Query("SELECT COALESCE(SUM(m.dishCount), 0) FROM Member m")
+    Integer sumAllDishCount();
 }
