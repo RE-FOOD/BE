@@ -66,6 +66,21 @@ public class ReviewQueryService {
         return result;
     }
 
+    public Double calculateStoreRating(Long storeId) {
+        List<ReviewResponse> reviews = readStoreReviews(null, storeId, 0L, Integer.MAX_VALUE);
+
+        if (reviews.isEmpty()) {
+            return 0.0;
+        }
+
+        Double rating = reviews.stream()
+                .mapToInt(ReviewResponse::rating)
+                .average()
+                .orElse(0.0);
+
+        return Math.round(rating * 10.0) / 10.0;  // 소수점 첫째자리까지 반올림
+    }
+
     // TODO: 주문 구현 후 리뷰의 실제 주문-장바구니-메뉴 리스트 가져오는 쪽으로 수정
     private static List<Menu> getOrderedMenusOfReview(Review review) {
         // 임시로 해당 가게의 모든 메뉴를 반환
