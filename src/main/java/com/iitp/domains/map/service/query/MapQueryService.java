@@ -54,7 +54,8 @@ public class MapQueryService {
                 .collect(Collectors.toList());
 
         // DB에서 가게 정보 조회
-        List<Store> stores = mapRepository.findStoreListByIds(storeIds);;
+        List<Store> stores = mapRepository.findStoreListByIds(storeIds);
+        ;
 
         return stores.stream()
                 .map(MapMarkerResponseDto::from)
@@ -82,10 +83,9 @@ public class MapQueryService {
         // 픽업 가능 시간 생성
         String pickupTime = generatePickupTime(store);
 
-
         // 리뷰 조회
-        List<ReviewResponse> reviews = reviewQueryService.readStoreReviews(
-                null, storeId, 0L, Integer.MAX_VALUE);
+        List<ReviewResponse> reviews = reviewQueryService.getStoreReviews(
+                storeId, 0L, Integer.MAX_VALUE);
 
         Double rating = 0.0;
         Integer reviewCount = 0;
@@ -106,7 +106,8 @@ public class MapQueryService {
     /**
      * 근처 가게 목록 조회
      */
-    public List<MapListResponseDto> getNearbyStoreList(Double latitude, Double longitude, Double radiusKm, String sort) {
+    public List<MapListResponseDto> getNearbyStoreList(Double latitude, Double longitude, Double radiusKm,
+                                                       String sort) {
         log.info("근처 가게 목록 조회 - lat: {}, lng: {}, radius: {}km, sort: {}", latitude, longitude, radiusKm, sort);
 
         // Redis GEO에서 근처 가게 ID 조회
@@ -133,8 +134,8 @@ public class MapQueryService {
                             store.getLatitude(), store.getLongitude());
 
                     // 리뷰 조회
-                    List<ReviewResponse> reviews = reviewQueryService.readStoreReviews(
-                            null, store.getId(), 0L, Integer.MAX_VALUE);
+                    List<ReviewResponse> reviews = reviewQueryService.getStoreReviews(
+                            store.getId(), 0L, Integer.MAX_VALUE);
 
                     Double rating = 0.0;
                     Integer reviewCount = 0;
