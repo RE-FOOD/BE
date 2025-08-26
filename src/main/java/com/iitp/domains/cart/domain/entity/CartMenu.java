@@ -14,15 +14,18 @@ import java.math.BigDecimal;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@IdClass(CartMenuId.class)
+//@IdClass(CartMenuId.class)
 public class CartMenu extends BaseEntity {
-
     @Id
-    @Column(name = "cart_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+
+    @Column(name = "cart_id", nullable = false)
     private Long cartId;
 
-    @Id
-    @Column(name = "menu_id")
+
+    @Column(name = "menu_id", nullable = false)
     private Long menuId;
 
     @Column(name = "price", nullable = false)
@@ -37,7 +40,10 @@ public class CartMenu extends BaseEntity {
     @Column(name = "discount_price", nullable = false)
     private int discountPrice;
 
+
+    // Cart와의 관계 설정
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cart_id", nullable = false)
+    @JoinColumn(name = "cart_id", insertable = false, updatable = false)
     private Cart cart;
+
 }

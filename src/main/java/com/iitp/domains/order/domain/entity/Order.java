@@ -1,22 +1,15 @@
 package com.iitp.domains.order.domain.entity;
 
+import com.iitp.domains.cart.domain.entity.Cart;
+import com.iitp.domains.cart.domain.entity.CartMenu;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.order.domain.OrderStatus;
 import com.iitp.domains.review.domain.entity.Review;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.global.common.entity.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +39,9 @@ public class Order extends BaseEntity {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
-    // TODO: 장바구니 엔티티 구현시 연관관계 설정
-    // TODO: 쿠폰리스트 엔티티 구현시 연관관계 설정 (쿠폰은 후순위)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_id", nullable = false)
+    private Cart cart;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -55,12 +49,15 @@ public class Order extends BaseEntity {
 
     // 픽업 시간
     @Column(name = "pickup_due_time", nullable = false)
-    private LocalDateTime pickupDueTime;
+    private Timestamp pickupDueTime;
 
     // 결제전 총 금액
     @Column(name = "total_amount", nullable = false)
     private Integer totalAmount;
 
+    // 다회 용기 사용 여부
+    @Column(name = "is_container_reused", nullable = false)
+    private Boolean isContainerReused = false;  // 다회용기 사용 여부
 
     public boolean isCompleted() {  // 디미터 법칙 고민
         return status.equals(OrderStatus.COMPLETED);

@@ -29,6 +29,8 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     // 닉네임 중복 체크
     boolean existsByNicknameAndIsDeletedFalse(String nickname);
 
+    Optional<Member> findByIdAndIsDeletedFalse(Long id);
+
     // 리프레시 토큰 삭제 (로그아웃)
     @Modifying
     @Transactional

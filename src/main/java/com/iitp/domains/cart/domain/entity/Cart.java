@@ -1,5 +1,6 @@
 package com.iitp.domains.cart.domain.entity;
 
+import com.iitp.domains.order.domain.OrderStatus;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -31,8 +32,10 @@ public class Cart extends BaseEntity {
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartMenu> cartMenus = new ArrayList<>();
 
-    public void addMenu(List<CartMenu> menus) {
+    public Cart addMenu(List<CartMenu> menus) {
         cartMenus.addAll(menus);
+
+        return this;
     }
 
 }
