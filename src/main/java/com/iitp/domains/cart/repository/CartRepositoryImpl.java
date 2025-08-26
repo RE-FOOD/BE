@@ -20,4 +20,18 @@ public class CartRepositoryImpl implements CartRepositoryCustom{
 
         return Optional.empty();
     }
+
+    @Override
+    public Integer countByMemberId(Long memberId) {
+        Long count = queryFactory
+                .select(qCart.count())
+                .from(qCart)
+                .where(
+                        qCart.memberId.eq(memberId)
+                                .and(qCart.isDeleted.eq(false))
+                )
+                .fetchOne();
+
+        return count != null ? count.intValue() : 0;
+    }
 }

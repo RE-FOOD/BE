@@ -7,4 +7,5 @@ import java.util.Optional;
 @Repository
 public interface CartRepositoryCustom {
     Optional<Cart>  findCartData(Long storeId, Long memberId);
+    Integer countByMemberId(Long memberId);
 }
