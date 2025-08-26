@@ -1,6 +1,7 @@
 package com.iitp.domains.map.service.query;
 
 import com.iitp.domains.map.dto.responseDto.MapListResponseDto;
+import com.iitp.domains.map.dto.responseDto.MapListScrollResponseDto;
 import com.iitp.domains.map.dto.responseDto.MapMarkerResponseDto;
 import com.iitp.domains.map.dto.responseDto.MapSummaryResponseDto;
 import com.iitp.domains.map.repository.MapRepository;
@@ -158,6 +159,65 @@ public class MapQueryService {
     }
 
     /**
+     * 근처 가게 목록 조회 - 무한스크롤
+     */
+    public MapListScrollResponseDto getNearbyStoreListWithScroll(Double latitude, Double longitude,
+                                                                 Double radiusKm, String sort,
+                                                                 Long cursorId, Integer limit) {
+        log.info("근처 가게 목록 무한스크롤 조회 - lat: {}, lng: {}, radius: {}km, sort: {}, cursor: {}, limit: {}",
+                latitude, longitude, radiusKm, sort, cursorId, limit);
+
+        // Redis GEO에서 근처 가게 ID 조회
+        List<String> nearbyStoreIds = redisGeoService.findNearbyStores(latitude, longitude, radiusKm);
+
+        if (nearbyStoreIds.isEmpty()) {
+            return MapListScrollResponseDto.empty();
+        }
+
+        // 가게 ID 리스트를 Long으로 변환
+        List<Long> storeIds = nearbyStoreIds.stream()
+                .map(Long::valueOf)
+                .collect(Collectors.toList());
+
+        // DB에서 가게 정보 조회
+        List<Store> stores = mapRepository.findStoreListByIds(storeIds);
+
+        // 응답 DTO 생성
+        List<MapListResponseDto> storeList = stores.stream()
+                .map(store -> {
+                    String imageUrl = getStoreImageUrl(store);
+                    Double distance = distanceCalculator.calculateDistance(
+                            latitude, longitude,
+                            store.getLatitude(), store.getLongitude());
+
+                    // 리뷰 조회
+                    List<ReviewResponse> reviews = reviewQueryService.getStoreReviews(
+                            store.getId(), 0L, Integer.MAX_VALUE);
+
+                    Double rating = 0.0;
+                    Integer reviewCount = 0;
+
+                    if (!reviews.isEmpty()) {
+                        rating = reviews.stream()
+                                .mapToInt(ReviewResponse::rating)
+                                .average()
+                                .orElse(0.0);
+                        rating = Math.round(rating * 10.0) / 10.0;
+                        reviewCount = reviews.size();
+                    }
+
+                    return MapListResponseDto.from(store, imageUrl, distance, rating, reviewCount);
+                })
+                .collect(Collectors.toList());
+
+        // 정렬 적용
+        List<MapListResponseDto> sortedList = applySorting(storeList, sort);
+
+        // 커서 기반 페이징 적용
+        return applyCursorPagination(sortedList, cursorId, limit);
+    }
+
+    /**
      * 가게 이미지 URL 조회
      */
     private String getStoreImageUrl(Store store) {
@@ -198,5 +258,43 @@ public class MapQueryService {
                     .sorted(Comparator.comparing(MapListResponseDto::distance))
                     .collect(Collectors.toList());
         };
+    }
+
+    /**
+     * 커서 기반 페이징 적용
+     */
+    private MapListScrollResponseDto applyCursorPagination(List<MapListResponseDto> storeList,
+                                                           Long cursorId, Integer limit) {
+        if (storeList.isEmpty()) {
+            return MapListScrollResponseDto.empty();
+        }
+
+        int startIndex = 0;
+
+        // cursorId가 있는 경우 해당 위치 찾기
+        if (cursorId != null) {
+            for (int i = 0; i < storeList.size(); i++) {
+                if (storeList.get(i).id().equals(cursorId)) {
+                    startIndex = i + 1; // 커서 다음부터 시작
+                    break;
+                }
+            }
+        }
+
+        // 시작 인덱스가 리스트 크기를 넘으면 빈 결과 반환
+        if (startIndex >= storeList.size()) {
+            return MapListScrollResponseDto.empty();
+        }
+
+        // limit만큼 데이터 가져오기
+        int endIndex = Math.min(startIndex + limit, storeList.size());
+        List<MapListResponseDto> pagedList = storeList.subList(startIndex, endIndex);
+
+        // 커서 정보 계산
+        Long prevCursor = (startIndex > 0) ? storeList.get(startIndex - 1).id() : null;
+        Long nextCursor = (endIndex < storeList.size()) ? pagedList.get(pagedList.size() - 1).id() : null;
+        Boolean hasNext = endIndex < storeList.size();
+
+        return MapListScrollResponseDto.of(pagedList, prevCursor, nextCursor, hasNext);
     }
 }
