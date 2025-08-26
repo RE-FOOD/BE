@@ -2,6 +2,7 @@ package com.iitp.domains.member.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.iitp.domains.member.domain.BusinessApprovalStatus;
+import com.iitp.domains.favorite.domain.entity.Favorite;
 import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.JoinType;
 import com.iitp.domains.member.domain.Role;
@@ -9,6 +10,18 @@ import com.iitp.domains.review.domain.entity.Review;
 import com.iitp.global.common.entity.BaseEntity;
 import com.iitp.global.util.environment.EnvironmentPointCalculator;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -84,6 +97,9 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Favorite> favorites = new ArrayList<>();
+
     @Builder
     public Member(String email, String nickname, String phone,
                   Role role, JoinType joinType, EnvironmentLevel environmentLevel,
@@ -102,6 +118,7 @@ public class Member extends BaseEntity {
             this.isBusinessApproved = BusinessApprovalStatus.PENDING;
         }
     }
+
     // 일반 사용자 생성
     public static Member createMember(String email, String nickname, String phone) {
         return Member.builder()
@@ -125,7 +142,9 @@ public class Member extends BaseEntity {
                 .build();
     }
 
-    // 비즈니스 로직 메서드들
+    /**
+     * 비즈니스 로직 메서드
+     */
     public void updateNickname(String nickname) {
         this.nickname = nickname;
     }
@@ -168,17 +187,17 @@ public class Member extends BaseEntity {
         this.reviews.add(review);
     }
 
-    
+
     public void addEnvironmentPoint(int points) {
         this.environmentPoint += points;
         updateEnvironmentLevel(); // 포인트 추가 후 레벨 업데이트
     }
-    
+
     // 주문 횟수
     public void incrementOrderCount() {
         this.orderCount++;
     }
-    
+
     // 다회용기 사용 횟수
     public void incrementDishCount() {
         this.dishCount++;
@@ -193,4 +212,13 @@ public class Member extends BaseEntity {
             this.environmentLevel = newLevel;
         }
     }
+
+    public void addFavorite(Favorite favorite) {
+        favorites.add(favorite);
+    }
+
+    public void removeFavorite(Favorite favorite) {
+        favorites.remove(favorite);
+    }
+
 }

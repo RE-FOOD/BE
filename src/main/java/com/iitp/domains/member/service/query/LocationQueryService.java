@@ -40,13 +40,16 @@ public class LocationQueryService {
     public LocationResponseDto findDefaultAddress(Long memberId) {
         log.debug("기본 주소 조회 - memberId: {}", memberId);
 
-        Location defaultLocation = locationRepository.findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(memberId)
+        Location defaultLocation = getMemberBaseLocation(memberId);
+        return LocationResponseDto.from(defaultLocation);
+    }
+
+    public Location getMemberBaseLocation(Long memberId) {
+        return locationRepository.findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(memberId)
                 .orElseThrow(() -> {
                     log.warn("기본 주소를 찾을 수 없음 - memberId: {}", memberId);
                     return new NotFoundException(ExceptionMessage.DATA_NOT_FOUND);
                 });
-
-        return LocationResponseDto.from(defaultLocation);
     }
 
     /**

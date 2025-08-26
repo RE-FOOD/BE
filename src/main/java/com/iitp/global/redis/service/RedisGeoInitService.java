@@ -3,10 +3,13 @@ package com.iitp.global.redis.service;
 import com.iitp.domains.map.dto.StoreLocationDto;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.store.StoreRepository;
+import java.util.LinkedHashMap;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

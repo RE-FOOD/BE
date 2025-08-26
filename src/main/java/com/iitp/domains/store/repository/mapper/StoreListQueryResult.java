@@ -11,6 +11,8 @@ public record StoreListQueryResult(
         StoreStatus status,
         String imageKey,
         int maxPercent,
+        Double ratingAvg,                   // 리뷰 평균 평점
+        long count,                          // 리뷰 총 개수
         LocalTime openTime,
         LocalTime closeTime
 ) {
