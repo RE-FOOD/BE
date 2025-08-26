@@ -62,7 +62,7 @@ public class ReviewQueryService {
     }
 
     public Double calculateStoreRating(Long storeId) {
-        List<ReviewResponse> reviews = readStoreReviews(null, storeId, 0L, Integer.MAX_VALUE);
+        List<ReviewResponse> reviews = getStoreReviews(storeId, 0L, Integer.MAX_VALUE);
 
         if (reviews.isEmpty()) {
             return 0.0;
@@ -73,7 +73,7 @@ public class ReviewQueryService {
                 .average()
                 .orElse(0.0);
 
-        return Math.round(rating * 10.0) / 10.0;  // 소수점 첫째자리까지 반올림
+        return Math.round(rating * 10.0) / 10.0;
     }
 
     // TODO: 주문 구현 후 리뷰의 실제 주문-장바구니-메뉴 리스트 가져오는 쪽으로 수정
