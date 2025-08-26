@@ -63,6 +63,7 @@ public class OrderQueryService {
 
     @Transactional
     public OrderResponse getOrder(Long memberId) {
+        // TODO :: Service를 통해 호출하는 코드로 리팩토링
 
         String cacheKey = CART_CACHE_PREFIX + memberId;
         CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);

@@ -74,9 +74,6 @@ dependencies {
     // 메일
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
-    // 토스페이먼츠 결제 연동을 위한 의존성
-    implementation 'com.toss.payment:payment-sdk:1.0.0'
-
 
     // HTTP 클라이언트 (WebClient 또는 RestTemplate)
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
