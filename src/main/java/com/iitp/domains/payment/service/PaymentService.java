@@ -86,8 +86,9 @@ public class PaymentService {
                 throw new RuntimeException("만료되었거나 존재하지 않는 결제 세션입니다.");
             }
 
-//            // 2. 실제 Order 엔티티 생성 및 저장
-//            Order order = createOrderFromPendingOrder(pendingOrder);
+            // 2. 실제 Order 엔티티 생성 및 저장
+            Order order = createOrderFromPendingOrder(pendingOrder);
+            // TODO 여기서 에러
 //            Order savedOrder = orderRepository.save(order);
 //
 //            // 3. 결제 정보 저장

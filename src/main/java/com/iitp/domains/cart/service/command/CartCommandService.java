@@ -100,6 +100,7 @@ public class CartCommandService {
 
 
     public Cart getCart(Long memberId) {
+        // TODO saveCart처럼
         String cacheKey = CART_CACHE_PREFIX + memberId;
         CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
 
