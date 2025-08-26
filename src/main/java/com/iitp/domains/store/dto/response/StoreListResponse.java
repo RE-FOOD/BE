@@ -17,7 +17,6 @@ public record StoreListResponse(
     public static StoreListResponse fromQueryResult(
             StoreListQueryResult result,
             String imageUrl,
-            double distance,
             StoreStatus status
     ) {
         return new StoreListResponse(
@@ -28,7 +27,7 @@ public record StoreListResponse(
                 result.maxPercent(),
                 result.ratingAvg(),
                 result.count(),
-                distance
+                result.distance()
         );
     }
 

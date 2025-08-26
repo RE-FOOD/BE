@@ -10,10 +10,14 @@ import com.iitp.domains.store.domain.SortType;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import com.iitp.global.util.query.QueryExpressionFormatter;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.ArrayList;
@@ -27,48 +31,59 @@ import lombok.RequiredArgsConstructor;
 public class StoreRepositoryImpl implements StoreRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
+    // TODO fix: direction FALSE 일 경우 레코드가 2개씩 중복해서 나오는 문제. 그렇다고 distinct를 냅두면 에러.."[Expression #1 of ORDER BY clause is not in SELECT list, contains aggregate function; this is incompatible with DISTINCT] [n/a]"
     @Override
-    public List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId,
-                                                 boolean direction, int limit) {
+    public List<StoreListQueryResult> findStores(
+            Category category, String keyword, SortType sort, boolean direction, int limit,
+            Long cursorId, Double cursorDistance, Double cursorReviewAvg, Long cursorReviewCnt,
+            double latitude, double longitude
+    ) {
+        NumberExpression<Double> distance = distanceKmRoundedFirst(latitude, longitude);
 
+        // 서브쿼리: 가게 대표 이미지 1개
+        Expression<String> minImageKey =
+                JPAExpressions
+                        .select(storeImage.imageKey.min())
+                        .from(storeImage)
+                        .where(storeImage.store.eq(store));
+
+        // 공통 쿼리: 검색, 카테고리 필터링, 리뷰 집계, 정렬 방식에 따른 커서 페이지네이션 및 정렬 분기 처리
         JPAQuery<StoreListQueryResult> baseQuery = queryFactory
-                .selectDistinct(Projections.constructor(StoreListQueryResult.class,
-                        store.id,
-                        store.name,
-                        store.status,
-                        QueryExpressionFormatter.getImageKeyPath(storeImage.imageKey),
-                        store.maxPercent,
-                        QueryExpressionFormatter.roundDoubleByFirstDecimalPlace(review.rating.avg()),
-                        review.countDistinct(),
-                        store.openTime,
-                        store.closeTime))
-                .from(store)
-                .leftJoin(store.storeImages, storeImage)
+                .select(Projections.constructor(StoreListQueryResult.class,
+                                store.id,
+                                store.name,
+                                store.status,
+                                minImageKey,
+                                store.maxPercent,
+                                QueryExpressionFormatter.roundDoubleByFirstDecimalPlace(review.rating.avg()),
+                                review.id.countDistinct(),
+                                store.openTime,
+                                store.closeTime,
+                                distance
+                        )
+                ).from(store)
                 .leftJoin(store.reviews, review)
                 .where(
-                        store.isDeleted.eq(false),
+                        store.isDeleted.isFalse(),
                         eqCategory(category),
-                        eqKeyword(keyword))
-                .groupBy(store.id, store.name, store.address, store.category);
+                        eqKeyword(keyword),
+                        specifySortCursor(sort, distance, cursorDistance, cursorReviewAvg, cursorReviewCnt)
+                ).groupBy(store.id, store.status)
+                .orderBy(specifySortOrder(sort, distance), store.status.desc());
 
-        // direction = true: 다음 페이지 (9, 10, 11, ..., 18). 오름차순 정렬
+        // direction = true: 다음 페이지 (9, 10, 11, ..., 18). 내림차순 정렬
         // direction = false: 이전 페이지 (cursorId 이전의 값들 + 부족하면 cursorId 이후도 포함). 내림차순 정렬
         if (direction) {
             return baseQuery
-                    .where(gtCursorId(cursorId))
-                    .orderBy(
-                            store.status.desc(),
-                            store.id.asc())
+                    .where(ltCursorId(cursorId))
+                    .orderBy(store.id.desc())
                     .limit(limit)
                     .fetch();
         } else {
             // 1단계: cursorId 이전의 값들을 먼저 조회
             List<StoreListQueryResult> beforeResults = baseQuery
                     .where(ltCursorId(cursorId))  // cursorId보다 작은 ID)
-                    .orderBy(
-                            store.status.desc(),
-                            store.id.desc()  // ID 내림차순 정렬
-                    )
+                    .orderBy(store.id.desc())
                     .limit(limit)
                     .fetch();
 
@@ -78,10 +93,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
                 List<StoreListQueryResult> afterResults = baseQuery
                         .where(goeCursorId(cursorId))
-                        .orderBy(
-                                store.status.desc(),
-                                store.id.asc()  // ID 오름차순 정렬
-                        )
+                        .orderBy(store.id.asc())
                         .limit(remainingLimit)
                         .fetch();
 
@@ -147,16 +159,12 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
     }
 
     @Override
-    public List<StoreListQueryResult> findFavoriteStores(long memberId, SortType sort, long cursorId, int limit) {
-
-        // 정렬 방법에 따라서 cursorId 다르게 지정
-        // 기본 -> ORDER BY favorite.id DESC
-        // TODO: 정렬 방법에 따라 다르게 정렬
-        // NEAR -> 현재 회원의 위도경도 비교해서
-        // TODO: 위도 경도 비교 어떻게? SQL로 해결할 수 있는 문제인지 아니면...
-        // REVIEW -> review 수에 따라서 정렬
-        // RATING -> review rating에 따라서 정렬
-        // store.openTime, closeTime -> Status 여기서 결정해버리기
+    public List<StoreListQueryResult> findFavoriteStores(
+            long memberId, SortType sort, int limit,
+            long cursorId, Double cursorDistance, Double cursorReviewAvg, Long cursorReviewCnt,
+            double latitude, double longitude
+    ) {
+        NumberExpression<Double> distance = distanceKmRoundedFirst(latitude, longitude);
         List<StoreListQueryResult> resultList = queryFactory
                 .select(Projections.constructor(StoreListQueryResult.class,
                         store.id,
@@ -167,19 +175,23 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                         QueryExpressionFormatter.roundDoubleByFirstDecimalPlace(review.rating.avg()),
                         review.countDistinct(),
                         store.openTime,
-                        store.closeTime)
+                        store.closeTime,
+                        distance)
                 )
                 .from(store)
                 .leftJoin(store.favorites, favorite).where(favorite.member.id.eq(memberId))
                 .leftJoin(store.reviews, review)
                 .leftJoin(store.storeImages, storeImage)
                 .where(
-                        store.isDeleted.eq(false),
+                        store.isDeleted.isFalse(),
+                        review.isDeleted.isFalse(),
+                        specifySortCursor(sort, distance, cursorDistance, cursorReviewAvg, cursorReviewCnt),
                         ltCursorId(cursorId)
                 )
                 .orderBy(
-                        store.status.desc(),
-                        favorite.id.desc()
+                        specifyOrderBySortTypeDefaultFavorite(sort, distance),
+                        store.id.desc(),
+                        store.status.desc()
                 )
                 .groupBy(store.id, favorite.id)
                 .limit(limit)
@@ -226,18 +238,71 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         }
     }
 
-    private OrderSpecifier<?> getOrderSpecifier(String sort) {
-        Order order = Order.DESC;
+    private static BooleanExpression specifySortCursor(
+            SortType sort,
+            NumberExpression<Double> distance,
+            Double cursorDistance,
+            Double cursorReviewAvg,
+            Long cursorReviewCnt
+    ) {
+        if (sort == null) {
+            return null;
+        }
+        return switch (sort) {
+            case NEAR -> Objects.isNull(cursorDistance) ? null :distance.goe(cursorDistance);
+            case REVIEW -> Objects.isNull(cursorReviewCnt) ? null : review.rating.countDistinct().loe(cursorReviewCnt);
+            case RATING -> Objects.isNull(cursorReviewAvg) ? null : review.rating.avg().loe(cursorReviewAvg);
+        };
+    }
 
+    private static OrderSpecifier<?> specifySortOrder(SortType sort, NumberExpression<Double> distance) {
         if (Objects.isNull(sort)) {
-            return new OrderSpecifier<>(order, store.id);
+            return null;
         }
 
         return switch (sort) {
-            case "NEAR" -> new OrderSpecifier<>(order, store.createdAt);
-            case "REVIEW" -> new OrderSpecifier<>(order, review.countDistinct());
-            case "RATING" -> new OrderSpecifier<>(order, review.rating.avg());
-            default -> new OrderSpecifier<>(order, store.id);
+            // distance ASC, cursorId DESC
+            case SortType.NEAR -> new OrderSpecifier<>(Order.ASC, distance);
+            case SortType.REVIEW -> new OrderSpecifier<>(Order.DESC, review.countDistinct());
+            case SortType.RATING -> new OrderSpecifier<>(Order.DESC, review.rating.avg());
         };
+    }
+
+
+    private OrderSpecifier<?> specifyOrderBySortTypeDefaultFavorite(
+            SortType sort,
+            NumberExpression<Double> distance
+    ) {
+        if (Objects.isNull(sort)) {
+            return new OrderSpecifier<>(Order.DESC, favorite.id);
+        }
+
+        return switch (sort) {
+            case SortType.NEAR -> new OrderSpecifier<>(Order.ASC, distance);
+            case SortType.REVIEW -> new OrderSpecifier<>(Order.DESC, review.countDistinct());
+            case SortType.RATING -> new OrderSpecifier<>(Order.DESC, review.rating.avg());
+        };
+    }
+
+    private BooleanExpression getCursorIdOrderBySortType(SortType sort, Long cursorId) {
+        if (Objects.isNull(sort)) {
+            return ltCursorId(cursorId);
+        }
+
+        return switch (sort) {
+            case SortType.NEAR -> gtCursorId(cursorId);
+            case SortType.REVIEW, SortType.RATING -> ltCursorId(cursorId);
+        };
+
+    }
+
+
+    // MYSQL 기능 활용. 소수점3째자리까지 반올림
+    private NumberExpression<Double> distanceKmRoundedFirst(double userLat, double userLon) {
+        return Expressions.numberTemplate(
+                Double.class,
+                "round(cast(function('ST_Distance_Sphere', point({0},{1}), point({2},{3})) as double) / 1000.0, 3)",
+                store.longitude, store.latitude, userLon, userLat
+        );
     }
 }

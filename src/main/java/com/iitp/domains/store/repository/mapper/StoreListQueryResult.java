@@ -14,6 +14,7 @@ public record StoreListQueryResult(
         Double ratingAvg,                   // 리뷰 평균 평점
         long count,                          // 리뷰 총 개수
         LocalTime openTime,
-        LocalTime closeTime
+        LocalTime closeTime,
+        double distance
 ) {
 }

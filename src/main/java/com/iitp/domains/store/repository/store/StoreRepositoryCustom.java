@@ -12,8 +12,15 @@ import org.springframework.stereotype.Repository;
 public interface StoreRepositoryCustom {
     Optional<Store> findByStoreId(Long storeId);
 
-    List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId,
-                                          boolean direction, int limit);
+    List<StoreListQueryResult> findStores(
+            Category category, String keyword, SortType sort, boolean direction, int limit,
+            Long cursorId, Double cursorDistance, Double cursorReviewAvg, Long cursorReviewCnt,
+            double latitude, double longitude
+    );
 
-    List<StoreListQueryResult> findFavoriteStores(long memberId, SortType sort, long cursorId, int limit);
+    List<StoreListQueryResult> findFavoriteStores(
+            long memberId, SortType sort, int limit,
+            long cursorId, Double cursorDistance, Double cursorReviewAvg, Long cursorReviewCnt,
+            double latitude, double longitude
+    );
 }

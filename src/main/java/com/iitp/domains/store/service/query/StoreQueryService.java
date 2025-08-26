@@ -15,14 +15,12 @@ import com.iitp.domains.store.dto.response.StoreListResponse;
 import com.iitp.domains.store.dto.response.StoreListTotalResponse;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import com.iitp.domains.store.repository.store.StoreRepository;
-import com.iitp.global.common.response.TwoWayCursorListResponse;
+import com.iitp.global.common.response.CursorPaginationStoreResponse;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import com.iitp.global.redis.service.RedisGeoService;
 import com.iitp.global.redis.service.StoreRedisService;
 import com.iitp.imageUpload.service.query.ImageGetService;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -48,14 +46,21 @@ public class StoreQueryService {
     private final RedisGeoService redisGeoService;
     private Long currentCachedStoreId = null;
 
-    public StoreListTotalResponse findStores(Long memberId, Category category, String keyword, SortType sort,
-                                             Long cursorId, boolean direction, int limit) {
-        Location memberLocation = locationQueryService.getMemberBaseLocation(memberId);
-        List<StoreListQueryResult> results = storeRepository
-                .findStores(category, keyword, sort, cursorId, direction, limit);
-        List<StoreListResponse> stores = convertQueryResultToResponse(results, memberLocation);
+    public StoreListTotalResponse findStores(
+            Long memberId, Category category, String keyword, SortType sort, boolean direction, int limit,
+            Long cursorId, Double cursorDistance, Double cursorReviewAvg, Long cursorReviewCnt
+    ) {
+        Location baseLocation = locationQueryService.getMemberBaseLocation(memberId);
+        List<StoreListQueryResult> results = storeRepository.findStores(category, keyword, sort, direction, limit,
+                cursorId, cursorDistance,cursorReviewAvg, cursorReviewCnt,
+                 baseLocation.getLatitude(), baseLocation.getLongitude());
+        List<StoreListResponse> stores = convertQueryResultToResponse(results);
 
-        return new StoreListTotalResponse(stores.getFirst().id(), stores.getLast().id(), stores);
+        return new StoreListTotalResponse(
+                stores.isEmpty() ? null : stores.getFirst().id(),
+                stores.isEmpty() ? null : stores.getLast().id(),
+                stores
+        );
     }
 
 
@@ -95,17 +100,28 @@ public class StoreQueryService {
         return response;
     }
 
-    public TwoWayCursorListResponse<StoreListResponse> findFavoriteStores(
+    public CursorPaginationStoreResponse<StoreListResponse> findFavoriteStores(
             long memberId,
             SortType sort,
+            int limit,
             long cursorId,
-            int limit
+            Double cursorDistance,
+            Double cursorReviewAvg,
+            Long cursorReviewCnt
     ) {
-        List<StoreListQueryResult> result = storeRepository.findFavoriteStores(memberId, sort, cursorId, limit);
         Location baseLocation = locationQueryService.getMemberBaseLocation(memberId);
-        List<StoreListResponse> stores = convertQueryResultToResponse(result, baseLocation);
+        List<StoreListQueryResult> result = storeRepository
+                .findFavoriteStores(memberId, sort, limit,
+                        cursorId, cursorDistance, cursorReviewAvg, cursorReviewCnt,
+                        baseLocation.getLatitude(), baseLocation.getLongitude());
+        List<StoreListResponse> stores = convertQueryResultToResponse(result);
 
-        return new TwoWayCursorListResponse<>(stores.getFirst().id(), stores.getLast().id(), stores);
+        return new CursorPaginationStoreResponse<>(
+                stores.isEmpty() ? null : stores.getFirst().id(),
+                stores.isEmpty() ? null : stores.getLast().id(),
+                stores.isEmpty() ? null : stores.getFirst().distance(),
+                stores.isEmpty() ? null : stores.getLast().distance(),
+                stores);
     }
 
     public Store findExistingStore(Long storeId) {
@@ -122,29 +138,17 @@ public class StoreQueryService {
     }
 
     private List<StoreListResponse> convertQueryResultToResponse(
-            List<StoreListQueryResult> results,
-            Location location
+            List<StoreListQueryResult> results
     ) {
 
         return results.stream()
-                .map(result -> {
-                    String imageUrl = imageGetService.getGetS3Url(result.imageKey()).preSignedUrl();
-                    double distance = redisGeoService.getKiloMeterDistanceToStore(
-                            result.id(),
-                            location.getLatitude(),
-                            location.getLongitude());
-
-                    log.info(String.valueOf(result.openTime().isAfter(LocalTime.now())));
-
-                    return StoreListResponse.fromQueryResult(
-                            result,
-                            imageUrl,
-                            distance,
-                            ((result.openTime().isBefore(LocalTime.now())) && (LocalTime.now()
-                                    .isBefore(result.closeTime())))
-                                    ? result.status()
-                                    : StoreStatus.CLOSED
-                    );
-                }).toList();
+                .map(result -> StoreListResponse.fromQueryResult(
+                        result,
+                        imageGetService.getGetS3Url(result.imageKey()).preSignedUrl(),
+                        ((result.openTime().isBefore(LocalTime.now())) && (LocalTime.now()
+                                .isBefore(result.closeTime())))
+                                ? result.status()
+                                : StoreStatus.CLOSED)
+                ).toList();
     }
 }

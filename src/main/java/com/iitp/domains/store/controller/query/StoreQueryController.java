@@ -7,11 +7,10 @@ import com.iitp.domains.store.dto.response.StoreListResponse;
 import com.iitp.domains.store.dto.response.StoreListTotalResponse;
 import com.iitp.domains.store.service.query.StoreQueryService;
 import com.iitp.global.common.response.ApiResponse;
-import com.iitp.global.common.response.TwoWayCursorListResponse;
+import com.iitp.global.common.response.CursorPaginationStoreResponse;
 import com.iitp.global.config.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,12 +34,15 @@ public class StoreQueryController {
             @RequestParam(value = "keyword", required = false) String keyword,
             @RequestParam(value = "sort", required = false) SortType sort,
             @RequestParam(value = "cursorId", defaultValue = "0") Long cursorId,
+            @RequestParam(value = "cursorDistance", required = false) double cursorDistance,
+            @RequestParam(value = "cursorReviewAvg", required = false) Double cursorReviewAvg,
+            @RequestParam(value = "cursorReviewCnt", required = false) Long cursorReviewCnt,
             @RequestParam(value = "direction", defaultValue = "true") boolean direction,
             @RequestParam(value = "limit", defaultValue = "15") int limit
     ) {
         Long memberId = userDetails.getMemberId();
         StoreListTotalResponse responses = storeQueryService
-                .findStores(memberId, category, keyword, sort, cursorId, direction, limit);
+                .findStores(memberId, category, keyword, sort, direction, limit, cursorId, cursorDistance, cursorReviewAvg, cursorReviewCnt);
 
         return ApiResponse.ok(200, responses, "가게 리스트 호출 성공");
     }
@@ -60,15 +62,19 @@ public class StoreQueryController {
 
     @GetMapping("/favorites/me")
     @Operation(summary = "회원의 찜한 가게 목록 조회", description = "필터에 적합한 찜한 가게들을 출력합니다.")
-    public ApiResponse<TwoWayCursorListResponse<StoreListResponse>> findMyFavoriteStores(
+    public ApiResponse<CursorPaginationStoreResponse<StoreListResponse>> findMyFavoriteStores(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "sort", required = false) SortType sort,
             @RequestParam(value = "cursorId", defaultValue = "0") Long cursorId,
+            @RequestParam(value = "cursorDistance", required = false) Double cursorDistance,
+            @RequestParam(value = "cursorReviewAvg", required = false) Double cursorReviewAvg,
+            @RequestParam(value = "cursorReviewCnt", required = false) Long cursorReviewCnt,
+
             @RequestParam(value = "limit", defaultValue = "15") int limit
     ) {
         Long memberId = userDetails.getMemberId();
-        TwoWayCursorListResponse<StoreListResponse> responses = storeQueryService
-                .findFavoriteStores(memberId, sort, cursorId, limit);
+        CursorPaginationStoreResponse<StoreListResponse> responses = storeQueryService
+                .findFavoriteStores(memberId, sort, limit, cursorId, cursorDistance, cursorReviewAvg, cursorReviewCnt);
 
         return ApiResponse.ok(responses);
     }
