@@ -1,19 +1,21 @@
 spring:
-  application:
-    name: IITP
-
+  config:
+    activate:
+      on-profile: dev
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${AWS_RDS_URL}
+    username: ${AWS_RDS_USERNAME}
+    password: ${AWS_RDS_PASSWORD}
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        default_batch_fetch_size: 100
         format_sql: true
         highlight_sql: true
         generate_statistics: false

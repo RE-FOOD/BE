@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RE:FOOD - 간단 로그인</title>
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .kakao-btn {
+            background: #FEE500;
+            color: #000;
+        }
+
+        .signup-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .address-btn {
+            background: #6c757d;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .address-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            min-height: 20px;
+        }
+
+        .user-info {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="title">🌱 RE:FOOD 로그인</h1>
+
+    <div id="statusDiv"></div>
+
+    <!-- 로그인 섹션 -->
+    <div id="loginSection">
+        <button class="btn kakao-btn" onclick="kakaoLogin()">카카오로 로그인</button>
+    </div>
+
+    <!-- 회원가입 섹션 -->
+    <div id="signupSection" class="hidden">
+        <h3>회원가입</h3>
+
+        <div class="form-group">
+            <label>회원 타입:</label>
+            <label><input type="radio" name="memberType" value="user" checked> 개인회원</label>
+            <label><input type="radio" name="memberType" value="store"> 사업자회원</label>
+        </div>
+
+        <!-- 개인회원 필드 -->
+        <div id="userFields">
+            <div class="form-group">
+                <label for="nickname">닉네임 *</label>
+                <input type="text" id="nickname" placeholder="닉네임을 입력하세요">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">전화번호</label>
+                <input type="tel" id="phone" placeholder="01012345678">
+            </div>
+
+            <div class="form-group">
+                <label>주소 *</label>
+                <button type="button" class="address-btn" onclick="searchAddress()">주소 검색</button>
+                <div id="addressDisplay" class="address-display">주소를 검색해주세요</div>
+            </div>
+        </div>
+
+        <!-- 사업자회원 필드 -->
+        <div id="businessFields" class="hidden">
+            <div class="form-group">
+                <label for="businessPhone">전화번호</label>
+                <input type="tel" id="businessPhone" placeholder="01012345678">
+            </div>
+
+            <div class="form-group">
+                <label for="businessLicense">사업자번호 *</label>
+                <input type="text" id="businessLicense" placeholder="123-45-67890">
+            </div>
+        </div>
+
+        <button class="btn signup-btn" onclick="signup()">회원가입</button>
+    </div>
+
+    <!-- 사용자 정보 섹션 -->
+    <div id="userSection" class="hidden">
+        <div class="user-info">
+            <h3>로그인 성공! 🎉</h3>
+            <div id="userInfo"></div>
+        </div>
+        <button class="btn" style="background: #f44336; color: white;" onclick="logout()">로그아웃</button>
+    </div>
+</div>
+
+<script>
+    let currentAccessToken = null;
+    let currentUserData = null;
+    let addressData = { address: '', roadAddress: '' }; // roadAddress 추가
+
+    // 카카오 SDK 초기화
+    window.onload = function() {
+        console.log('페이지 로드됨');
+
+        if (typeof Kakao !== 'undefined') {
+            Kakao.init("171831cd15632cbfaac40ae9f7604a6f");
+            console.log('카카오 SDK 초기화 완료');
+        }
+
+        // 기존 로그인 확인
+        const savedUserInfo = localStorage.getItem('userInfo');
+        if (savedUserInfo) {
+            currentUserData = JSON.parse(savedUserInfo);
+            showUserSection();
+        }
+
+        // 회원 타입 변경 이벤트
+        document.querySelectorAll('input[name="memberType"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const userFields = document.getElementById('userFields');
+                const businessFields = document.getElementById('businessFields');
+
+                if (this.value === 'store') {
+                    userFields.classList.add('hidden');
+                    businessFields.classList.remove('hidden');
+                } else {
+                    userFields.classList.remove('hidden');
+                    businessFields.classList.add('hidden');
+                }
+            });
+        });
+    };
+
+    function showStatus(message, type = 'info') {
+        const statusDiv = document.getElementById('statusDiv');
+        statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        console.log(`[${type}] ${message}`);
+
+        setTimeout(() => {
+            statusDiv.innerHTML = '';
+        }, 5000);
+    }
+
+    function kakaoLogin() {
+        console.log('카카오 로그인 시도');
+
+        if (typeof Kakao === 'undefined') {
+            showStatus('카카오 SDK가 로드되지 않았습니다.', 'error');
+            return;
+        }
+
+        Kakao.Auth.login({
+            success: function(authObj) {
+                console.log('카카오 로그인 성공:', authObj);
+                currentAccessToken = authObj.access_token;
+                showStatus('카카오 로그인 성공!', 'success');
+                checkExistingUser(authObj.access_token);
+            },
+            fail: function(err) {
+                console.error('카카오 로그인 실패:', err);
+                showStatus('카카오 로그인 실패: ' + err.error_description, 'error');
+            }
+        });
+    }
+
+    async function checkExistingUser(accessToken) {
+        try {
+            showStatus('로그인 확인 중...', 'info');
+
+            const response = await fetch('http://localhost:8080/api/auth/login/members', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    accessToken: accessToken,
+                    fcmToken: 'test-fcm-token'
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('로그인 성공:', data);
+                showStatus('로그인 성공!', 'success');
+
+                currentUserData = data.data;
+                localStorage.setItem('userInfo', JSON.stringify(data.data));
+                localStorage.setItem('accessToken', data.data.accessToken);
+
+                showUserSection();
+            } else {
+                console.log('신규 회원 - 회원가입 필요');
+                showStatus('신규 회원입니다. 회원가입을 진행해주세요.', 'info');
+                showSignupSection();
+            }
+        } catch (error) {
+            console.error('로그인 확인 오류:', error);
+            showStatus('로그인 확인 중 오류가 발생했습니다.', 'error');
+        }
+    }
+
+    function showSignupSection() {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('signupSection').classList.remove('hidden');
+        document.getElementById('userSection').classList.add('hidden');
+    }
+
+    function showUserSection() {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('signupSection').classList.add('hidden');
+        document.getElementById('userSection').classList.remove('hidden');
+
+        if (currentUserData) {
+            displayUserInfo(currentUserData);
+        }
+    }
+
+    function displayUserInfo(userData) {
+        const userInfoHtml = `
+        <p><strong>ID:</strong> ${userData.id}</p>
+        <p><strong>이메일:</strong> ${userData.email}</p>
+        <p><strong>닉네임:</strong> ${userData.nickname || '없음'}</p>
+        <p><strong>전화번호:</strong> ${userData.phone || '없음'}</p>
+        <p><strong>역할:</strong> ${userData.role}</p>
+    `;
+        document.getElementById('userInfo').innerHTML = userInfoHtml;
+    }
+
+    function searchAddress() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                console.log('주소 검색 결과:', data);
+
+                let fullAddr = data.address;
+                let roadAddr = '';
+
+                if (data.addressType === 'R') {
+                    roadAddr = data.roadAddress;
+                    fullAddr = data.roadAddress;
+                } else {
+                    roadAddr = data.address;
+                }
+
+                // 주소 저장 (백엔드 DTO에 맞게 수정)
+                addressData.address = fullAddr;
+                addressData.roadAddress = roadAddr;
+
+                document.getElementById('addressDisplay').textContent = fullAddr;
+                showStatus('주소가 선택되었습니다.', 'success');
+            }
+        }).open();
+    }
+
+    async function signup() {
+        if (!currentAccessToken) {
+            showStatus('카카오 토큰이 없습니다. 다시 로그인해주세요.', 'error');
+            return;
+        }
+
+        const memberType = document.querySelector('input[name="memberType"]:checked').value;
+
+        try {
+            showStatus('회원가입 중...', 'info');
+
+            let requestData;
+            let apiUrl;
+
+            if (memberType === 'user') {
+                const nickname = document.getElementById('nickname').value.trim();
+                const phone = document.getElementById('phone').value.trim();
+
+                if (!nickname) {
+                    showStatus('닉네임을 입력해주세요.', 'error');
+                    return;
+                }
+
+                if (!addressData.address) {
+                    showStatus('주소를 선택해주세요.', 'error');
+                    return;
+                }
+
+                // 백엔드 DTO에 맞게 필드명 수정
+                requestData = {
+                    accessToken: currentAccessToken,
+                    nickname: nickname,
+                    phone: phone || null,
+                    address: addressData.address,
+                    roadAddress: addressData.roadAddress // roadAddress 추가
+                };
+
+                apiUrl = 'http://localhost:8080/api/auth/signup/members';
+            } else {
+                const phone = document.getElementById('businessPhone').value.trim();
+                const businessLicense = document.getElementById('businessLicense').value.trim();
+
+                if (!businessLicense) {
+                    showStatus('사업자번호를 입력해주세요.', 'error');
+                    return;
+                }
+
+                requestData = {
+                    accessToken: currentAccessToken,
+                    businessLicenseNumber: businessLicense,
+                    phone: phone || null
+                };
+
+                apiUrl = 'http://localhost:8080/api/auth/signup/stores';
+            }
+
+            console.log('회원가입 요청:', requestData);
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('회원가입 성공:', data);
+                showStatus('회원가입 성공!', 'success');
+
+                currentUserData = data.data;
+                localStorage.setItem('userInfo', JSON.stringify(data.data));
+                localStorage.setItem('accessToken', data.data.accessToken);
+
+                setTimeout(() => showUserSection(), 1000);
+            } else {
+                const errorData = await response.json();
+                console.error('회원가입 실패:', errorData);
+                showStatus('회원가입 실패: ' + (errorData.message || '알 수 없는 오류'), 'error');
+            }
+        } catch (error) {
+            console.error('회원가입 오류:', error);
+            showStatus('회원가입 중 오류가 발생했습니다.', 'error');
+        }
+    }
+
+    async function logout() {
+        try {
+            const accessToken = localStorage.getItem('accessToken');
+
+            if (accessToken) {
+                await fetch('http://localhost:8080/api/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+            }
+
+            if (typeof Kakao !== 'undefined' && Kakao.Auth) {
+                Kakao.Auth.logout();
+            }
+
+            // 초기화
+            localStorage.clear();
+            currentAccessToken = null;
+            currentUserData = null;
+            addressData = { address: '', roadAddress: '' };
+
+            // 폼 초기화
+            document.getElementById('nickname').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('businessPhone').value = '';
+            document.getElementById('businessLicense').value = '';
+            document.getElementById('addressDisplay').textContent = '주소를 검색해주세요';
+            document.querySelector('input[name="memberType"][value="user"]').checked = true;
+            document.getElementById('userFields').classList.remove('hidden');
+            document.getElementById('businessFields').classList.add('hidden');
+
+            // UI 초기화
+            document.getElementById('loginSection').classList.remove('hidden');
+            document.getElementById('signupSection').classList.add('hidden');
+            document.getElementById('userSection').classList.add('hidden');
+
+            showStatus('로그아웃 완료', 'success');
+        } catch (error) {
+            console.error('로그아웃 오류:', error);
+            showStatus('로그아웃 중 오류가 발생했습니다.', 'error');
+        }
+    }
+</script>
+</body>
+</html>
