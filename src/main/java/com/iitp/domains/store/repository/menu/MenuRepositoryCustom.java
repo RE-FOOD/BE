@@ -13,4 +13,7 @@ public interface MenuRepositoryCustom {
     Optional<Menu> findByMenuId(Long menuId);
 
     List<MenuListQueryResult> findAllMenu(Long storeId);
+
+    //할인 메뉴 조회
+    List<Menu> findDiscountMenusByStoreIds(List<Long> storeIds, int limit);
 }
