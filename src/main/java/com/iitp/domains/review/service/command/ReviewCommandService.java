@@ -15,6 +15,8 @@ import com.iitp.global.exception.BadRequestException;
 import com.iitp.global.exception.ConflictException;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
+
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +45,7 @@ public class ReviewCommandService {
                 .store(store)
                 .status(OrderStatus.COMPLETED)
                 .totalAmount(10000)
-                .pickupDueTime(LocalDateTime.now())
+                .pickupDueTime(Timestamp.valueOf(LocalDateTime.now()))
                 .build();
         orderRepository.save(order);
         orderRepository.flush();

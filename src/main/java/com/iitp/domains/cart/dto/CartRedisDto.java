@@ -26,7 +26,7 @@ public record CartRedisDto(
                 .store(store)
                 .memberId(memberId)
                 .totalPrice(cartRedisDto.totalCoast)
-                .cartMenus(null)
+                .cartMenus(new ArrayList<>())
                 .build();
     }
 

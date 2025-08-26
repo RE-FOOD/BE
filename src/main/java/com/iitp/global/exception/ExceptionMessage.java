@@ -64,7 +64,7 @@ public enum ExceptionMessage {
     ORDER_NOT_FOUND("주문을 찾을 수 없습니다."),
     ORDER_STATUS_NOT_COMPLETED("주문이 아직 완료되지 않았습니다."),
 
-    ;
-
+    // 결과 관련
+    PAYMENT_INFO_INVALID("결제 금액 정보가 유효하지 않습니다.");
     private final String message;
 }

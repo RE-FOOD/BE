@@ -57,6 +57,15 @@ spring:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
 
+  # Toss Pay Log
+  devtools:
+    livereload:
+      enabled: true
+  freemarker:
+    cache: false
+  thymeleaf:
+    cache: false
+
 kakao:
   api:
     key: ${KAKAO_GEO_API_KEY}
@@ -110,3 +119,15 @@ cloud:
       secret-key: ${AWS_IAM_SECRET_KEY}
 
 
+toss:
+  payment:
+    secret-key: ${TOSS_PAYMENT_SECRET_KEY}
+    base-url: ${TOSS_PAYMENT_BASE_URL}
+
+api:
+  key=test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6:
+
+
+logging:
+    level:
+      root: info

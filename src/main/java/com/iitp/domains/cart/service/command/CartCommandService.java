@@ -82,7 +82,7 @@ public class CartCommandService {
         cartRedisService.saveCartToRedis(cacheKey, cartRedisDto);
     }
 
-    public void saveCart(Long memberId) {
+    public Cart saveCart(Long memberId) {
         String cacheKey = CART_CACHE_PREFIX + memberId;
         CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
 
@@ -95,8 +95,25 @@ public class CartCommandService {
 
         cart.addMenu(cartMenus);
         cartRepository.save(cart);
+        return cart;
     }
 
+
+    public Cart getCart(Long memberId) {
+        // TODO saveCart처럼
+        String cacheKey = CART_CACHE_PREFIX + memberId;
+        CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
+
+        Store store = validateStoreExists(existingCart.id());
+        Cart cart = CartRedisDto.toEntity(store, memberId, existingCart );
+
+        List<CartMenu> cartMenus = existingCart.menus().stream()
+                .map(menu ->
+                        CartMenuRedisDto.toEntity(existingCart.id(), menu.id(), menu)).toList();
+
+
+        return cart.addMenu(cartMenus);
+    }
 
     private Store validateStoreExists(Long storeId) {
         return storeRepository.findByStoreId(storeId)
