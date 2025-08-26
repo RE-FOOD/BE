@@ -54,4 +54,8 @@ Menu extends BaseEntity {
         if(requestDto.dailyQuantity()  > 0) this.dailyQuantity = requestDto.dailyQuantity();
         if(requestDto.imageKey() != null) this.imageKey = requestDto.imageKey();
     }
+
+    public void quantityReduction(int quantity) {
+        this.dailyDiscountPercent -= quantity;
+    }
 }

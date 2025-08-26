@@ -30,6 +30,8 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'com.h2database:h2'
@@ -46,7 +48,6 @@ dependencies {
 
     // === Kakao API 연동을 위한 추가
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-
 
     // queryDSL
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
@@ -72,6 +73,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     // 메일
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // 토스페이먼츠 결제 연동을 위한 의존성
+    implementation 'com.toss.payment:payment-sdk:1.0.0'
+
+
+    // HTTP 클라이언트 (WebClient 또는 RestTemplate)
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+    // JSON 처리
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 }
 
 tasks.named('test') {

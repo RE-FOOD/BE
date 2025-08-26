@@ -61,15 +61,15 @@ public class StoreQueryService {
 
     public StoreDetailResponse findStoreData(Long memberId, Long storeId) {
         // 캐시된 데이터가 있고, 다른 가게를 요청하는 경우
-//        if (cacheService.hasCachedData() && !storeId.equals(currentCachedStoreId)) {
-//            cacheService.clearCache();
-//        }
-//
-//        // 캐시에서 데이터 조회
-//        StoreDetailResponse cachedData = cacheService.getCachedStoreDetail();
-//        if (cachedData != null && storeId.equals(currentCachedStoreId)) {
-//            return cachedData;
-//        }
+        if (cacheService.hasCachedData() && !storeId.equals(currentCachedStoreId)) {
+            cacheService.clearCache();
+        }
+
+        // 캐시에서 데이터 조회
+        StoreDetailResponse cachedData = cacheService.getCachedStoreDetail();
+        if (cachedData != null && storeId.equals(currentCachedStoreId)) {
+            return cachedData;
+        }
 
         Store store = findExistingStore(storeId);
 
@@ -90,8 +90,8 @@ public class StoreQueryService {
                 .from(store, imageUrls, menus, isFavored, roundedAvg, reviewCount);
 
         // 캐시에 저장
-//        cacheService.cacheStoreDetail(response);
-//        currentCachedStoreId = storeId;
+        cacheService.cacheStoreDetail(response);
+        currentCachedStoreId = storeId;
         return response;
     }
 

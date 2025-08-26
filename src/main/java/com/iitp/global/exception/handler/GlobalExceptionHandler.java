@@ -1,15 +1,14 @@
 package com.iitp.global.exception.handler;
 
-import com.iitp.global.exception.AuthenticationException;
-import com.iitp.global.exception.BadRequestException;
-import com.iitp.global.exception.ConflictException;
-import com.iitp.global.exception.ForbiddenException;
-import com.iitp.global.exception.NotFoundException;
+import com.iitp.global.common.response.ApiResponse;
+import com.iitp.global.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.reactive.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 @Slf4j
@@ -62,6 +61,19 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
+    @ExceptionHandler(OrderConflictException.class)
+    ProblemDetail handleConflictException(final OrderConflictException e) {
+        // 1. String.format() 사용 (권장)
+        String detailMessage = e.getMenuName() +"의 수량이 부족합니다. 다시 확인해주세요.";
+
+
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, detailMessage);
+        problemDetail.setTitle("재고 수량 부족");
+        problemDetail.setProperty("menuName", e.getMenuName());
+
+
+        return problemDetail;
+    }
     /**
      * Internal Server Error 5xx :
      * 예외처리가 제대로 되지 않았거나 코드 자체의 문제인 경우일 확률 높음 코드를 고치거나 해당 예외처리 핸들러를 추가해줘야 함
