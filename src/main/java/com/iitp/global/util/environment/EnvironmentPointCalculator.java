@@ -86,7 +86,7 @@ public class EnvironmentPointCalculator {
      */
     public static LevelProgressInfo calculateLevelProgress(int currentPoint, EnvironmentLevel currentLevel) {
         int nextLevelPoint = calculateNextLevelPoint(currentPoint, currentLevel);
-        double progressPercentage = calculateProgressPercentage(currentPoint, currentLevel);
+        double progressPercentage = calculateTotalProgressPercentage(currentPoint);
 
         return new LevelProgressInfo(nextLevelPoint, progressPercentage);
     }
@@ -111,6 +111,26 @@ public class EnvironmentPointCalculator {
      */
     public static int calculateContainerReuseEnvironmentPoint() {
         return BusinessLogicConstants.ENVIRONMENT_POINT_PER_REUSING_CONTAINER;
+    }
+
+    /**
+     * 전체 포인트 대비 현재 포인트의 퍼센트 계산 (소수점 둘째자리까지 반올림)
+     * 최대 포인트는 5600점 (FRUIT 레벨 최소 요구 점수)
+     */
+    public static double calculateTotalProgressPercentage(int currentPoint) {
+        // 최대 포인트 (FRUIT 레벨 최소 요구 점수)
+        int maxPoint = BusinessLogicConstants.ENVIRONMENT_LEVEL_THREE_REQUIRED_POINT;
+
+        // 전체 대비 진행률 계산 (0~100%)
+        double percentage = (double) currentPoint / maxPoint * 100.0;
+
+        // 100%를 넘지 않도록 제한
+        percentage = Math.min(percentage, 100.0);
+
+        // 소수점 둘째자리까지 반올림
+        return BigDecimal.valueOf(percentage)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 
     /**
