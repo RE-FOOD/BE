@@ -77,7 +77,7 @@ public class MainOverviewService {
     /**
      * 장바구니 개수 조회
      */
-    private Integer getCartCount(Long memberId) {
+    public Integer getCartCount(Long memberId) {
         try {
             String cacheKey = "cart:" + memberId;  // CART_CACHE_PREFIX + memberId
             CartRedisDto cart = cartRedisService.getCartFromRedis(cacheKey);
@@ -87,9 +87,7 @@ public class MainOverviewService {
             }
 
             // 장바구니에 있는 메뉴들의 총 수량 계산
-            return cart.menus().stream()
-                    .mapToInt(menu -> menu.orderQuantity())
-                    .sum();
+            return cart.menus().size();
 
         } catch (Exception e) {
             log.error("장바구니 개수 조회 중 오류 발생 - memberId: {}", memberId, e);
