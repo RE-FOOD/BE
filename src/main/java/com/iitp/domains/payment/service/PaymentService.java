@@ -138,7 +138,7 @@ public class PaymentService {
         return Order.builder()
                 .member(member)
                 .store(store)
-                .cart(cart) // Cart는 별도로 조회 필요
+                .cart(cart)
                 .status(OrderStatus.COMPLETED)
                 .pickupDueTime(pendingOrder.pickupDueTime())
                 .totalAmount(pendingOrder.totalAmount())
