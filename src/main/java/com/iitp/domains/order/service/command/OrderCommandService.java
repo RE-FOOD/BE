@@ -44,7 +44,7 @@ public class OrderCommandService {
             menu.quantityReduction(cart.getCartMenus().get(i).getOrderQuantity());
         }
 
-        Store store = validateStoreExists(cart.getId());
+        Store store = validateStoreExists(cart.getStore().getId());
         Member member = validateMemberExists(memberId);
 
         // 주문 엔티티 생성 (아직 저장하지 않음)
