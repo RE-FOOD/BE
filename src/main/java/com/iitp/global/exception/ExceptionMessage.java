@@ -51,6 +51,10 @@ public enum ExceptionMessage {
     // 게시물 관련
     DATA_NOT_FOUND("데이터 정보가 없음"),
     CART_DATA_DEFERENCE("다른 가게 장바구니 데이터 존재"),
+    STORE_NOT_FOUND("가게 데이터 정보가 없음"),
+    MENU_NOT_FOUND("메뉴 데이터 정보가 없음"),
+    CART_NOT_FOUND("카트 데이터 정보가 없음"),
+
 
     // 리뷰 관련
     INVALID_REVIEW_CONTENT_LENGTH("유효하지 않은 리뷰 내용 길이입니다."),
@@ -65,6 +69,10 @@ public enum ExceptionMessage {
     ORDER_STATUS_NOT_COMPLETED("주문이 아직 완료되지 않았습니다."),
 
     // 결과 관련
-    PAYMENT_INFO_INVALID("결제 금액 정보가 유효하지 않습니다.");
+    PAYMENT_INFO_INVALID("결제 금액 정보가 유효하지 않습니다."),
+    SESSION_EXPIRED("주문 세션 시간이 만료되었습니다 다시 시도해주세요");
+
+
+
     private final String message;
 }
