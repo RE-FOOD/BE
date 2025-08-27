@@ -2,13 +2,13 @@ package com.iitp.domains.store.controller.query;
 
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
+import com.iitp.domains.store.dto.response.FavoriteStoresResponse;
 import com.iitp.domains.store.dto.response.StoreDetailResponse;
-import com.iitp.domains.store.dto.response.StoreListResponse;
 import com.iitp.domains.store.dto.response.StoreListTotalResponse;
 import com.iitp.domains.store.service.query.StoreQueryService;
 import com.iitp.global.common.response.ApiResponse;
-import com.iitp.global.common.response.TwoWayCursorListResponse;
 import com.iitp.global.config.security.CustomUserDetails;
+import com.iitp.global.config.security.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
@@ -58,19 +58,21 @@ public class StoreQueryController {
         return ApiResponse.ok(200, responses, "상세 가게 호출 성공");
     }
 
+    @Operation(summary = "찜한 가게 목록 조회", description = "사용자가 찜한 가게 목록을 조회합니다. (단방향 무한 스크롤)")
     @GetMapping("/favorites/me")
-    @Operation(summary = "회원의 찜한 가게 목록 조회", description = "필터에 적합한 찜한 가게들을 출력합니다.")
-    public ApiResponse<TwoWayCursorListResponse<StoreListResponse>> findMyFavoriteStores(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam(value = "sort", required = false) SortType sort,
-            @RequestParam(value = "cursorId", defaultValue = "0") Long cursorId,
+    public ApiResponse<FavoriteStoresResponse> getFavoriteStores(
+            @RequestParam(value = "sort", required = false, defaultValue = "REVIEW") SortType sort,
+            @RequestParam(value = "cursorId", required = false) Long cursorId,
             @RequestParam(value = "limit", defaultValue = "15") int limit
     ) {
-        Long memberId = userDetails.getMemberId();
-        TwoWayCursorListResponse<StoreListResponse> responses = storeQueryService
-                .findFavoriteStores(memberId, sort, cursorId, limit);
+        Long memberId = SecurityUtil.getCurrentMemberId();
 
-        return ApiResponse.ok(responses);
+        // Service 호출
+        FavoriteStoresResponse response = storeQueryService.findMyFavoriteStores(
+                memberId, sort, cursorId, limit
+        );
+
+        return ApiResponse.ok(200, response, "찜한 게시글 목록 호출 성공");
     }
 
 }

@@ -100,7 +100,7 @@ public class RedisGeoService {
     }
 
     /**
-     * 특정 위치 근처의 가게 ID 조회
+     * 특정 위치 근처의 가게 ID 조회 (거리순 정렬)
      */
     public List<String> findNearbyStores(Double latitude, Double longitude, Double radiusKm) {
         try {
@@ -108,8 +108,13 @@ public class RedisGeoService {
             Distance radius = new Distance(radiusKm, Metrics.KILOMETERS);
             Circle circle = new Circle(center, radius);
 
+            // GeoRadiusCommandArgs를 사용하여 명시적으로 거리순 오름차순 정렬
+            GeoRadiusCommandArgs args = GeoRadiusCommandArgs.newGeoRadiusArgs()
+                    .includeDistance()  // 거리 정보 포함
+                    .sortAscending();   // 가까운 순으로 정렬
+
             GeoResults<RedisGeoCommands.GeoLocation<String>> results =
-                    redisTemplate.opsForGeo().radius(STORE_GEO_KEY, circle);
+                    redisTemplate.opsForGeo().radius(STORE_GEO_KEY, circle, args);
 
             List<String> storeIds = results.getContent().stream()
                     .map(result -> result.getContent().getName())
