@@ -29,8 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ReviewCommandService {
     private final ReviewRepository reviewRepository;
-    // TODO: 주문 구현 완료 후 orderRepository 의존관계 제거
-    private final OrderRepository orderRepository;
     private final MemberQueryService memberQueryService;
     private final StoreQueryService storeQueryService;
     private final OrderQueryService orderQueryService;
@@ -39,17 +37,7 @@ public class ReviewCommandService {
     public void writeReview(Long memberId, Long storeId, Long orderId, ReviewCreateRequest request) {
         Member member = memberQueryService.findMemberById(memberId);    // 리팩토링 고민: 회원 조회 쿼리
         Store store = storeQueryService.findExistingStore(storeId);
-        // TODO: 주문 구현 완료 후 연결 및 아래 구문 삭제
-        Order order = Order.builder()
-                .member(member)
-                .store(store)
-                .status(OrderStatus.COMPLETED)
-                .totalAmount(10000)
-                .pickupDueTime(Timestamp.valueOf(LocalDateTime.now()))
-                .build();
-        orderRepository.save(order);
-        orderRepository.flush();
-//        Order order = orderQueryService.findExistingOrder(orderId);
+        Order order = orderQueryService.findExistingOrder(orderId);
 
         // 완료된 주문인지 여부 검증
         if (!order.isCompleted()) {
