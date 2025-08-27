@@ -75,6 +75,12 @@ public class ReviewQueryService {
                 .toList();
     }
 
+    private List<MyReviewResponse> convertToMyResponse(List<Review> reviews) {
+        return reviews.stream()
+                .map(it -> MyReviewResponse.from(it, getOrderedMenusOfReview(it)))
+                .toList();
+    }
+
     public Double calculateStoreRating(Long storeId) {
         List<ReviewResponse> reviews = getStoreReviews(storeId, 0L, Integer.MAX_VALUE);
 
@@ -90,19 +96,9 @@ public class ReviewQueryService {
         return Math.round(rating * 10.0) / 10.0;
     }
 
-    // TODO: 주문 구현 후 리뷰의 실제 주문-장바구니-메뉴 리스트 가져오는 쪽으로 수정
-    private static List<Menu> getOrderedMenusOfReview(Review review) {
-    private List<MyReviewResponse> convertToMyResponse(List<Review> reviews) {
-        return reviews.stream()
-                .map(it -> MyReviewResponse.from(it, getOrderedMenusOfReview(it)))
-                .toList();
-    }
 
     private List<Menu> getOrderedMenusOfReview(Review review) {
         // 임시로 해당 가게의 모든 메뉴를 반환
-        System.out.println("review.getOrder().getId() = " + review.getOrder().getId());
-        System.out.println("review.getOrder().getCart().getId() = " + review.getOrder().getCart().getId());
-
         List<Long> menuIdList = review.getOrder().getCart().getCartMenus().stream()
                 .map(CartMenu::getMenuId)
                 .toList();
