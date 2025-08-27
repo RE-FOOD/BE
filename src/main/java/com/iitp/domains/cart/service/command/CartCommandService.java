@@ -95,10 +95,13 @@ public class CartCommandService {
 
         Store store = validateStoreExists(existingCart.id());
         Cart cart = CartRedisDto.toEntity(store, memberId,existingCart );
+//        // TODO: 리팩토링
+        cartRepository.save(cart);
+        cartRepository.flush();
 
         List<CartMenu> cartMenus = existingCart.menus().stream()
                         .map(menu ->
-                            CartMenuRedisDto.toEntity(existingCart.id(), menu.id(), menu)).toList();
+                            CartMenuRedisDto.toEntity(cart, menu.id(), menu)).toList();
 
         cart.addMenu(cartMenus);
         cartRepository.save(cart);
@@ -116,7 +119,7 @@ public class CartCommandService {
 
         List<CartMenu> cartMenus = existingCart.menus().stream()
                 .map(menu ->
-                        CartMenuRedisDto.toEntity(existingCart.id(), menu.id(), menu)).toList();
+                        CartMenuRedisDto.toEntity(cart, menu.id(), menu)).toList();
 
 
         return cart.addMenu(cartMenus);
