@@ -69,7 +69,8 @@ public class BusinessLogicConstants {
      * 지도 관련 상수
      */
     public static final int MAP_SEARCHING_RANGE_KM = 5;
-
+    public static final int MAP_LIST_DEFAULT_LIMIT = 10;  // 무한스크롤 기본 한 페이지 크기
+    public static final int MAP_LIST_MAX_LIMIT = 50;      // 무한스크롤 최대 한 페이지 크기
     /**
      * Store
      */

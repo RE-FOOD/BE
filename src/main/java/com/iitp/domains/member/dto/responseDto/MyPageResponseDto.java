@@ -29,8 +29,11 @@ public record MyPageResponseDto(
         int currentPoint = member.getEnvironmentPoint();
         EnvironmentLevel currentLevel = member.getEnvironmentLevel();
 
-        // 레벨 진행 정보 계산
-        LevelProgressInfo progressInfo = EnvironmentPointCalculator.calculateLevelProgress(currentPoint, currentLevel);
+        // 다음 레벨까지 필요한 점수 계산
+        int nextLevelPoint = EnvironmentPointCalculator.calculateNextLevelPoint(currentPoint, currentLevel);
+
+        // 전체 포인트 대비 퍼센트 계산
+        double totalProgressPercentage = EnvironmentPointCalculator.calculateTotalProgressPercentage(currentPoint);
 
         return MyPageResponseDto.builder()
                 .id(member.getId())
@@ -40,8 +43,8 @@ public record MyPageResponseDto(
                 .orderCount(member.getOrderCount())
                 .dishCount(member.getDishCount())
                 .environmentPoint(currentPoint)
-                .nextLevelPoint(progressInfo.nextLevelPoint())
-                .progressPercentage(progressInfo.progressPercentage())
+                .nextLevelPoint(nextLevelPoint)
+                .progressPercentage(totalProgressPercentage) // 전체 포인트 퍼센트로 변경
                 .build();
     }
 }

@@ -14,8 +14,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Builder
 @Getter
-public class
-Menu extends BaseEntity {
+public class Menu extends BaseEntity {
     @Id
     @Column(name = "id", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
