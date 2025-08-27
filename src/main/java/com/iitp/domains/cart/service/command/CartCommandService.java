@@ -84,7 +84,14 @@ public class CartCommandService {
 
     public Cart saveCart(Long memberId) {
         String cacheKey = CART_CACHE_PREFIX + memberId;
+
+
         CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
+
+
+        if(existingCart == null){
+            throw new NotFoundException(ExceptionMessage.CART_NOT_FOUND);
+        }
 
         Store store = validateStoreExists(existingCart.id());
         Cart cart = CartRedisDto.toEntity(store, memberId,existingCart );
