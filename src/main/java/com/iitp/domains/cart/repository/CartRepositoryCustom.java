@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface CartRepositoryCustom {
     Optional<Cart>  findCartData(Long storeId, Long memberId);
     Optional<Cart> findByCartId(Long storeId);
+    Integer countByMemberId(Long memberId);
 }

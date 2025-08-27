@@ -102,7 +102,7 @@ public class PaymentService {
 
             // 2. 실제 Order 엔티티 생성 및 저장
             Order order = createOrderFromPendingOrder(pendingOrder);
-            // TODO 여기서 에러
+
             Order savedOrder = orderRepository.save(order);
 
             // 3. 결제 정보 저장

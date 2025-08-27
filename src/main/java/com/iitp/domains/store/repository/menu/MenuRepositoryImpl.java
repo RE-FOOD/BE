@@ -66,4 +66,30 @@ public class MenuRepositoryImpl implements MenuRepositoryCustom {
                 .otherwise(2)                        // 재고 없음: 2
                 .asc();                              // 오름차순 (1이 먼저, 2가 나중에)
     }
+
+    // 할인 메뉴 조회 메서드
+    @Override
+    public List<Menu> findDiscountMenusByStoreIds(List<Long> storeIds, int limit) {
+        QMenu menu = QMenu.menu;
+        QStore store = QStore.store;
+
+        if (storeIds.isEmpty()) {
+            return List.of();
+        }
+
+        return queryFactory
+                .selectFrom(menu)
+                .join(menu.store, store).fetchJoin()
+                .where(
+                        store.id.in(storeIds)
+                                .and(menu.dailyDiscountPercent.gt(0))  // 할인율이 0보다 큰 메뉴
+                                .and(menu.dailyQuantity.gt(0))         // 재고가 있는 메뉴
+                                .and(store.isDeleted.eq(false))        // 삭제되지 않은 가게
+                                .and(menu.isDeleted.eq(false))         // 삭제되지 않은 메뉴
+                )
+                .orderBy(menu.dailyDiscountPercent.desc())     // 할인율 높은 순
+                .limit(limit)
+                .fetch();
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.iitp.domains.map.controller.query;
 
 import com.iitp.domains.map.dto.responseDto.MapListResponseDto;
+import com.iitp.domains.map.dto.responseDto.MapListScrollResponseDto;
 import com.iitp.domains.map.dto.responseDto.MapMarkerResponseDto;
 import com.iitp.domains.map.dto.responseDto.MapSummaryResponseDto;
 import com.iitp.domains.map.service.query.MapQueryService;
@@ -49,14 +50,16 @@ public class MapQueryController {
     @Operation(summary = "가게 지도 목록 조회")
     @GetMapping("/lists")
     @PreAuthorize("isAuthenticated()")
-    public ApiResponse<List<MapListResponseDto>> getNearbyStoreList(
+    public ApiResponse<MapListScrollResponseDto> getNearbyStoreList(
             @RequestParam Double latitude,
             @RequestParam Double longitude,
             @RequestParam(defaultValue = "5.0") Double radiusKm,
-            @RequestParam(defaultValue = "거리순") String sort) {
+            @RequestParam(defaultValue = "거리순") String sort,
+            @RequestParam(required = false) Long cursorId,
+            @RequestParam(defaultValue = "10") Integer limit) {
 
-        List<MapListResponseDto> stores = mapQueryService.getNearbyStoreList(
-                latitude, longitude, radiusKm, sort);
+        MapListScrollResponseDto stores = mapQueryService.getNearbyStoreListWithScroll(
+                latitude, longitude, radiusKm, sort, cursorId, limit);
         return ApiResponse.ok(200, stores, "근처 가게 목록 조회 성공");
     }
 }
