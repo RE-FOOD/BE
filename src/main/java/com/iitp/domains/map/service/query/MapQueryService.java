@@ -167,30 +167,30 @@ public class MapQueryService {
         log.info("근처 가게 목록 무한스크롤 조회 - lat: {}, lng: {}, radius: {}km, sort: {}, cursor: {}, limit: {}",
                 latitude, longitude, radiusKm, sort, cursorId, limit);
 
-        // Redis GEO에서 근처 가게 ID 조회
         List<String> nearbyStoreIds = redisGeoService.findNearbyStores(latitude, longitude, radiusKm);
 
         if (nearbyStoreIds.isEmpty()) {
-            return MapListScrollResponseDto.empty();
+            return MapListScrollResponseDto.empty(cursorId);
         }
 
-        // 가게 ID 리스트를 Long으로 변환
         List<Long> storeIds = nearbyStoreIds.stream()
                 .map(Long::valueOf)
                 .collect(Collectors.toList());
 
-        // DB에서 가게 정보 조회
+        // 전체 가게 정보 조회
         List<Store> stores = mapRepository.findStoreListByIds(storeIds);
 
-        // 응답 DTO 생성
-        List<MapListResponseDto> storeList = stores.stream()
+        if (stores.isEmpty()) {
+            return MapListScrollResponseDto.empty(cursorId);
+        }
+
+        List<MapListResponseDto> allStoreList = stores.stream()
                 .map(store -> {
                     String imageUrl = getStoreImageUrl(store);
                     Double distance = distanceCalculator.calculateDistance(
                             latitude, longitude,
                             store.getLatitude(), store.getLongitude());
 
-                    // 리뷰 조회
                     List<ReviewResponse> reviews = reviewQueryService.getStoreReviews(
                             store.getId(), 0L, Integer.MAX_VALUE);
 
@@ -210,13 +210,21 @@ public class MapQueryService {
                 })
                 .collect(Collectors.toList());
 
-        // 정렬 적용
-        List<MapListResponseDto> sortedList = applySorting(storeList, sort);
+        // 정렬 적용 (항상 적용)
+        List<MapListResponseDto> sortedStoreList = applySorting(allStoreList, sort);
 
-        // 커서 기반 페이징 적용
-        return applyCursorPagination(sortedList, cursorId, limit);
+        // 애플리케이션 레벨에서 커서 기반 페이징 적용
+        MapListScrollResponseDto result = applyCursorPagination(sortedStoreList, cursorId, limit);
+
+        // cursorId 필드에 요청한 cursorId 설정하여 반환
+        return MapListScrollResponseDto.of(
+                result.stores(),
+                cursorId,
+                result.prevCursor(),
+                result.nextCursor(),
+                result.hasNext()
+        );
     }
-
     /**
      * 가게 이미지 URL 조회
      */
@@ -263,38 +271,56 @@ public class MapQueryService {
     /**
      * 커서 기반 페이징 적용
      */
-    private MapListScrollResponseDto applyCursorPagination(List<MapListResponseDto> storeList,
-                                                           Long cursorId, Integer limit) {
-        if (storeList.isEmpty()) {
-            return MapListScrollResponseDto.empty();
-        }
+private MapListScrollResponseDto applyCursorPagination(List<MapListResponseDto> storeList,
+                                                       Long cursorId, Integer limit) {
+    if (storeList.isEmpty()) {
+        return MapListScrollResponseDto.builder()
+                .stores(List.of())
+                .cursorId(null)
+                .prevCursor(null)
+                .nextCursor(null)
+                .hasNext(false)
+                .build();
+    }
 
-        int startIndex = 0;
+    int startIndex = 0;
 
-        // cursorId가 있는 경우 해당 위치 찾기
-        if (cursorId != null) {
-            for (int i = 0; i < storeList.size(); i++) {
-                if (storeList.get(i).id().equals(cursorId)) {
-                    startIndex = i + 1; // 커서 다음부터 시작
-                    break;
-                }
+    // cursorId가 있는 경우 해당 위치 찾기
+    if (cursorId != null) {
+        for (int i = 0; i < storeList.size(); i++) {
+            if (storeList.get(i).id().equals(cursorId)) {
+                startIndex = i + 1; // 커서 다음부터 시작
+                break;
             }
         }
-
-        // 시작 인덱스가 리스트 크기를 넘으면 빈 결과 반환
-        if (startIndex >= storeList.size()) {
-            return MapListScrollResponseDto.empty();
-        }
-
-        // limit만큼 데이터 가져오기
-        int endIndex = Math.min(startIndex + limit, storeList.size());
-        List<MapListResponseDto> pagedList = storeList.subList(startIndex, endIndex);
-
-        // 커서 정보 계산
-        Long prevCursor = (startIndex > 0) ? storeList.get(startIndex - 1).id() : null;
-        Long nextCursor = (endIndex < storeList.size()) ? pagedList.get(pagedList.size() - 1).id() : null;
-        Boolean hasNext = endIndex < storeList.size();
-
-        return MapListScrollResponseDto.of(pagedList, prevCursor, nextCursor, hasNext);
     }
+
+    // 시작 인덱스가 리스트 크기를 넘으면 빈 결과 반환
+    if (startIndex >= storeList.size()) {
+        return MapListScrollResponseDto.builder()
+                .stores(List.of())
+                .cursorId(null)
+                .prevCursor(null)
+                .nextCursor(null)
+                .hasNext(false)
+                .build();
+    }
+
+    // limit만큼 데이터 가져오기
+    int endIndex = Math.min(startIndex + limit, storeList.size());
+    List<MapListResponseDto> pagedList = storeList.subList(startIndex, endIndex);
+
+    // 커서 정보 계산
+    Long prevCursor = (startIndex > 0) ? storeList.get(startIndex - 1).id() : null;
+    Long nextCursor = (endIndex < storeList.size()) ? pagedList.get(pagedList.size() - 1).id() : null;
+    Boolean hasNext = endIndex < storeList.size();
+
+    return MapListScrollResponseDto.builder()
+            .stores(pagedList)
+            .cursorId(null) // 여기서는 null로 설정, 상위에서 설정
+            .prevCursor(prevCursor)
+            .nextCursor(nextCursor)
+            .hasNext(hasNext)
+            .build();
+}
 }
