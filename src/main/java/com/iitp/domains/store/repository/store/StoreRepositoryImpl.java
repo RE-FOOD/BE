@@ -7,6 +7,7 @@ import static com.iitp.domains.store.domain.entity.QStoreImage.storeImage;
 
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
+import com.iitp.domains.store.domain.entity.QMenu;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import com.iitp.global.util.query.QueryExpressionFormatter;
@@ -23,12 +24,15 @@ import lombok.RequiredArgsConstructor;
 public class StoreRepositoryImpl implements StoreRepositoryCustom {
     private final JPAQueryFactory queryFactory;
 
+
     /**
      * 가게 목록 조회 (커서 기반 페이징: 리뷰순, 평점순용)
      */
     @Override
     public List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort,
                                                  Long cursorId, boolean direction, int limit) {
+
+        QMenu menu = QMenu.menu;  // 메뉴 엔티티 추가
 
         JPAQuery<StoreListQueryResult> baseQuery = queryFactory
                 .selectDistinct(Projections.constructor(StoreListQueryResult.class,
@@ -44,10 +48,11 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                 .from(store)
                 .leftJoin(store.storeImages, storeImage)
                 .leftJoin(store.reviews, review)
+                .leftJoin(store.menus, menu)  // 메뉴 조인 추가
                 .where(
                         store.isDeleted.eq(false),
                         eqCategory(category),
-                        eqKeyword(keyword))
+                        eqKeyword(keyword))  // 수정된 메서드 사용
                 .groupBy(store.id, store.name, store.address, store.category);
 
         // direction = true: 다음 페이지 (cursorId 이후 데이터 조회)
@@ -105,6 +110,8 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
             return List.of();
         }
 
+        QMenu menu = QMenu.menu;  // 추가
+
         return queryFactory
                 .selectDistinct(Projections.constructor(StoreListQueryResult.class,
                         store.id,
@@ -119,9 +126,10 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                 .from(store)
                 .leftJoin(store.storeImages, storeImage)
                 .leftJoin(store.reviews, review)
+                .leftJoin(store.menus, menu)  // 메뉴 조인 추가
                 .where(
                         store.isDeleted.eq(false),
-                        store.id.in(storeIds),      // ID 목록으로 필터링
+                        store.id.in(storeIds),
                         eqCategory(category),
                         eqKeyword(keyword))
                 .groupBy(store.id, store.name, store.address, store.category)
@@ -177,6 +185,8 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                 .limit(limit)
                 .fetch();
     }
+
+
     private BooleanExpression eqCategory(Category category) {
         return category != null ? store.category.eq(category) : null;
     }
@@ -185,8 +195,11 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         if (keyword == null || keyword.isBlank()) {
             return null;
         }
+
+        QMenu menu = QMenu.menu;
+
         return store.name.containsIgnoreCase(keyword)
-                .or(store.origin.containsIgnoreCase(keyword));
+                .or(menu.name.containsIgnoreCase(keyword).and(menu.isDeleted.eq(false)));
     }
 
     private static BooleanExpression gtCursorId(Long cursorId) {
