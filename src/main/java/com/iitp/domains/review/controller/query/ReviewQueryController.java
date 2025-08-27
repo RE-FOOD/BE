@@ -1,5 +1,6 @@
 package com.iitp.domains.review.controller.query;
 
+import com.iitp.domains.review.dto.response.MyReviewResponse;
 import com.iitp.domains.review.dto.response.ReviewResponse;
 import com.iitp.domains.review.service.query.ReviewQueryService;
 import com.iitp.global.common.response.ApiResponse;
@@ -39,7 +40,7 @@ public class ReviewQueryController {
     @GetMapping("/reviews/me")
     @Operation(summary = "내가 쓴 리뷰 조회",
             description = "회원이 존재해야 합니다.")
-    public ApiResponse<TwoWayCursorListResponse<ReviewResponse>> readStoreReviews(
+    public ApiResponse<TwoWayCursorListResponse<MyReviewResponse>> readStoreReviews(
             @RequestParam(value = "cursorId", defaultValue = "0") long cursorId,
             @RequestParam(value = "limit", required = false, defaultValue = "10") int limit,
             @AuthenticationPrincipal CustomUserDetails userDetails

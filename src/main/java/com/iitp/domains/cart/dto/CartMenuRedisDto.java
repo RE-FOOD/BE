@@ -1,5 +1,6 @@
 package com.iitp.domains.cart.dto;
 
+import com.iitp.domains.cart.domain.entity.Cart;
 import com.iitp.domains.cart.domain.entity.CartMenu;
 import com.iitp.domains.store.domain.entity.Menu;
 
@@ -14,9 +15,10 @@ public record CartMenuRedisDto (
         int discountPrice
 ){
 
-    public static CartMenu toEntity(Long cartId, Long menuId, CartMenuRedisDto cartMenuRedisDto) {
+    public static CartMenu toEntity(Cart cart, Long menuId, CartMenuRedisDto cartMenuRedisDto) {
         return CartMenu.builder()
-                .cartId(cartId)
+                .cartId(cart.getId())
+                .cart(cart)
                 .menuId(menuId)
                 .price(cartMenuRedisDto.price)
                 .dailyDiscountPercent(cartMenuRedisDto.dailyDiscountPercent)

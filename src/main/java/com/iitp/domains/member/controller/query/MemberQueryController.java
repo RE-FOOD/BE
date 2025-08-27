@@ -1,5 +1,6 @@
 package com.iitp.domains.member.controller.query;
 
+import com.iitp.domains.member.dto.responseDto.CartCountResponse;
 import com.iitp.domains.member.dto.responseDto.MainOverviewResponseDto;
 import com.iitp.domains.member.dto.responseDto.MemberProfileResponseDto;
 import com.iitp.domains.member.service.MainOverviewService;
@@ -72,5 +73,19 @@ public class MemberQueryController {
         log.info("메인 페이지 데이터 조회 완료 - memberId: {}", memberId);
 
         return ApiResponse.ok(200, response, "메인 데이터 호출 성공");
+    }
+
+
+    @Operation(
+            summary = "장바구니 데이터 호출",
+            description = "장바구니 총 개수 반환"
+    )
+    @GetMapping("/cartCount")
+    public ApiResponse<CartCountResponse> getCartCount() {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+
+        CartCountResponse response = new CartCountResponse(mainOverviewService.getCartCount(memberId));
+
+        return ApiResponse.ok(200, response, "장바구니 개수 반환 성공");
     }
 }
