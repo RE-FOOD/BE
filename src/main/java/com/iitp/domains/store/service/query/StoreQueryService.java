@@ -9,10 +9,7 @@ import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
 import com.iitp.domains.store.domain.StoreStatus;
 import com.iitp.domains.store.domain.entity.Store;
-import com.iitp.domains.store.dto.response.MenuListResponse;
-import com.iitp.domains.store.dto.response.StoreDetailResponse;
-import com.iitp.domains.store.dto.response.StoreListResponse;
-import com.iitp.domains.store.dto.response.StoreListTotalResponse;
+import com.iitp.domains.store.dto.response.*;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import com.iitp.domains.store.repository.store.StoreRepository;
 import com.iitp.global.common.response.TwoWayCursorListResponse;
@@ -184,27 +181,6 @@ public class StoreQueryService {
     }
 
     /**
-     * 찜한 가게 목록 조회
-     */
-    public TwoWayCursorListResponse<StoreListResponse> findFavoriteStores(
-            long memberId,
-            SortType sort,
-            long cursorId,
-            int limit
-    ) {
-        List<StoreListQueryResult> result = storeRepository.findFavoriteStores(memberId, sort, cursorId, limit);
-
-        if (result.isEmpty()) {
-            return new TwoWayCursorListResponse<>(null, null, List.of());
-        }
-
-        Location baseLocation = locationQueryService.getMemberBaseLocation(memberId);
-        List<StoreListResponse> stores = convertQueryResultToResponse(result, baseLocation);
-
-        return new TwoWayCursorListResponse<>(stores.get(0).id(), stores.get(stores.size() - 1).id(), stores);
-    }
-
-    /**
      * 존재하는 가게 조회 (삭제된 가게 제외)
      */
     public Store findExistingStore(Long storeId) {
@@ -250,6 +226,60 @@ public class StoreQueryService {
                             actualStatus
                     );
                 }).toList();
+    }
+
+    /**
+     * 찜한 가게 목록 조회 (단방향 무한 스크롤)
+     */
+    public FavoriteStoresResponse findMyFavoriteStores(
+            Long memberId,
+            SortType sort,
+            Long cursorId,
+            int limit
+    ) {
+        // 사용자 위치 정보 조회
+        Location userLocation = locationQueryService.getMemberBaseLocation(memberId);
+
+        // 찜한 가게 목록 조회
+        List<StoreListQueryResult> queryResults = storeRepository
+                .findFavoriteStoresForward(memberId, sort, cursorId != null ? cursorId : 0L, limit + 1);
+
+        if (queryResults.isEmpty()) {
+            return FavoriteStoresResponse.empty();
+        }
+
+        boolean hasNext = queryResults.size() > limit;
+
+        List<StoreListQueryResult> actualResults = hasNext
+                ? queryResults.subList(0, limit)
+                : queryResults;
+
+        List<FavoriteStoreItem> favoriteStores = actualResults.stream()
+                .map(result -> convertToFavoriteStoreItem(result, userLocation))
+                .toList();
+
+        return FavoriteStoresResponse.of(favoriteStores, cursorId, hasNext);
+    }
+
+    private FavoriteStoreItem convertToFavoriteStoreItem(
+            StoreListQueryResult result,
+            Location userLocation
+    ) {
+        // 이미지 URL 생성
+        String imageUrl = imageGetService.getGetS3Url(result.imageKey()).preSignedUrl();
+
+        // 거리 계산
+        double distance = redisGeoService.getKiloMeterDistanceToStore(
+                result.id(),
+                userLocation.getLatitude(),
+                userLocation.getLongitude());
+
+        // 실제 영업 상태 결정
+        StoreStatus actualStatus = isStoreOpen(result.openTime(), result.closeTime())
+                ? StoreStatus.OPEN
+                : StoreStatus.CLOSED;
+
+        return FavoriteStoreItem.fromQueryResult(result, imageUrl, distance, actualStatus);
     }
 
     /**

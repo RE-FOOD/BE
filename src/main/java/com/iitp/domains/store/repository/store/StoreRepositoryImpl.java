@@ -68,7 +68,7 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
             // 1단계: cursorId 이전의 값들을 먼저 조회
             List<StoreListQueryResult> beforeResults = baseQuery
                     .where(getCursorCondition(cursorId, sort, false))
-                    .orderBy(getOrderSpecifiers(sort, false))  // 역순으로 조회
+                    .orderBy(getOrderSpecifiers(sort, false))
                     .limit(limit + 1)  // 하나 더 조회해서 hasPrev 판단
                     .fetch();
 
@@ -97,8 +97,9 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         }
     }
 
+
     /**
-     * ID 목록으로 가게 조회 (Redis GEO 결과 기반)
+     * ID 목록으로 가게 조회
      */
     @Override
     public List<StoreListQueryResult> findStoresByIds(
@@ -153,11 +154,11 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
     }
 
     /**
-     * 찜한 가게 목록 조회
+     * 찜한 가게 목록 조회 (단방향 무한 스크롤 전용)
      */
     @Override
-    public List<StoreListQueryResult> findFavoriteStores(long memberId, SortType sort, long cursorId, int limit) {
-        return queryFactory
+    public List<StoreListQueryResult> findFavoriteStoresForward(long memberId, SortType sort, long cursorId, int limit) {
+        JPAQuery<StoreListQueryResult> query = queryFactory
                 .select(Projections.constructor(StoreListQueryResult.class,
                         store.id,
                         store.name,
@@ -175,17 +176,44 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
                 .leftJoin(store.storeImages, storeImage)
                 .where(
                         store.isDeleted.eq(false),
-                        ltCursorId(cursorId)
+                        gtFavoriteCursorId(cursorId)
                 )
-                .orderBy(
-                        store.status.desc(),
-                        favorite.id.desc()
-                )
-                .groupBy(store.id, favorite.id)
-                .limit(limit)
-                .fetch();
+                .groupBy(store.id, favorite.id);
+
+        // 정렬 방식 적용
+        if (sort == null || sort == SortType.REVIEW) {
+            query.orderBy(
+                    store.status.desc(),  // OPEN 우선
+                    favorite.id.asc()     // 찜한 순서
+            );
+        } else if (sort == SortType.RATING) {
+            // 평점순
+            query.orderBy(
+                    store.status.desc(),  // OPEN 우선
+                    QueryExpressionFormatter.roundDoubleByFirstDecimalPlace(review.rating.avg()).desc().nullsLast(),
+                    favorite.id.asc()     // 동점시 찜한 순서
+            );
+        } else if (sort == SortType.NEAR) {
+            // 거리순
+            query.orderBy(
+                    store.status.desc(),  // OPEN 우선
+                    favorite.id.asc()     // 찜한 순서
+            );
+        }
+
+        return query.limit(limit).fetch();
     }
 
+    /**
+     * 찜한 가게용 커서 조건 (favorite.id 기준)
+     */
+    private static BooleanExpression gtFavoriteCursorId(Long cursorId) {
+        if (cursorId == null || cursorId == 0) {
+            return null;
+        } else {
+            return favorite.id.gt(cursorId);  // favorite.id > cursorId
+        }
+    }
 
     private BooleanExpression eqCategory(Category category) {
         return category != null ? store.category.eq(category) : null;

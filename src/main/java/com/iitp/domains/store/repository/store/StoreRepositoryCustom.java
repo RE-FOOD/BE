@@ -16,9 +16,9 @@ public interface StoreRepositoryCustom {
     List<StoreListQueryResult> findStores(Category category, String keyword, SortType sort, Long cursorId,
                                           boolean direction, int limit);
 
-    // 찜한 가게 목록 조회
-    List<StoreListQueryResult> findFavoriteStores(long memberId, SortType sort, long cursorId, int limit);
-
     // Redis GEO 기반 거리순 정렬을 위한 메서드
     List<StoreListQueryResult> findStoresByIds(List<Long> storeIds, Category category, String keyword);
+
+    //찜한 가게 목록 조회 (단방향 무한 스크롤)
+    List<StoreListQueryResult> findFavoriteStoresForward(long memberId, SortType sort, long cursorId, int limit);
 }
