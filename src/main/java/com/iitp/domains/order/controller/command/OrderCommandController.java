@@ -26,7 +26,7 @@ public class OrderCommandController {
         Long memberId = SecurityUtil.getCurrentMemberId();
         String paymentSessionId = orderCommandService.createOrder(request,memberId);
 
-        return ApiResponse.ok(200,paymentSessionId,"결제/주문 성공");
+        return ApiResponse.ok(200,paymentSessionId,"주문 성공, 결제 진행");
     }
 
 

@@ -1,5 +1,6 @@
 package com.iitp.domains.order.repository;
 
+import com.iitp.domains.cart.domain.entity.CartMenu;
 import com.iitp.domains.cart.domain.entity.QCart;
 import com.iitp.domains.cart.domain.entity.QCartMenu;
 import com.iitp.domains.member.domain.entity.QMember;
@@ -9,10 +10,7 @@ import com.iitp.domains.order.dto.response.OrderPaymentMenuList;
 import com.iitp.domains.order.dto.response.OrderPaymentResponse;
 import com.iitp.domains.payment.domain.QPayment;
 import com.iitp.domains.payment.domain.TossPaymentMethod;
-import com.iitp.domains.store.domain.entity.QMenu;
-import com.iitp.domains.store.domain.entity.QStore;
-import com.iitp.domains.store.domain.entity.QStoreImage;
-import com.iitp.domains.store.domain.entity.Store;
+import com.iitp.domains.store.domain.entity.*;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -21,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.iitp.domains.order.domain.entity.QOrder.order;
 
@@ -102,37 +101,47 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
             return null;
         }
 
-        // 2. 메뉴 정보 조회 (Cart ID를 통해)
-        List<OrderPaymentMenuList> menus = queryFactory
-                .select(Projections.constructor(OrderPaymentMenuList.class,
-                        menu.name,
-                        cartMenu.orderQuantity,
-                        cartMenu.price
-                ))
-                .from(cartMenu)
-                .join(menu).on(cartMenu.menuId.eq(menu.id))
+        // 2. CartMenu 데이터 조회
+        List<CartMenu> cartMenuEntities = queryFactory
+                .selectFrom(cartMenu)
                 .where(cartMenu.cartId.eq(orderEntity.getCart().getId()))
                 .fetch();
 
+        // 3. 메뉴 정보 조회 및 DTO 변환
+        List<OrderPaymentMenuList> menus = cartMenuEntities.stream()
+                .map(cartMenuEntity -> {
+                    // Menu 정보 조회
+                    Menu menuEntity = queryFactory
+                            .selectFrom(menu)
+                            .where(menu.id.eq(cartMenuEntity.getMenuId()))
+                            .fetchOne();
 
-        // 3. 결제 정보 별도 조회 (연관관계 없이)
+                    return OrderPaymentMenuList.builder()
+                            .name(menuEntity != null ? menuEntity.getName() : "알 수 없는 메뉴")
+                            .quality(cartMenuEntity.getOrderQuantity())
+                            .totalAmount(cartMenuEntity.getDiscountPrice() * cartMenuEntity.getOrderQuantity())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        // 4. 결제 정보 조회
         com.iitp.domains.payment.domain.Payment paymentEntity = queryFactory
                 .selectFrom(payment)
                 .where(payment.orderId.eq(orderId))
                 .fetchOne();
 
-        // 4. DTO 생성 (현재 구조에 맞춤)
+        // 5. DTO 생성
         return OrderPaymentResponse.builder()
-                .storeName(orderEntity.getStore().getName())                    // storeName
-                .orderNumber(orderEntity.getId().toString())                    // orderNumber
-                .requestedAt(Timestamp.valueOf(orderEntity.getCreatedAt()))    // requestedAt
-                .menus(menus)                                                  // menus
-                .totalAmount(orderEntity.getTotalAmount())                     // totalAmount
+                .storeName(orderEntity.getStore().getName())
+                .orderNumber(orderEntity.getId().toString())
+                .requestedAt(Timestamp.valueOf(orderEntity.getCreatedAt()))
+                .menus(menus)
+                .totalAmount(orderEntity.getTotalAmount())
                 .paymentMethod(paymentEntity != null ?
-                        paymentEntity.getTossPaymentMethod() : null)           // paymentMethod
-                .memberName(orderEntity.getMember().getNickname())             // memberName
-                .memberNumber(orderEntity.getMember().getPhone())              // memberNumber
-                .pickupDueTime(orderEntity.getPickupDueTime())                 // pickupDueTime
+                        paymentEntity.getTossPaymentMethod() : null)
+                .memberName(orderEntity.getMember().getNickname())
+                .memberNumber(orderEntity.getMember().getPhone())
+                .pickupDueTime(orderEntity.getPickupDueTime())
                 .build();
     }
 
