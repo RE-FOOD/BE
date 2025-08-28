@@ -4,6 +4,7 @@ import com.iitp.domains.cart.domain.entity.Cart;
 import com.iitp.domains.cart.repository.CartRepository;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.repository.MemberRepository;
+import com.iitp.domains.member.service.EnvironmentRewardService;
 import com.iitp.domains.order.domain.OrderStatus;
 import com.iitp.domains.order.domain.entity.Order;
 import com.iitp.domains.order.repository.OrderRepository;
@@ -47,6 +48,7 @@ public class PaymentService {
     private final StoreRepository storeRepository;
     private final CartRepository cartRepository;
     private final CartRedisService cartRedisService;
+    private final EnvironmentRewardService environmentRewardService;
 
     private static final String PENDING_ORDER_PREFIX = "pending_order:";
     private static final String PAYMENT_SESSION_PREFIX = "payment_session:";
@@ -109,7 +111,10 @@ public class PaymentService {
             Payment payment = createPaymentFromResponse(paymentResponse, savedOrder.getId());
             paymentRepository.save(payment);
 
-            // 4. Redis에서 임시 데이터 삭제
+            // 4. 환경 포인트 처리
+            processEnvironmentReward(pendingOrder);
+
+            // 5. Redis에서 임시 데이터 삭제
             // 결제 임시 데이터 삭제
             commonRedisService.deleteValue(pendingOrderKey);
 
@@ -118,6 +123,26 @@ public class PaymentService {
 
         } catch (Exception e) {
             throw new RuntimeException("주문 및 결제 정보 저장 실패", e);
+        }
+    }
+    /**
+     * 환경 포인트 처리
+     */
+    private void processEnvironmentReward(PendingOrderDto pendingOrder) {
+        try {
+            // EnvironmentRewardService를 사용하여 환경 포인트 처리
+            environmentRewardService.processOrderEnvironmentReward(
+                    pendingOrder.memberId(),
+                    pendingOrder.totalAmount(),
+                    pendingOrder.isContainerReused()
+            );
+
+            log.info("환경 포인트 처리 완료 - memberId: {}, amount: {}, containerReused: {}",
+                    pendingOrder.memberId(), pendingOrder.totalAmount(), pendingOrder.isContainerReused());
+
+        } catch (Exception e) {
+            log.error("환경 포인트 처리 실패 - memberId: {}, error: {}",
+                    pendingOrder.memberId(), e.getMessage(), e);
         }
     }
 
