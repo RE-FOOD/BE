@@ -1,18 +1,13 @@
 package com.iitp.domains.order.domain.entity;
 
 import com.iitp.domains.cart.domain.entity.Cart;
-import com.iitp.domains.cart.domain.entity.CartMenu;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.order.domain.OrderStatus;
-import com.iitp.domains.review.domain.entity.Review;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.global.common.entity.BaseEntity;
 import jakarta.persistence.*;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -70,6 +70,7 @@ public enum ExceptionMessage {
 
     // 결과 관련
     PAYMENT_INFO_INVALID("결제 금액 정보가 유효하지 않습니다."),
+    PAYMENT_NOT_FOUND("주문을 찾을 수 없습니다."),
     SESSION_EXPIRED("주문 세션 시간이 만료되었습니다 다시 시도해주세요");
 
 
