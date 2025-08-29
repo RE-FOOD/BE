@@ -7,6 +7,7 @@ import com.iitp.domains.map.dto.responseDto.MapSummaryResponseDto;
 import com.iitp.domains.map.repository.MapRepository;
 import com.iitp.domains.review.dto.response.ReviewResponse;
 import com.iitp.domains.review.service.query.ReviewQueryService;
+import com.iitp.domains.store.domain.SortType;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
@@ -108,7 +109,7 @@ public class MapQueryService {
      * 근처 가게 목록 조회
      */
     public List<MapListResponseDto> getNearbyStoreList(Double latitude, Double longitude, Double radiusKm,
-                                                       String sort) {
+                                                       SortType sort) {
         log.info("근처 가게 목록 조회 - lat: {}, lng: {}, radius: {}km, sort: {}", latitude, longitude, radiusKm, sort);
 
         // Redis GEO에서 근처 가게 ID 조회
@@ -162,7 +163,7 @@ public class MapQueryService {
      * 근처 가게 목록 조회 - 무한스크롤
      */
     public MapListScrollResponseDto getNearbyStoreListWithScroll(Double latitude, Double longitude,
-                                                                 Double radiusKm, String sort,
+                                                                 Double radiusKm, SortType sort,
                                                                  Long cursorId, Integer limit) {
         log.info("근처 가게 목록 무한스크롤 조회 - lat: {}, lng: {}, radius: {}km, sort: {}, cursor: {}, limit: {}",
                 latitude, longitude, radiusKm, sort, cursorId, limit);
@@ -251,15 +252,19 @@ public class MapQueryService {
     /**
      * 정렬 적용
      */
-    private List<MapListResponseDto> applySorting(List<MapListResponseDto> storeList, String sort) {
+    private List<MapListResponseDto> applySorting(List<MapListResponseDto> storeList, SortType sort) {
+        if (sort == null) {
+            sort = SortType.NEAR; // 기본값 설정
+        }
+
         return switch (sort) {
-            case "거리순" -> storeList.stream()
+            case NEAR -> storeList.stream()
                     .sorted(Comparator.comparing(MapListResponseDto::distance))
                     .collect(Collectors.toList());
-            case "리뷰순" -> storeList.stream()
+            case REVIEW -> storeList.stream()
                     .sorted(Comparator.comparing(MapListResponseDto::reviewCount, Comparator.reverseOrder()))
                     .collect(Collectors.toList());
-            case "평점순" -> storeList.stream()
+            case RATING -> storeList.stream()
                     .sorted(Comparator.comparing(MapListResponseDto::rating, Comparator.reverseOrder()))
                     .collect(Collectors.toList());
             default -> storeList.stream()

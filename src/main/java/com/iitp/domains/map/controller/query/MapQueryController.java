@@ -5,6 +5,7 @@ import com.iitp.domains.map.dto.responseDto.MapListScrollResponseDto;
 import com.iitp.domains.map.dto.responseDto.MapMarkerResponseDto;
 import com.iitp.domains.map.dto.responseDto.MapSummaryResponseDto;
 import com.iitp.domains.map.service.query.MapQueryService;
+import com.iitp.domains.store.domain.SortType;
 import com.iitp.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -54,7 +55,7 @@ public class MapQueryController {
             @RequestParam Double latitude,
             @RequestParam Double longitude,
             @RequestParam(defaultValue = "5.0") Double radiusKm,
-            @RequestParam(defaultValue = "거리순") String sort,
+            @RequestParam(defaultValue = "NEAR") SortType sort,
             @RequestParam(required = false) Long cursorId,
             @RequestParam(defaultValue = "10") Integer limit) {
 
