@@ -1,8 +1,11 @@
 package com.iitp.domains.member.service;
 
+import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.repository.MemberRepository;
 import com.iitp.domains.member.service.query.MemberQueryService;
+import com.iitp.domains.payment.dto.response.PaymentConfirmResponse;
+import com.iitp.global.common.constants.BusinessLogicConstants;
 import com.iitp.global.util.environment.EnvironmentPointCalculator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +29,24 @@ public class EnvironmentRewardService {
      * @param orderAmount 주문 금액
      * @param isContainerReused 다회용기 사용 여부
      */
-    public void processOrderEnvironmentReward(Long memberId, int orderAmount, boolean isContainerReused) {
+    public PaymentConfirmResponse processOrderEnvironmentReward(Long memberId, int orderAmount, boolean isContainerReused) {
         log.info("환경 포인트 지급 시작 - memberId: {}, orderAmount: {}, containerReused: {}",
                 memberId, orderAmount, isContainerReused);
 
         // 회원 조회
         Member member = memberQueryService.findMemberById(memberId);
+
+        // 비교 기준 포인트 값
+        int equalsPoint = 0;
+        int point = member.getEnvironmentPoint();
+
+        if(member.getEnvironmentPoint() >= 2400){
+            equalsPoint = 5600;
+        }else if(member.getEnvironmentPoint() >= 800){
+            equalsPoint = 2400;
+        }else{
+            equalsPoint = 800;
+        }
 
         // 환경 포인트 계산 및 지급
         int environmentPoint = EnvironmentPointCalculator.calculateTotalEnvironmentPoint(orderAmount, isContainerReused);
@@ -45,8 +60,26 @@ public class EnvironmentRewardService {
             member.incrementDishCount();
         }
 
+
         log.info("환경 포인트 지급 완료 - memberId: {}, 지급포인트: {}, 총포인트: {}, 레벨: {}",
                 memberId, environmentPoint, member.getEnvironmentPoint(), member.getEnvironmentLevel());
+
+        PaymentConfirmResponse response = null;
+
+
+
+        if((member.getEnvironmentPoint() >= equalsPoint) && (point <= 5600)) {
+            return response = PaymentConfirmResponse.builder()
+                    .levelCheck(true)
+                    .level(member.getEnvironmentLevel())
+                    .build();
+        }else{
+            return response = PaymentConfirmResponse.builder()
+                    .levelCheck(false)
+                    .level(member.getEnvironmentLevel())
+                    .build();
+        }
+
     }
 
     /**
