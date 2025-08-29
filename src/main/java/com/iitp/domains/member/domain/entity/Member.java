@@ -6,6 +6,7 @@ import com.iitp.domains.favorite.domain.entity.Favorite;
 import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.JoinType;
 import com.iitp.domains.member.domain.Role;
+import com.iitp.domains.notification.domain.entity.Notification;
 import com.iitp.domains.review.domain.entity.Review;
 import com.iitp.global.common.entity.BaseEntity;
 import com.iitp.global.util.environment.EnvironmentPointCalculator;
@@ -99,6 +100,9 @@ public class Member extends BaseEntity {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Favorite> favorites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
 
     @Builder
     public Member(String email, String nickname, String phone,
@@ -221,4 +225,11 @@ public class Member extends BaseEntity {
         favorites.remove(favorite);
     }
 
+    public void addNotification(Notification notification) {
+        notifications.add(notification);
+    }
+    public void removeNotification(Notification notification) {
+        notifications.remove(notification);
+        notification.markAsDeleted();
+    }
 }
