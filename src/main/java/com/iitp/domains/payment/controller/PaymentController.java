@@ -3,6 +3,7 @@ package com.iitp.domains.payment.controller;
 
 import com.iitp.domains.payment.dto.PendingOrderDto;
 import com.iitp.domains.payment.dto.request.PaymentRequest;
+import com.iitp.domains.payment.dto.response.PaymentConfirmResponse;
 import com.iitp.domains.payment.dto.response.PaymentFailResponse;
 import com.iitp.domains.payment.dto.response.PaymentResponse;
 import com.iitp.domains.payment.service.PaymentService;
@@ -55,8 +56,8 @@ public class PaymentController {
         return ApiResponse.ok(200, response,"결제 성공");
     }
 
-    @RequestMapping(value = "/confirm")
-    public ApiResponse<String> confirmPayment(@RequestBody PaymentRequest request) throws Exception {
+    @PostMapping(value = "/confirm")
+    public ApiResponse<PaymentConfirmResponse> confirmPayment(@RequestBody PaymentRequest request) throws Exception {
         JSONParser parser = new JSONParser();
 
         JSONObject obj = new JSONObject();
@@ -89,20 +90,22 @@ public class PaymentController {
         JSONObject jsonObject = (JSONObject) parser.parse(reader);
         responseStream.close();
 
+        PaymentConfirmResponse response = null;
+
         // 결제 성공 시에만 주문과 결제 정보를 저장
         if (isSuccess) {
             try {
                 // orderId는 실제로는 sessionId와 매핑되어야 함
                 // 여기서는 간단히 처리
                 String sessionId = request.orderId(); // 실제로는 매핑 로직 필요
-                paymentService.saveOrderAndPayment(jsonObject, sessionId);
+                response  = paymentService.saveOrderAndPayment(jsonObject, sessionId);
             } catch (Exception e) {
                 logger.error("결제 성공 후 주문 저장 실패: {}", e.getMessage());
             }
         }
 
 
-        return ApiResponse.ok(200, null,"결제 성공");
+        return ApiResponse.ok(200, response,"결제 성공");
     }
 
 

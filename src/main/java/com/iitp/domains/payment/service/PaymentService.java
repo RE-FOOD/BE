@@ -2,6 +2,7 @@ package com.iitp.domains.payment.service;
 
 import com.iitp.domains.cart.domain.entity.Cart;
 import com.iitp.domains.cart.repository.CartRepository;
+import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.repository.MemberRepository;
 import com.iitp.domains.member.service.EnvironmentRewardService;
@@ -13,6 +14,7 @@ import com.iitp.domains.payment.domain.TossPaymentMethod;
 import com.iitp.domains.payment.domain.TossPaymentStatus;
 import com.iitp.domains.payment.dto.PaymentSessionDto;
 import com.iitp.domains.payment.dto.PendingOrderDto;
+import com.iitp.domains.payment.dto.response.PaymentConfirmResponse;
 import com.iitp.domains.payment.repository.PaymentRepository;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.store.StoreRepository;
@@ -92,7 +94,7 @@ public class PaymentService {
     /**
      * 결제 성공 시 주문과 결제 정보를 저장
      */
-    public void saveOrderAndPayment(JSONObject paymentResponse, String paymentSessionId) {
+    public PaymentConfirmResponse saveOrderAndPayment(JSONObject paymentResponse, String paymentSessionId) {
         try {
             // 1. Redis에서 임시 주문 정보 조회
             String pendingOrderKey = PENDING_ORDER_PREFIX + paymentSessionId;
@@ -112,7 +114,7 @@ public class PaymentService {
             paymentRepository.save(payment);
 
             // 4. 환경 포인트 처리
-            processEnvironmentReward(pendingOrder);
+            PaymentConfirmResponse response = processEnvironmentReward(pendingOrder);
 
             // 5. Redis에서 임시 데이터 삭제
             // 결제 임시 데이터 삭제
@@ -121,6 +123,8 @@ public class PaymentService {
             // 장바구니 데이터 삭제
             cartRedisService.deleteCart(CART_CACHE_PREFIX + pendingOrder.memberId());
 
+
+            return response;
         } catch (Exception e) {
             throw new RuntimeException("주문 및 결제 정보 저장 실패", e);
         }
@@ -128,10 +132,11 @@ public class PaymentService {
     /**
      * 환경 포인트 처리
      */
-    private void processEnvironmentReward(PendingOrderDto pendingOrder) {
+    private PaymentConfirmResponse processEnvironmentReward(PendingOrderDto pendingOrder) {
+        PaymentConfirmResponse response = null;
         try {
             // EnvironmentRewardService를 사용하여 환경 포인트 처리
-            environmentRewardService.processOrderEnvironmentReward(
+            response = environmentRewardService.processOrderEnvironmentReward(
                     pendingOrder.memberId(),
                     pendingOrder.totalAmount(),
                     pendingOrder.isContainerReused()
@@ -144,6 +149,8 @@ public class PaymentService {
             log.error("환경 포인트 처리 실패 - memberId: {}, error: {}",
                     pendingOrder.memberId(), e.getMessage(), e);
         }
+
+        return response;
     }
 
     /**

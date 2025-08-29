@@ -2,6 +2,7 @@
 //
 //
 //import com.iitp.domains.payment.dto.PendingOrderDto;
+//import com.iitp.domains.payment.dto.response.PaymentConfirmResponse;
 //import com.iitp.domains.payment.service.PaymentService;
 //import jakarta.servlet.http.HttpServletRequest;
 //import org.json.simple.JSONObject;
@@ -106,11 +107,15 @@
 //                // orderId는 실제로는 sessionId와 매핑되어야 함
 //                // 여기서는 간단히 처리
 //                String sessionId = orderId; // 실제로는 매핑 로직 필요
-//                paymentService.saveOrderAndPayment(jsonObject, sessionId);
+//                PaymentConfirmResponse response = paymentService.saveOrderAndPayment(jsonObject, sessionId);
+//                System.out.println( "현재 유저 레벨 :" + response.level());
+//                System.out.println("현재 유저 레벨업 체크 " + response.levelCheck());
+//
 //            } catch (Exception e) {
 //                logger.error("결제 성공 후 주문 저장 실패: {}", e.getMessage());
 //            }
 //        }
+//
 //
 //        return ResponseEntity.status(code).body(jsonObject);
 //    }

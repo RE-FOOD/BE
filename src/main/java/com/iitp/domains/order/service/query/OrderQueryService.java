@@ -8,10 +8,12 @@ import com.iitp.domains.cart.dto.response.CartMenuResponse;
 import com.iitp.domains.cart.service.command.CartCommandService;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.repository.MemberRepository;
+import com.iitp.domains.order.domain.OrderStatus;
 import com.iitp.domains.order.domain.entity.Order;
-import com.iitp.domains.order.dto.response.OrderMenuResponse;
-import com.iitp.domains.order.dto.response.OrderResponse;
+import com.iitp.domains.order.dto.response.*;
 import com.iitp.domains.order.repository.OrderRepository;
+import com.iitp.domains.payment.domain.Payment;
+import com.iitp.domains.payment.repository.PaymentRepository;
 import com.iitp.domains.store.domain.entity.Menu;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.menu.MenuRepository;
@@ -23,23 +25,27 @@ import java.awt.*;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.iitp.global.exception.OrderConflictException;
 import com.iitp.global.redis.service.CartRedisService;
 import com.iitp.imageUpload.service.query.ImageGetService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
+@Transactional(readOnly = true)
 public class OrderQueryService {
     private final OrderRepository orderRepository;
-    private final CartCommandService cartCommandService;
     private final StoreRepository storeRepository;
     private final MemberRepository memberRepository;
     private final MenuRepository menuRepository;
     private final ImageGetService  imageGetService;
+    private final PaymentRepository paymentRepository;
     private static final String CART_CACHE_PREFIX = "cart:";
     private final CartRedisService cartRedisService;
 
@@ -62,11 +68,15 @@ public class OrderQueryService {
     }
 
     @Transactional
-    public OrderResponse getOrder(Long memberId) {
+    public OrderResponse getOrderReady(Long memberId) {
         // TODO :: Service를 통해 호출하는 코드로 리팩토링
 
         String cacheKey = CART_CACHE_PREFIX + memberId;
         CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
+
+        if(existingCart == null) {
+            throw new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND);
+        }
 
         Store store = validateStoreExists(existingCart.id());
         List<OrderMenuResponse> menus = new ArrayList<>();
@@ -104,6 +114,79 @@ public class OrderQueryService {
     }
 
 
+    public OrderPaymentResponse getOrder(Long orderId, Long memberId) {
+        // Repository에서 JOIN을 통해 모든 데이터를 한 번에 조회
+        OrderPaymentResponse response = orderRepository.findOrderWithDetails(orderId, memberId);
+
+        if (response == null) {
+            throw new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND);
+        }
+
+        return response;
+    }
+
+
+
+    public OrderListResponse getOrders(String keyword, Long cursorId, Long memberId) {
+        List<Order> orders = orderRepository.findOrders(keyword, cursorId, memberId);
+
+        // Order 엔티티를 OrderMenuListResponse로 변환
+        List<OrderMenuListResponse> orderResponses = orders.stream()
+                .map(order -> {
+                    // Store 정보 조회
+                    Store store = order.getStore();
+
+                    // Cart에서 첫 번째 메뉴 정보 가져오기 (대표 메뉴)
+                    String menuName = "주문 완료"; // 기본값
+                    if (order.getCart() != null && !order.getCart().getCartMenus().isEmpty()) {
+                        // 첫 번째 메뉴의 이름을 가져옴
+                        Long firstMenuId = order.getCart().getCartMenus().get(0).getMenuId();
+                        try {
+                            Menu firstMenu = menuRepository.findByMenuId(firstMenuId)
+                                    .orElse(null);
+                            if (firstMenu != null) {
+                                menuName = firstMenu.getName();
+                            }
+                        } catch (Exception e) {
+                            // 메뉴 조회 실패 시 기본값 사용
+                            log.warn("메뉴 조회 실패: {}", firstMenuId, e);
+                        }
+                    }
+
+                    // Store 이미지 URL 가져오기 (첫 번째 이미지)
+                    String imageUrl = "";
+                    if (store.getStoreImages() != null && !store.getStoreImages().isEmpty()) {
+                        String imageKey = store.getStoreImages().get(0).getImageKey();
+                        try {
+                            imageUrl = imageGetService.getGetS3Url(imageKey).preSignedUrl();
+                        } catch (Exception e) {
+                            log.warn("이미지 URL 조회 실패: {}", imageKey, e);
+                        }
+                    }
+
+                    return OrderMenuListResponse.builder()
+                            .orderId(order.getId())
+                            .storeId(store.getId())
+                            .storeName(store.getName())
+                            .imageUrl(imageUrl)
+                            .status(order.getStatus() == OrderStatus.COMPLETED)
+                            .menuName(menuName)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        // 커서 값 계산
+        int prevCursor = cursorId != null ? cursorId.intValue() : 0;
+        int nextCursor = orders.isEmpty() ? 0 : orders.get(orders.size() - 1).getId().intValue();
+
+        return OrderListResponse.builder()
+                .prevCursor(prevCursor)
+                .nextCursor(nextCursor)
+                .orders(orderResponses)
+                .build();
+
+    }
+
 
     private Store validateStoreExists(Long storeId) {
         return storeRepository.findByStoreId(storeId)
@@ -115,13 +198,18 @@ public class OrderQueryService {
                 .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
     }
 
+    private Order validateOrderExists(Long orderId) {
+        return orderRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND));
+    }
 
-    private Member validateMemberExists(Long memberId) {
-        return memberRepository.findByIdAndIsDeletedFalse(memberId)
-                .orElseThrow(() -> new NotFoundException(ExceptionMessage.MEMBER_NOT_FOUND));
+    private Payment validatePaymentExists(Long orderId) {
+        return paymentRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new NotFoundException(ExceptionMessage.PAYMENT_NOT_FOUND));
     }
 
     private String getImageUrl(String imageKey) {
         return imageGetService.getGetS3Url(imageKey).preSignedUrl();
     }
+
 }
