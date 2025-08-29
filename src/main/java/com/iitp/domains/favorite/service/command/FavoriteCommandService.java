@@ -29,14 +29,16 @@ public class FavoriteCommandService {
         Optional<Favorite> optionalFavorite = favoriteRepository.findByMemberIdAndStoreId(member.getId(), storeId);
         boolean isFavored;
         if (optionalFavorite.isEmpty()) {
-            member.addFavorite(Favorite.builder()
+            Favorite favorite = Favorite.builder()
                     .member(member)
                     .store(store)
-                    .build()
-            );
+                    .build();
+            member.addFavorite(favorite);
+            store.addFavorite(favorite);
             isFavored = true;
         } else {
             member.removeFavorite(optionalFavorite.get());
+            store.removeFavorite(optionalFavorite.get());
             isFavored = false;
         }
 
