@@ -100,4 +100,13 @@ public class Store extends BaseEntity {
     public void updateStatus(){
         this.status = StoreStatus.OPEN;
     }
+
+    public void addFavorite(Favorite favorite) {
+        favorites.add(favorite);
+    }
+
+    public void removeFavorite(Favorite favorite) {
+        favorites.remove(favorite);
+    }
+
 }
