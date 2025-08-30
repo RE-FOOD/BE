@@ -1,6 +1,7 @@
 package com.iitp.domains.order.domain.entity;
 
 import com.iitp.domains.cart.domain.entity.Cart;
+import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.order.domain.OrderStatus;
 import com.iitp.domains.store.domain.entity.Store;
@@ -54,8 +55,17 @@ public class Order extends BaseEntity {
     @Column(name = "is_container_reused", nullable = false)
     private Boolean isContainerReused = false;  // 다회용기 사용 여부
 
+    @Column(name = "level_check")
+    private boolean levelCheck;
+
+    @Column(name = "level")
+    EnvironmentLevel level;
+
     public boolean isCompleted() {  // 디미터 법칙 고민
         return status.equals(OrderStatus.COMPLETED);
     }
 
+    public void updateOrderStatus(OrderStatus orderStatus) {
+        this.status = orderStatus;
+    }
 }

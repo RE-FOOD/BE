@@ -5,6 +5,7 @@ import com.iitp.domains.store.domain.SortType;
 import com.iitp.domains.store.dto.response.FavoriteStoresResponse;
 import com.iitp.domains.store.dto.response.StoreDetailResponse;
 import com.iitp.domains.store.dto.response.StoreListTotalResponse;
+import com.iitp.domains.store.dto.response.StoreOrderListResponse;
 import com.iitp.domains.store.service.query.StoreQueryService;
 import com.iitp.global.common.response.ApiResponse;
 import com.iitp.global.config.security.CustomUserDetails;
@@ -74,5 +75,20 @@ public class StoreQueryController {
 
         return ApiResponse.ok(200, response, "찜한 게시글 목록 호출 성공");
     }
+
+
+    @Operation(summary = "가게 주문 리스트 호출", description = "가게 주문 리스트를 출력합니다.")
+    @GetMapping("/orders")
+    public ApiResponse<List<StoreOrderListResponse>> findOrderFromStores(
+            @RequestParam(value = "cursorId", defaultValue = "0") Long cursorId
+    ) {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+
+        List<StoreOrderListResponse> responses = storeQueryService
+                .findOrders(memberId, cursorId);
+
+        return ApiResponse.ok(200, responses, "가게 주문 리스트 호출 성공");
+    }
+
 
 }

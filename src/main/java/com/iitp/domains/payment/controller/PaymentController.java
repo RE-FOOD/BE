@@ -53,7 +53,7 @@ public class PaymentController {
 
         PaymentResponse response = new PaymentResponse(sessionId, pendingOrder.storeName(), pendingOrder.totalAmount());
 
-        return ApiResponse.ok(200, response,"결제 성공");
+        return ApiResponse.ok(200, response,"결제 정보 캐시 조회 성공");
     }
 
     @PostMapping(value = "/confirm")
@@ -103,8 +103,6 @@ public class PaymentController {
                 logger.error("결제 성공 후 주문 저장 실패: {}", e.getMessage());
             }
         }
-
-
         return ApiResponse.ok(200, response,"결제 성공");
     }
 

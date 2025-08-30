@@ -12,6 +12,7 @@ import com.iitp.domains.order.repository.OrderRepository;
 import com.iitp.domains.payment.domain.Payment;
 import com.iitp.domains.payment.domain.TossPaymentMethod;
 import com.iitp.domains.payment.domain.TossPaymentStatus;
+import com.iitp.domains.payment.dto.PaymentRewardDto;
 import com.iitp.domains.payment.dto.PaymentSessionDto;
 import com.iitp.domains.payment.dto.PendingOrderDto;
 import com.iitp.domains.payment.dto.response.PaymentConfirmResponse;
@@ -104,17 +105,20 @@ public class PaymentService {
                 throw new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND);
             }
 
-            // 2. 실제 Order 엔티티 생성 및 저장
-            Order order = createOrderFromPendingOrder(pendingOrder);
+            // 2. 환경 포인트 처리
+            PaymentRewardDto paymentRewardDto = processEnvironmentReward(pendingOrder);
+
+            // 3. 실제 Order 엔티티 생성 및 저장
+            Order order = createOrderFromPendingOrder(pendingOrder, paymentRewardDto);
 
             Order savedOrder = orderRepository.save(order);
 
-            // 3. 결제 정보 저장
+
+            // 4. 결제 정보 저장
             Payment payment = createPaymentFromResponse(paymentResponse, savedOrder.getId());
             paymentRepository.save(payment);
 
-            // 4. 환경 포인트 처리
-            PaymentConfirmResponse response = processEnvironmentReward(pendingOrder);
+
 
             // 5. Redis에서 임시 데이터 삭제
             // 결제 임시 데이터 삭제
@@ -124,7 +128,12 @@ public class PaymentService {
             cartRedisService.deleteCart(CART_CACHE_PREFIX + pendingOrder.memberId());
 
 
-            return response;
+
+            return PaymentConfirmResponse.builder()
+                    .levelCheck(paymentRewardDto.levelCheck())
+                    .level(paymentRewardDto.level())
+                    .id(savedOrder.getId())
+                    .build();
         } catch (Exception e) {
             throw new RuntimeException("주문 및 결제 정보 저장 실패", e);
         }
@@ -132,8 +141,8 @@ public class PaymentService {
     /**
      * 환경 포인트 처리
      */
-    private PaymentConfirmResponse processEnvironmentReward(PendingOrderDto pendingOrder) {
-        PaymentConfirmResponse response = null;
+    private PaymentRewardDto processEnvironmentReward(PendingOrderDto pendingOrder) {
+        PaymentRewardDto response = null;
         try {
             // EnvironmentRewardService를 사용하여 환경 포인트 처리
             response = environmentRewardService.processOrderEnvironmentReward(
@@ -156,7 +165,7 @@ public class PaymentService {
     /**
      * PendingOrderDto로부터 Order 엔티티 생성
      */
-    private Order createOrderFromPendingOrder(PendingOrderDto pendingOrder) {
+    private Order createOrderFromPendingOrder(PendingOrderDto pendingOrder ,PaymentRewardDto paymentRewardDto ) {
         Member member = memberRepository.findByIdAndIsDeletedFalse(pendingOrder.memberId())
                 .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
 
@@ -171,10 +180,12 @@ public class PaymentService {
                 .member(member)
                 .store(store)
                 .cart(cart)
-                .status(OrderStatus.COMPLETED)
+                .status(OrderStatus.PENDING)
                 .pickupDueTime(pendingOrder.pickupDueTime())
                 .totalAmount(pendingOrder.totalAmount())
                 .isContainerReused(pendingOrder.isContainerReused())
+                .levelCheck(paymentRewardDto.levelCheck())
+                .level(paymentRewardDto.level())
                 .build();
     }
 
@@ -184,7 +195,7 @@ public class PaymentService {
             String paymentKey = getStringValue(paymentResponse, "paymentKey");
             String tossOrderId = getStringValue(paymentResponse, "orderId");
             String method = getStringValue(paymentResponse, "method");
-            String status = getStringValue(paymentResponse, "status");
+//            String status = getStringValue(paymentResponse, "status");
 
             // totalAmount는 JSON에서 String으로 올 수 있으므로 안전하게 파싱
             Long totalAmount = getLongValue(paymentResponse, "totalAmount");
@@ -206,7 +217,7 @@ public class PaymentService {
 
             // enum 변환 시 안전하게 처리
             TossPaymentMethod paymentMethod = parsePaymentMethod(method);
-            TossPaymentStatus paymentStatus = parsePaymentStatus(status);
+            TossPaymentStatus paymentStatus = TossPaymentStatus.IN_PROGRESS;
 
             return Payment.builder()
                     .orderId(orderId)
@@ -286,4 +297,5 @@ public class PaymentService {
         String pendingOrderKey = PENDING_ORDER_PREFIX + sessionId;
         return commonRedisService.getValue(pendingOrderKey, PendingOrderDto.class);
     }
+
 }

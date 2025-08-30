@@ -6,6 +6,7 @@ import lombok.Builder;
 @Builder
 public record PaymentConfirmResponse(
      boolean levelCheck,
-     EnvironmentLevel level
+     EnvironmentLevel level,
+     Long id
 ) {
 }
