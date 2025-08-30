@@ -46,4 +46,30 @@ public class StoreCommandController {
 
         return ApiResponse.ok(200, null,"게시글 수정 성공");
     }
+
+
+    @Operation(summary = "가게 주문 거절", description = "특정 주문을 거절합니다.")
+    @GetMapping("/orders/{orderId}/fail")
+    public ApiResponse<String> refusalOrder(
+            @PathVariable Long orderId
+    ) {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+
+        storeCommandService.refusalOrder(memberId, orderId);
+
+        return ApiResponse.ok(200, null, "특정 주문 거절 성공");
+    }
+
+
+    @Operation(summary = "가게 주문 승인", description = "특정 주문을 승인합니다.")
+    @GetMapping("/orders/{orderId}/success")
+    public ApiResponse<String> confirmOrder(
+            @PathVariable Long orderId
+    ) {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+
+        storeCommandService.confirmOrder(memberId, orderId);
+
+        return ApiResponse.ok(200, null, "특정 주문 승인 성공");
+    }
 }

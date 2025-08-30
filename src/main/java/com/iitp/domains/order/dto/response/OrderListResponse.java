@@ -6,8 +6,8 @@ import java.util.List;
 
 @Builder
 public record OrderListResponse(
-        int prevCursor,
-        int nextCursor,
+        Long prevCursor,
+        Long nextCursor,
         List<OrderMenuListResponse>  orders
 ) {
 }

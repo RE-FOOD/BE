@@ -11,6 +11,7 @@ import com.iitp.domains.order.dto.response.OrderPaymentResponse;
 import com.iitp.domains.payment.domain.QPayment;
 import com.iitp.domains.payment.domain.TossPaymentMethod;
 import com.iitp.domains.store.domain.entity.*;
+import com.iitp.domains.store.dto.response.StoreOrderListResponse;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -39,6 +40,77 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                         )
                         .fetchOne()
         );
+    }
+
+    // 가게 아이디를 통한 오더 찾기
+    @Override
+    public List<Order> findByStoreId(Long storeId, Long cursorId) {
+        QStore store = QStore.store;
+
+        BooleanBuilder whereClause = new BooleanBuilder();
+
+        // 1. memberId 조건 (필수)
+        whereClause.and(order.store.id.eq(storeId));
+
+        // 2. cursorId 조건 (페이징)
+        if (cursorId != null) {
+            whereClause.and(order.id.gt(cursorId));
+        }
+
+        return queryFactory
+                .selectFrom(order)
+                .join(order.store, store)
+                .where(whereClause)
+                .orderBy(order.id.asc())
+                .limit(15) // 한 번에 가져올 최대 개수
+                .fetch();
+    }
+
+    @Override
+    public List<StoreOrderListResponse> findOrdersWithMenuInfo(Long storeId, Long cursorId) {
+        QOrder order = QOrder.order;
+        QCart cart = QCart.cart;
+        QCartMenu cartMenu = QCartMenu.cartMenu;
+        QMenu menu = QMenu.menu;
+
+        BooleanBuilder whereClause = new BooleanBuilder();
+        whereClause.and(order.store.id.eq(storeId));
+
+        if (cursorId != null) {
+            whereClause.and(order.id.gt(cursorId));
+        }
+
+        // Order와 Cart를 JOIN하여 주문 정보 조회
+        List<Order> orders = queryFactory
+                .selectFrom(order)
+                .join(order.cart, cart).fetchJoin()
+                .where(whereClause)
+                .orderBy(order.id.asc())
+                .limit(15)
+                .fetch();
+
+        // 각 주문별로 메뉴 정보 조회 (Store도 함께 fetchJoin)
+        return orders.stream()
+                .map(orderEntity -> {
+                    // CartMenu를 통해 Menu 정보 조회 (Store도 함께)
+                    List<String> menus = queryFactory
+                            .select(menu.name)
+                            .from(menu)
+                            .join(cartMenu).on(cartMenu.menuId.eq(menu.id))
+                            .join(menu.store)
+                            .where(cartMenu.cartId.eq(orderEntity.getCart().getId()))
+                            .fetch();
+
+                    return StoreOrderListResponse.builder()
+                            .orderId(orderEntity.getId())
+                            .pickupDueTime(orderEntity.getPickupDueTime())
+                            .menus(menus)
+                            .menuCount(menus.size()-1)
+                            .totalAmount(orderEntity.getTotalAmount())
+                            .status(orderEntity.getStatus())
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
 
@@ -144,5 +216,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                 .pickupDueTime(orderEntity.getPickupDueTime())
                 .build();
     }
+
+
 
 }

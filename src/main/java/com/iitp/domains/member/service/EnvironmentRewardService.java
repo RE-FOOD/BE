@@ -4,6 +4,7 @@ import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.repository.MemberRepository;
 import com.iitp.domains.member.service.query.MemberQueryService;
+import com.iitp.domains.payment.dto.PaymentRewardDto;
 import com.iitp.domains.payment.dto.response.PaymentConfirmResponse;
 import com.iitp.global.common.constants.BusinessLogicConstants;
 import com.iitp.global.util.environment.EnvironmentPointCalculator;
@@ -29,7 +30,7 @@ public class EnvironmentRewardService {
      * @param orderAmount 주문 금액
      * @param isContainerReused 다회용기 사용 여부
      */
-    public PaymentConfirmResponse processOrderEnvironmentReward(Long memberId, int orderAmount, boolean isContainerReused) {
+    public PaymentRewardDto processOrderEnvironmentReward(Long memberId, int orderAmount, boolean isContainerReused) {
         log.info("환경 포인트 지급 시작 - memberId: {}, orderAmount: {}, containerReused: {}",
                 memberId, orderAmount, isContainerReused);
 
@@ -64,17 +65,17 @@ public class EnvironmentRewardService {
         log.info("환경 포인트 지급 완료 - memberId: {}, 지급포인트: {}, 총포인트: {}, 레벨: {}",
                 memberId, environmentPoint, member.getEnvironmentPoint(), member.getEnvironmentLevel());
 
-        PaymentConfirmResponse response = null;
+        PaymentRewardDto response = null;
 
 
 
         if((member.getEnvironmentPoint() >= equalsPoint) && (point <= 5600)) {
-            return response = PaymentConfirmResponse.builder()
+            return response = PaymentRewardDto.builder()
                     .levelCheck(true)
                     .level(member.getEnvironmentLevel())
                     .build();
         }else{
-            return response = PaymentConfirmResponse.builder()
+            return response = PaymentRewardDto.builder()
                     .levelCheck(false)
                     .level(member.getEnvironmentLevel())
                     .build();

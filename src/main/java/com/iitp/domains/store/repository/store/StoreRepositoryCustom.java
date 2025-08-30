@@ -21,4 +21,6 @@ public interface StoreRepositoryCustom {
 
     //찜한 가게 목록 조회 (단방향 무한 스크롤)
     List<StoreListQueryResult> findFavoriteStoresForward(long memberId, SortType sort, long cursorId, int limit);
+
+    Optional<Store> findByMemberId(Long memberId);
 }
