@@ -262,10 +262,12 @@ public class MapQueryService {
                     .sorted(Comparator.comparing(MapListResponseDto::distance))
                     .collect(Collectors.toList());
             case REVIEW -> storeList.stream()
-                    .sorted(Comparator.comparing(MapListResponseDto::reviewCount, Comparator.reverseOrder()))
+                    .sorted(Comparator.comparing(MapListResponseDto::reviewCount,
+                            Comparator.nullsLast(Comparator.reverseOrder())))
                     .collect(Collectors.toList());
             case RATING -> storeList.stream()
-                    .sorted(Comparator.comparing(MapListResponseDto::rating, Comparator.reverseOrder()))
+                    .sorted(Comparator.comparing(MapListResponseDto::rating,
+                            Comparator.nullsLast(Comparator.reverseOrder())))
                     .collect(Collectors.toList());
             default -> storeList.stream()
                     .sorted(Comparator.comparing(MapListResponseDto::distance))
