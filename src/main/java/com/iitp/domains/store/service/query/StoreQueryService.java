@@ -1,13 +1,18 @@
 package com.iitp.domains.store.service.query;
 
+import com.iitp.domains.cart.domain.entity.Cart;
+import com.iitp.domains.cart.service.query.CartQueryService;
 import com.iitp.domains.favorite.service.query.FavoriteQueryService;
 import com.iitp.domains.member.domain.entity.Location;
 import com.iitp.domains.member.service.query.LocationQueryService;
+import com.iitp.domains.order.domain.entity.Order;
+import com.iitp.domains.order.repository.OrderRepository;
 import com.iitp.domains.review.repository.ReviewRepository;
 import com.iitp.domains.review.repository.mapper.ReviewAggregationResult;
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
 import com.iitp.domains.store.domain.StoreStatus;
+import com.iitp.domains.store.domain.entity.Menu;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.dto.response.*;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
@@ -42,8 +47,8 @@ public class StoreQueryService {
     private final LocationQueryService locationQueryService;
     private final FavoriteQueryService favoriteQueryService;
     private final ReviewRepository reviewRepository;
-    private final StoreRedisService cacheService;
     private final RedisGeoService redisGeoService;
+    private final OrderRepository orderRepository;
     private Long currentCachedStoreId = null;
 
     /**
@@ -195,6 +200,13 @@ public class StoreQueryService {
         if (store.getIsDeleted()) {
             throw new NotFoundException(ExceptionMessage.DATA_NOT_FOUND);
         }
+        return store;
+    }
+
+    public Store findExistingMemer(Long memberId) {
+        Store store = storeRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
+
         return store;
     }
 
@@ -398,6 +410,24 @@ public class StoreQueryService {
         return new PaginationInfo(actualResults, hasPrev, hasNext);
     }
 
+
+    public List<StoreOrderListResponse> findOrders(Long memberId, Long cursorId) {
+        Store store = findExistingMemer(memberId);
+        // Order와 Cart, CartMenu, Menu를 JOIN하여 한 번에 조회
+        List<StoreOrderListResponse> orderWithMenus = orderRepository.findOrdersWithMenuInfo(store.getId(), cursorId);
+
+        return orderWithMenus.stream()
+                .map(orderInfo -> StoreOrderListResponse.builder()
+                        .orderId(orderInfo.orderId())
+                        .pickupDueTime(orderInfo.pickupDueTime())
+                        .menus(orderInfo.menus())
+                        .totalAmount(orderInfo.totalAmount())
+                        .status(orderInfo.status())
+                        .build())
+                .collect(Collectors.toList());
+
+    }
+
     /**
      * 영업시간 체크 헬퍼 메서드
      */
@@ -405,6 +435,8 @@ public class StoreQueryService {
         LocalTime now = LocalTime.now();
         return openTime.isBefore(now) && now.isBefore(closeTime);
     }
+
+
 
     /**
      * Redis 페이징 결과를 담는 내부 클래스

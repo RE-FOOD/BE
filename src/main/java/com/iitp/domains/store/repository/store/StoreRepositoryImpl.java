@@ -154,6 +154,22 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
     }
 
     /**
+     * 유저 ID로 조회
+     */
+    @Override
+    public Optional<Store> findByMemberId(Long memberId) {
+        return Optional.ofNullable(
+                queryFactory
+                        .selectFrom(store)
+                        .where(
+                                store.isDeleted.eq(false),
+                                store.memberId.eq(memberId)
+                        )
+                        .fetchFirst()
+        );
+    }
+
+    /**
      * 찜한 가게 목록 조회 (단방향 무한 스크롤 전용)
      */
     @Override
@@ -203,6 +219,8 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
         return query.limit(limit).fetch();
     }
+
+
 
     /**
      * 찜한 가게용 커서 조건 (favorite.id 기준)

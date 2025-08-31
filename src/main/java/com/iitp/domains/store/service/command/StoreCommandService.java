@@ -1,5 +1,12 @@
 package com.iitp.domains.store.service.command;
 
+import com.iitp.domains.order.domain.OrderStatus;
+import com.iitp.domains.order.domain.entity.Order;
+import com.iitp.domains.order.service.command.OrderCommandService;
+import com.iitp.domains.order.service.query.OrderQueryService;
+import com.iitp.domains.payment.domain.Payment;
+import com.iitp.domains.payment.domain.TossPaymentStatus;
+import com.iitp.domains.payment.service.PaymentService;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.domain.entity.StoreImage;
 import com.iitp.domains.store.dto.request.StoreCreateRequest;
@@ -27,7 +34,9 @@ public class StoreCommandService {
     private final StoreImageRepository storeImageRepository;
     private final StoreRedisService cacheService;
     private final RedisGeoService redisGeoService;
-
+    private final OrderCommandService orderCommandService;
+    private final OrderQueryService orderQueryService;
+    private final PaymentService paymentService;
 
     public Long createStore(StoreCreateRequest request, Long userId) {
         // 주소로 위/경도 조회
@@ -92,6 +101,29 @@ public class StoreCommandService {
     }
 
 
+    public void refusalOrder(Long memberId, Long orderId) {
+        Order order = orderQueryService.validateOrderExists(orderId);
+
+        Payment payment = orderQueryService.validatePaymentExists(orderId);
+
+        // 주문 거절에 따른 롤백
+        order.updateOrderStatus(OrderStatus.CANCELED);
+        payment.updatePaymentStatus(TossPaymentStatus.CANCELED);
+
+    }
+
+
+    public void confirmOrder(Long memberId, Long orderId) {
+        Order order = orderQueryService.validateOrderExists(orderId);
+
+        Payment payment = orderQueryService.validatePaymentExists(orderId);
+
+        // 주문 거절에 따른 롤백
+        order.updateOrderStatus(OrderStatus.COMPLETED);
+        payment.updatePaymentStatus(TossPaymentStatus.DONE);
+    }
+
+
     private void validateUserHasPermission(Store store, Long userId) {
         if (store.getMemberId().equals(userId)) {
             throw new IllegalArgumentException();
@@ -102,5 +134,7 @@ public class StoreCommandService {
         return storeRepository.findByStoreId(storeId)
                 .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
     }
+
+
 
 }
