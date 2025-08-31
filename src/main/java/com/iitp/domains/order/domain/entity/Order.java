@@ -56,7 +56,7 @@ public class Order extends BaseEntity {
     private Boolean isContainerReused = false;  // 다회용기 사용 여부
 
     @Column(name = "level_check")
-    private boolean levelCheck;
+    private Boolean levelCheck;
 
     @Column(name = "level")
     EnvironmentLevel level;

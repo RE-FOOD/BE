@@ -2,6 +2,7 @@ package com.iitp.domains.order.repository;
 
 import com.iitp.domains.order.domain.entity.Order;
 import com.iitp.domains.order.dto.response.OrderPaymentResponse;
+import com.iitp.domains.store.dto.response.InsightResponse;
 import com.iitp.domains.store.dto.response.StoreOrderListResponse;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface OrderRepositoryCustom {
 
     // Store ID로 주문과 메뉴 정보를 함께 조회
     List<StoreOrderListResponse> findOrdersWithMenuInfo(Long storeId, Long cursorId);
+
+    InsightResponse findInsight(Long storeId);
 }
