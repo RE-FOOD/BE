@@ -35,11 +35,13 @@ public class FcmService {
 
     private static final String FCM_PRIVATE_KEY_PATH = "refood-firebase-private-key.json";
     private static final String fireBaseScope = "https://www.googleapis.com/auth/cloud-platform";
-    private static final String PROJECT_ID_URL = "https://fcm.googleapis.com/v1/projects/buzzzzing-c258e/messages:send";
+    private static final String PROJECT_ID_URL = "https://fcm.googleapis.com/v1/projects/refood-42f17/messages:send";
 
     @Async(value = "AsyncBean")
     public CompletableFuture<Boolean> sendPushMessage(String fcmToken, NotifyParams params) {
         String message = makeMessage(fcmToken, params);
+        System.out.println("message = " + message);
+
         String accessToken = getAccessToken();
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -49,6 +51,8 @@ public class FcmService {
                 .post(RequestBody.create(message, MediaType.parse("application/json; charset=urf-8")))
                 .build();
         try (Response response = client.newCall(request).execute()) {
+            System.out.println("========================ERROR==============");
+            System.out.println("response = " + response);
             if (!response.isSuccessful() && response.body() != null) {
                 JSONObject responseBody = (JSONObject) jsonParser.parse(response.body().string());
                 String errorMessage = ((JSONObject) responseBody.get("error")).get("message").toString();
