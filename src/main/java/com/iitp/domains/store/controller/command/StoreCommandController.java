@@ -2,6 +2,7 @@ package com.iitp.domains.store.controller.command;
 
 import com.iitp.domains.store.dto.request.StoreCreateRequest;
 import com.iitp.domains.store.dto.request.StoreUpdateRequest;
+import com.iitp.domains.store.dto.response.InsightResponse;
 import com.iitp.domains.store.service.command.StoreCommandService;
 import com.iitp.global.common.response.ApiResponse;
 import com.iitp.global.config.security.SecurityUtil;
@@ -71,5 +72,17 @@ public class StoreCommandController {
         storeCommandService.confirmOrder(memberId, orderId);
 
         return ApiResponse.ok(200, null, "특정 주문 승인 성공");
+    }
+
+
+    @Operation(summary = "인사이트 정보 출력", description = "인사이트 정보 출력합니다.")
+    @GetMapping("/mypage")
+    public ApiResponse<InsightResponse> getInsight(
+    ) {
+        Long memberId = SecurityUtil.getCurrentMemberId();
+
+        InsightResponse response = storeCommandService.findInsight(memberId);
+
+        return ApiResponse.ok(200, response, "인사이트 정보 출력 성공");
     }
 }
