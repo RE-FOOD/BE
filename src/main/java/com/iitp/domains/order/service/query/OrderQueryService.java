@@ -130,6 +130,10 @@ public class OrderQueryService {
     public OrderListResponse getOrders(String keyword, Long cursorId, Long memberId) {
         List<Order> orders = orderRepository.findOrders(keyword, cursorId, memberId);
 
+        if(orders.isEmpty()) {
+            return null;
+        }
+
         // Order 엔티티를 OrderMenuListResponse로 변환
         List<OrderMenuListResponse> orderResponses = orders.stream()
                 .map(order -> {
@@ -176,8 +180,8 @@ public class OrderQueryService {
                 .collect(Collectors.toList());
 
         // 커서 값 계산
-        int prevCursor = cursorId != null ? cursorId.intValue() : 0;
-        int nextCursor = orders.isEmpty() ? 0 : orders.get(orders.size() - 1).getId().intValue();
+        long prevCursor = orderResponses.get(0).orderId();
+        long nextCursor = orderResponses.get(orderResponses.size()-1).orderId();
 
         return OrderListResponse.builder()
                 .prevCursor(prevCursor)
@@ -188,27 +192,27 @@ public class OrderQueryService {
     }
 
 
-    private Store validateStoreExists(Long storeId) {
+    public Store validateStoreExists(Long storeId) {
         return storeRepository.findByStoreId(storeId)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
     }
 
-    private Menu validateMenuExists(Long menuId) {
+    public Menu validateMenuExists(Long menuId) {
         return menuRepository.findByMenuId(menuId)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
     }
 
-    private Order validateOrderExists(Long orderId) {
+    public Order validateOrderExists(Long orderId) {
         return orderRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND));
     }
 
-    private Payment validatePaymentExists(Long orderId) {
+    public Payment validatePaymentExists(Long orderId) {
         return paymentRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessage.PAYMENT_NOT_FOUND));
     }
 
-    private String getImageUrl(String imageKey) {
+    public String getImageUrl(String imageKey) {
         return imageGetService.getGetS3Url(imageKey).preSignedUrl();
     }
 

@@ -43,4 +43,9 @@ public class Payment extends BaseEntity {
 
     @Column(name = "approved_at",nullable = false)
     private LocalDateTime approvedAt;      // 결제 승인 시간
+
+
+    public void updatePaymentStatus(TossPaymentStatus status){
+        this.tossPaymentStatus = status;
+    }
 }
