@@ -11,6 +11,7 @@ import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.domain.entity.StoreImage;
 import com.iitp.domains.store.dto.request.StoreCreateRequest;
 import com.iitp.domains.store.dto.request.StoreUpdateRequest;
+import com.iitp.domains.store.dto.response.InsightResponse;
 import com.iitp.domains.store.repository.store.StoreImageRepository;
 import com.iitp.domains.store.repository.store.StoreRepository;
 import com.iitp.global.exception.ExceptionMessage;
@@ -124,6 +125,13 @@ public class StoreCommandService {
     }
 
 
+    public InsightResponse findInsight(Long memberId) {
+
+        InsightResponse response = orderQueryService.findInsight(memberId);
+        return response;
+    }
+
+
     private void validateUserHasPermission(Store store, Long userId) {
         if (store.getMemberId().equals(userId)) {
             throw new IllegalArgumentException();
@@ -135,6 +143,10 @@ public class StoreCommandService {
                 .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
     }
 
+    private Store validateStoreExistsFromMemberId(Long memberId) {
+        return storeRepository.findByMemberId(memberId)
+                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
+    }
 
 
 }

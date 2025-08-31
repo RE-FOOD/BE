@@ -4,6 +4,7 @@ import com.iitp.domains.cart.domain.entity.CartMenu;
 import com.iitp.domains.cart.domain.entity.QCart;
 import com.iitp.domains.cart.domain.entity.QCartMenu;
 import com.iitp.domains.member.domain.entity.QMember;
+import com.iitp.domains.order.domain.OrderStatus;
 import com.iitp.domains.order.domain.entity.Order;
 import com.iitp.domains.order.domain.entity.QOrder;
 import com.iitp.domains.order.dto.response.OrderPaymentMenuList;
@@ -11,14 +12,19 @@ import com.iitp.domains.order.dto.response.OrderPaymentResponse;
 import com.iitp.domains.payment.domain.QPayment;
 import com.iitp.domains.payment.domain.TossPaymentMethod;
 import com.iitp.domains.store.domain.entity.*;
+import com.iitp.domains.store.dto.response.InsightResponse;
+import com.iitp.domains.store.dto.response.MonthlyRevenueDto;
 import com.iitp.domains.store.dto.response.StoreOrderListResponse;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -111,6 +117,72 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom{
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public InsightResponse findInsight(Long storeId) {
+        QOrder order = QOrder.order;
+        QCart cart = QCart.cart;
+        QCartMenu cartMenu = QCartMenu.cartMenu;
+        QMenu menu = QMenu.menu;
+
+        // 1. 오늘 총 매출 금액 조회
+        Integer todayTotalRevenue = queryFactory
+                .select(order.totalAmount.sum())
+                .from(order)
+                .where(
+                        order.status.eq(OrderStatus.COMPLETED),  // 완료된 주문만
+                        order.store.id.eq(storeId),
+                        order.createdAt.goe(LocalDateTime.now().toLocalDate().atStartOfDay()),
+                        order.createdAt.lt(LocalDateTime.now().toLocalDate().plusDays(1).atStartOfDay())
+                )
+                .fetchOne();
+
+        // 2. 30일 기준 가게 주문 인기 메뉴 탑 3의 메뉴 이름
+        List<String> popularMenus = queryFactory
+                .select(menu.name)
+                .from(cartMenu)
+                .join(menu).on(cartMenu.menuId.eq(menu.id))
+                .join(cart).on(cartMenu.cartId.eq(cart.id))
+                .join(order).on(cart.id.eq(order.cart.id))
+                .where(
+                        order.store.id.eq(storeId),
+                        order.createdAt.goe(LocalDateTime.now().minusDays(30)),
+                        order.status.eq(OrderStatus.COMPLETED)  // 완료된 주문만
+                )
+                .groupBy(menu.id, menu.name)
+                .orderBy(cartMenu.count().desc())
+                .limit(3)
+                .fetch();
+
+        // 3. 최근 4개월의 월 매출금액
+        List<MonthlyRevenueDto> monthlyRevenues = queryFactory
+                .select(Projections.constructor(MonthlyRevenueDto.class,
+                        Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", order.createdAt),
+                        order.totalAmount.sum()
+                ))
+                .from(order)
+                .where(
+                        order.store.id.eq(storeId),
+                        order.createdAt.goe(LocalDateTime.now().minusMonths(4)),
+                        order.status.eq(OrderStatus.COMPLETED)
+                )
+                .groupBy(Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", order.createdAt))
+                .orderBy(Expressions.stringTemplate("DATE_FORMAT({0}, '%Y-%m')", order.createdAt).asc())
+                .fetch();
+
+        // Map으로 변환
+        Map<String, Integer> monthAmountMap = monthlyRevenues.stream()
+                .collect(Collectors.toMap(
+                        MonthlyRevenueDto::yearMonth,
+                        revenue -> revenue.totalRevenue().intValue()
+                ));
+
+        return InsightResponse.builder()
+                .salesAmount(todayTotalRevenue != null ? todayTotalRevenue : 0)
+                .popularMenu(popularMenus)
+                .monthAmount(monthAmountMap)
+                .build();
     }
 
 
