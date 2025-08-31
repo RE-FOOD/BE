@@ -16,6 +16,7 @@ import com.iitp.domains.payment.domain.Payment;
 import com.iitp.domains.payment.repository.PaymentRepository;
 import com.iitp.domains.store.domain.entity.Menu;
 import com.iitp.domains.store.domain.entity.Store;
+import com.iitp.domains.store.dto.response.InsightResponse;
 import com.iitp.domains.store.repository.menu.MenuRepository;
 import com.iitp.domains.store.repository.store.StoreRepository;
 import com.iitp.global.exception.ExceptionMessage;
@@ -189,6 +190,11 @@ public class OrderQueryService {
                 .orders(orderResponses)
                 .build();
 
+    }
+
+    public InsightResponse findInsight(Long storeId){
+
+        return orderRepository.findInsight(storeId);
     }
 
 
