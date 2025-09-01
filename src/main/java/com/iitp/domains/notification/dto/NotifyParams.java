@@ -28,12 +28,12 @@ public record NotifyParams(
     }
 
     // 주문 완료
-    public static NotifyParams ofOrderCompletion(Member member, Order order) {
+    public static NotifyParams ofOrderCompletion(Order order) {
         String content = """
                 %s 가게의 주문이 접수되었습니다!
                 """.formatted(order.getStore().getName());
         return NotifyParams.builder()
-                .receiver(member)
+                .receiver(order.getMember())
                 .type(NotificationType.ORDER_COMPLETION)
                 .title(NotificationType.ORDER_COMPLETION.getTitle())
                 .content(content)
@@ -41,12 +41,12 @@ public record NotifyParams(
     }
 
     // 주문 취소
-    public static NotifyParams ofOrderCancel(Member member, Order order) {
+    public static NotifyParams ofOrderRefusal(Order order) {
         String content = """
                 %s 가게 사정으로 인하여 주문이 취소되었습니다. 결제 금액은 전액 환불처리됩니다.
                 """.formatted(order.getStore().getName());
         return NotifyParams.builder()
-                .receiver(member)
+                .receiver(order.getMember())
                 .type(NotificationType.ORDER_CANCELED)
                 .title(NotificationType.ORDER_CANCELED.getTitle())
                 .content(content)
