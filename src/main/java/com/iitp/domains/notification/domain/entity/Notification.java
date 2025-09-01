@@ -33,14 +33,19 @@ public class Notification extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private NotificationType type;
 
+    @Column(nullable = false)
     private String content;
+
+    @Column(nullable = false)
     private Boolean isRead;
+
     private Long redirectTargetId;  // 상세 페이지 리다이렉트를 위함 컬럼. 추후 확장을 위함
 
     public void read() {
