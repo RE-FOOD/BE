@@ -47,8 +47,6 @@ public class NotificationService {
                 .findAllByMemberIdWithinOneMonth(memberId, cursorId, limit)
                 .stream().map(NotificationResponse::of).toList();
 
-        System.out.println("result = " + result);
-
         // 조회 대상과 별개로 전체 일괄 읽음 처리
         readAllNotifications(memberId);
 
@@ -62,10 +60,7 @@ public class NotificationService {
 
     private void readAllNotifications(Long memberId) {
         List<Notification> unreadNotifications = notificationRepository.findAllUnreadByMemberId(memberId);
-        System.out.println("unreadNotifications = " + unreadNotifications);
-        System.out.println("unreadNotifications.size() = " + unreadNotifications.size());
         unreadNotifications.forEach(Notification::read);
     }
-
 
 }
