@@ -11,6 +11,7 @@ import com.iitp.domains.member.dto.responseDto.MainOverviewResponseDto;
 import com.iitp.domains.member.dto.responseDto.PopularStoreResponseDto;
 import com.iitp.domains.member.repository.LocationRepository;
 import com.iitp.domains.member.service.query.MemberQueryService;
+import com.iitp.domains.notification.repository.NotificationRepository;
 import com.iitp.domains.review.service.query.ReviewQueryService;
 import com.iitp.domains.store.domain.entity.Menu;
 import com.iitp.domains.store.domain.entity.Store;
@@ -37,7 +38,7 @@ import java.util.stream.Collectors;
 public class MainOverviewService {
     private final MemberQueryService memberQueryService;
     private final LocationRepository locationRepository;
-//    private final NotificationRepository notificationRepository;
+    private final NotificationRepository notificationRepository;
     private final StoreRepository storeRepository;
     private final MenuRepository menuRepository;
     private final RedisGeoService redisGeoService;
@@ -54,10 +55,10 @@ public class MainOverviewService {
     public MainOverviewResponseDto getMainOverview(Long memberId) {
         log.debug("메인 페이지 데이터 조회 시작 - memberId: {}", memberId);
 
-        Member member = memberQueryService.findMemberById(memberId);
-
         Integer cartCount = getCartCount(memberId);
-//        Boolean notifications = hasNotifications(memberId); // 알람 구현시 추가
+        // 읽은 알림 존재 여부
+        boolean hasUnreadNotification = notificationRepository.existsByIsReadIsFalseAndMemberId(memberId);
+
         LocationResponseDto location = getDefaultLocation(memberId);
         List<DiscountMenuResponseDto> discountMenus = getDiscountMenus(memberId);
         List<PopularStoreResponseDto> popularStores = getPopularStores(memberId);
@@ -67,7 +68,7 @@ public class MainOverviewService {
 
         return MainOverviewResponseDto.of(
                 cartCount,
-//                notifications,
+                hasUnreadNotification,
                 location,
                 discountMenus,
                 popularStores

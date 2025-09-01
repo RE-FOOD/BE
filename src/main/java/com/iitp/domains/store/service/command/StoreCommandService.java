@@ -1,5 +1,7 @@
 package com.iitp.domains.store.service.command;
 
+import com.iitp.domains.notification.dto.NotifyParams;
+import com.iitp.domains.notification.service.NotificationService;
 import com.iitp.domains.order.domain.OrderStatus;
 import com.iitp.domains.order.domain.entity.Order;
 import com.iitp.domains.order.service.command.OrderCommandService;
@@ -38,6 +40,7 @@ public class StoreCommandService {
     private final OrderCommandService orderCommandService;
     private final OrderQueryService orderQueryService;
     private final PaymentService paymentService;
+    private final NotificationService notificationService;
 
     public Long createStore(StoreCreateRequest request, Long userId) {
         // 주소로 위/경도 조회
@@ -111,6 +114,8 @@ public class StoreCommandService {
         order.updateOrderStatus(OrderStatus.CANCELED);
         payment.updatePaymentStatus(TossPaymentStatus.CANCELED);
 
+        // 주문한 회원에게 주문 거절 FCM 알림 전송
+        notificationService.pushMessage(NotifyParams.ofOrderRefusal(order));
     }
 
 
@@ -122,6 +127,16 @@ public class StoreCommandService {
         // 주문 거절에 따른 롤백
         order.updateOrderStatus(OrderStatus.COMPLETED);
         payment.updatePaymentStatus(TossPaymentStatus.DONE);
+
+        // 주문한 회원에게 주문 승인 FCM 알림 전송
+        notificationService.pushMessage(NotifyParams.ofOrderCompletion(order));
+    }
+
+
+    public InsightResponse findInsight(Long memberId) {
+
+        InsightResponse response = orderQueryService.findInsight(memberId);
+        return response;
     }
 
 

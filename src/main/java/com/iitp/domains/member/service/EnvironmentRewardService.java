@@ -4,6 +4,8 @@ import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.repository.MemberRepository;
 import com.iitp.domains.member.service.query.MemberQueryService;
+import com.iitp.domains.notification.dto.NotifyParams;
+import com.iitp.domains.notification.service.NotificationService;
 import com.iitp.domains.payment.dto.PaymentRewardDto;
 import com.iitp.domains.payment.dto.response.PaymentConfirmResponse;
 import com.iitp.global.common.constants.BusinessLogicConstants;
@@ -24,6 +26,7 @@ public class EnvironmentRewardService {
 
     private final MemberRepository memberRepository;
     private final MemberQueryService memberQueryService;
+    private final NotificationService notificationService;
 
     /**
      * 주문 완료시 환경 포인트 지급 및 통계 업데이트
@@ -53,7 +56,10 @@ public class EnvironmentRewardService {
 
         // 환경 포인트 계산 및 지급
         int environmentPoint = EnvironmentPointCalculator.calculateTotalEnvironmentPoint(orderAmount, isContainerReused);
-        member.addEnvironmentPoint(environmentPoint);
+        boolean isLevelChanged = member.addEnvironmentPoint(environmentPoint);
+        if (isLevelChanged) {
+            notificationService.pushMessage(NotifyParams.ofEnvironmentLevelUp(member));
+        }
 
         // 주문 횟수 증가
         member.incrementOrderCount();

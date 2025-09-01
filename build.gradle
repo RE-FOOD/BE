@@ -80,6 +80,11 @@ dependencies {
 
     // JSON 처리
     implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+    // fcm 추가
+    implementation("com.google.firebase:firebase-admin:6.8.1")
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+
 }
 
 tasks.named('test') {

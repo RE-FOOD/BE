@@ -6,6 +6,7 @@ import com.iitp.domains.favorite.domain.entity.Favorite;
 import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.JoinType;
 import com.iitp.domains.member.domain.Role;
+import com.iitp.domains.notification.domain.entity.Notification;
 import com.iitp.domains.review.domain.entity.Review;
 import com.iitp.global.common.entity.BaseEntity;
 import com.iitp.global.util.environment.EnvironmentPointCalculator;
@@ -100,6 +101,9 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Favorite> favorites = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Notification> notifications = new ArrayList<>();
+
     @Builder
     public Member(String email, String nickname, String phone,
                   Role role, JoinType joinType, EnvironmentLevel environmentLevel,
@@ -188,9 +192,9 @@ public class Member extends BaseEntity {
     }
 
 
-    public void addEnvironmentPoint(int points) {
+    public boolean addEnvironmentPoint(int points) {
         this.environmentPoint += points;
-        updateEnvironmentLevel(); // 포인트 추가 후 레벨 업데이트
+        return updateEnvironmentLevel();// 포인트 추가 후 레벨 업데이트
     }
 
     // 주문 횟수
@@ -206,11 +210,15 @@ public class Member extends BaseEntity {
     /**
      * 환경 포인트에 따른 레벨 자동 업데이트 (EnvironmentPointCalculator 사용)
      */
-    private void updateEnvironmentLevel() {
+    private boolean updateEnvironmentLevel() {
         EnvironmentLevel newLevel = EnvironmentPointCalculator.calculateEnvironmentLevel(this.environmentPoint);
+
+        // 레벨 업 시점
         if (this.environmentLevel != newLevel) {
             this.environmentLevel = newLevel;
+            return true;
         }
+        return false;
     }
 
     public void addFavorite(Favorite favorite) {
@@ -221,4 +229,11 @@ public class Member extends BaseEntity {
         favorites.remove(favorite);
     }
 
+    public void addNotification(Notification notification) {
+        notifications.add(notification);
+    }
+    public void removeNotification(Notification notification) {
+        notifications.remove(notification);
+        notification.markAsDeleted();
+    }
 }
