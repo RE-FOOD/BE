@@ -71,8 +71,15 @@ public enum ExceptionMessage {
     // 결과 관련
     PAYMENT_INFO_INVALID("결제 금액 정보가 유효하지 않습니다."),
     PAYMENT_NOT_FOUND("주문을 찾을 수 없습니다."),
-    SESSION_EXPIRED("주문 세션 시간이 만료되었습니다 다시 시도해주세요");
+    SESSION_EXPIRED("주문 세션 시간이 만료되었습니다 다시 시도해주세요"),
 
+
+
+    // 알림 관련
+    GET_FCM_ACCESS_TOKEN_ERROR("FCM ACCESS TOKEN 조회중 오류 발생했습니다."),
+    FCM_MESSAGE_JSON_PARSING_ERROR("FCM 메세지 JSON 변환중 오류 발생했습니다."),
+    SEND_FCM_PUSH_ERROR("FCM 메세지 전송중 오류 발생했습니다."),
+    ;
 
 
     private final String message;

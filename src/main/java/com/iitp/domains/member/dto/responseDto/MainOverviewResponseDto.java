@@ -7,21 +7,21 @@ import java.util.List;
 @Builder
 public record MainOverviewResponseDto(
         Integer cartCount,
-//        Boolean notifications,
+        boolean hasUnread,
         LocationResponseDto locations,
         List<DiscountMenuResponseDto> discountMenu,
         List<PopularStoreResponseDto> popularStores
 ) {
     public static MainOverviewResponseDto of(
             Integer cartCount,
-//            Boolean notifications,
+            boolean hasUnreadNotification,
             LocationResponseDto locations,
             List<DiscountMenuResponseDto> discountMenu,
             List<PopularStoreResponseDto> popularStores
     ) {
         return MainOverviewResponseDto.builder()
                 .cartCount(cartCount)
-//                .notifications(notifications)
+                .hasUnread(hasUnreadNotification)
                 .locations(locations)
                 .discountMenu(discountMenu)
                 .popularStores(popularStores)
