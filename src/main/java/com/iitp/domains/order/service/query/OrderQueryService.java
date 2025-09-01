@@ -193,7 +193,6 @@ public class OrderQueryService {
     }
 
     public InsightResponse findInsight(Long storeId){
-
         return orderRepository.findInsight(storeId);
     }
 
