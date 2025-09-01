@@ -6,7 +6,7 @@ import com.iitp.domains.order.domain.entity.Order;
 import lombok.Builder;
 
 public record NotifyParams(
-        Member receiver, NotificationType type, String title, String content
+        Member receiver, NotificationType type, Long redirectTargetId, String title, String content
 ) {
     @Builder
     public NotifyParams {
@@ -21,6 +21,7 @@ public record NotifyParams(
                 """.formatted(member.getEnvironmentLevel().getLevel());
         return NotifyParams.builder()
                 .receiver(member)
+                .redirectTargetId(member.getId())
                 .type(NotificationType.ENVIRONMENT_LEVEL_UP)
                 .title(NotificationType.ENVIRONMENT_LEVEL_UP.getTitle())
                 .content(content)
@@ -34,6 +35,7 @@ public record NotifyParams(
                 """.formatted(order.getStore().getName());
         return NotifyParams.builder()
                 .receiver(order.getMember())
+                .redirectTargetId(order.getId())
                 .type(NotificationType.ORDER_COMPLETION)
                 .title(NotificationType.ORDER_COMPLETION.getTitle())
                 .content(content)
@@ -47,6 +49,7 @@ public record NotifyParams(
                 """.formatted(order.getStore().getName());
         return NotifyParams.builder()
                 .receiver(order.getMember())
+                .redirectTargetId(order.getId())
                 .type(NotificationType.ORDER_CANCELED)
                 .title(NotificationType.ORDER_CANCELED.getTitle())
                 .content(content)
@@ -54,12 +57,13 @@ public record NotifyParams(
     }
 
     // 픽업 안내
-    public static NotifyParams ofOrderPickUp(Member member, Order order) {
+    public static NotifyParams ofOrderPickUp(Order order) {
         String content = """
                 %s 가게 픽업 시간 5분 전입니다. ~알림 내용~
                 """.formatted(order.getStore().getName());
         return NotifyParams.builder()
-                .receiver(member)
+                .receiver(order.getMember())
+                .redirectTargetId(order.getId())
                 .type(NotificationType.ORDER_PICK_UP)
                 .title(NotificationType.ORDER_PICK_UP.getTitle())
                 .content(content)

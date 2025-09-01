@@ -6,8 +6,9 @@ import com.iitp.global.util.dateformat.CustomDateUtil;
 import lombok.Builder;
 
 public record NotificationResponse(
-        Long notificationId,
-        NotificationType notificationType,
+        Long id,
+        NotificationType type,
+        Long redirectTargetId,
         String title,
         String body,
         String createdAt,
@@ -19,13 +20,13 @@ public record NotificationResponse(
 
     public static NotificationResponse of(Notification notification) {
         NotificationType notificationType = notification.getType();
-        String targetClassName = notificationType.getRedirectTargetClass().getSimpleName();
         return NotificationResponse.builder()
-                .notificationId(notification.getId())
-                .notificationType(notificationType)
+                .id(notification.getId())
+                .type(notificationType)
+                .redirectTargetId(notification.getRedirectTargetId())
                 .title(notification.getType().getTitle())
                 .body(notification.getContent())
-                .createdAt(CustomDateUtil.customDateFormat(notification.getCreatedAt(), "MM월 DD일 HH:MM"))
+                .createdAt(CustomDateUtil.customDateFormat(notification.getCreatedAt(), "MM월 dd일 HH:MM"))
                 .isRead(notification.getIsRead())
                 .build();
     }
