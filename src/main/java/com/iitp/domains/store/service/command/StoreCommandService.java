@@ -126,8 +126,8 @@ public class StoreCommandService {
 
 
     public InsightResponse findInsight(Long memberId) {
-
-        InsightResponse response = orderQueryService.findInsight(memberId);
+        Store store = validateStoreExistsFromMemberId(memberId);
+        InsightResponse response = orderQueryService.findInsight(store.getId());
         return response;
     }
 
