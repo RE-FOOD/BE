@@ -34,7 +34,7 @@ public class FcmService {
     private final JSONParser jsonParser;
 
     private static final String FCM_PRIVATE_KEY_PATH = "refood-firebase-private-key.json";
-    private static final String fireBaseScope = "https://www.googleapis.com/auth/cloud-platform";
+    private static final String fireBaseScope = "https://www.googleapis.com/auth/firebase.messaging";
     private static final String PROJECT_ID_URL = "https://fcm.googleapis.com/v1/projects/refood-42f17/messages:send";
 
     @Async(value = "AsyncBean")
@@ -78,6 +78,7 @@ public class FcmService {
                             )
                     )
             );
+            System.out.println("fcmMessage = " + fcmMessage);
             return objectMapper.writeValueAsString(fcmMessage);
         } catch (JsonProcessingException e) {
             log.warn("FCM [makeMessage] Error : {}", e.getMessage());

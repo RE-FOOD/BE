@@ -8,7 +8,7 @@ public class FcmDto {
 
     public record Message(
             String token,
-            Notification data
+            Notification notification
     ) {}
 
     public record Notification(
