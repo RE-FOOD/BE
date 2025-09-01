@@ -17,8 +17,8 @@ public record NotifyParams(
 
         String content = """
                 환경 레벨 %s 달성!
-                축하합니다! 가게에서 리워드를 수령해주세요.
-                """.formatted(member.getEnvironmentLevel());
+                축하합니다!
+                """.formatted(member.getEnvironmentLevel().getLevel());
         return NotifyParams.builder()
                 .receiver(member)
                 .type(NotificationType.ENVIRONMENT_LEVEL_UP)
