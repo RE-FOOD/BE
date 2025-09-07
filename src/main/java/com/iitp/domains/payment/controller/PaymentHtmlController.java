@@ -3,6 +3,7 @@
 //
 //import com.iitp.domains.payment.dto.PendingOrderDto;
 //import com.iitp.domains.payment.dto.response.PaymentConfirmResponse;
+//import com.iitp.domains.payment.dto.response.PaymentResponse;
 //import com.iitp.domains.payment.service.PaymentService;
 //import jakarta.servlet.http.HttpServletRequest;
 //import org.json.simple.JSONObject;
@@ -51,8 +52,7 @@
 //        // HTML로 전달할 데이터 설정
 //        model.addAttribute("sessionId", sessionId);
 //        model.addAttribute("storeName", pendingOrder.storeName());
-//        model.addAttribute("totalAmount", pendingOrder.totalAmount());
-//
+//        model.addAttribute("totalAmount",  (int)(pendingOrder.totalAmount() * 0.95));
 //        return "/checkout";
 //    }
 //
