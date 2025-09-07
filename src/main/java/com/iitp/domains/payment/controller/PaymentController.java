@@ -51,7 +51,7 @@ public class PaymentController {
             throw new NotFoundException(ExceptionMessage.SESSION_EXPIRED);
         }
 
-        PaymentResponse response = new PaymentResponse(sessionId, pendingOrder.storeName(), pendingOrder.totalAmount());
+        PaymentResponse response = new PaymentResponse(sessionId, pendingOrder.storeName(), (int)(pendingOrder.totalAmount() * 0.95));
 
         return ApiResponse.ok(200, response,"결제 정보 캐시 조회 성공");
     }
