@@ -143,24 +143,6 @@ redis-server
 ./gradlew bootRun
 ```
 
-### Docker 실행
-```bash
-# Docker Compose로 전체 스택 실행
-docker-compose up -d
-```
-
-## 🤝 기여하기
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📞 문의
-
-프로젝트에 대한 문의사항이 있으시면 이슈를 생성해 주세요.
-
 ---
 
 **Refood Team** - 환경과 함께하는 똑똑한 한 끼를 만들어갑니다 🌱
