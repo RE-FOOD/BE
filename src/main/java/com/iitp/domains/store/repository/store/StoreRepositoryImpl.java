@@ -200,20 +200,20 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
         if (sort == null || sort == SortType.REVIEW) {
             query.orderBy(
                     store.status.desc(),  // OPEN 우선
-                    favorite.id.asc()     // 찜한 순서
+                    favorite.id.desc()     // 찜한 순서
             );
         } else if (sort == SortType.RATING) {
             // 평점순
             query.orderBy(
                     store.status.desc(),  // OPEN 우선
                     QueryExpressionFormatter.roundDoubleByFirstDecimalPlace(review.rating.avg()).desc().nullsLast(),
-                    favorite.id.asc()     // 동점시 찜한 순서
+                    favorite.id.desc()     // 동점시 찜한 순서
             );
         } else if (sort == SortType.NEAR) {
             // 거리순
             query.orderBy(
                     store.status.desc(),  // OPEN 우선
-                    favorite.id.asc()     // 찜한 순서
+                    favorite.id.desc()     // 찜한 순서
             );
         }
 
