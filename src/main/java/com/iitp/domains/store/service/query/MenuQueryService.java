@@ -5,6 +5,7 @@ import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.dto.response.MenuListResponse;
 import com.iitp.domains.store.dto.response.MenuResponse;
 import com.iitp.domains.store.dto.response.StoreListResponse;
+import com.iitp.domains.store.dto.response.StoreMenuManageResponse;
 import com.iitp.domains.store.repository.mapper.MenuListQueryResult;
 import com.iitp.domains.store.repository.menu.MenuRepository;
 import com.iitp.domains.store.repository.store.StoreRepository;
@@ -65,5 +66,17 @@ public class MenuQueryService {
 
     private String getImageUrl(String imageKey) {
         return imageGetService.getGetS3Url(imageKey).preSignedUrl();
+    }
+
+    public List<StoreMenuManageResponse> findMenuManage(Long storeId, Long cursorId) {
+        return menuRepository.findMenuManage(storeId, cursorId).stream()
+                .map(menu -> new StoreMenuManageResponse(
+                        menu.menuId(),
+                        menu.menuName(),
+                        menu.info(),
+                        menu.price(),
+                        getImageUrl(menu.imageUrl()) // imageKey를 imageUrl로 변환
+                ))
+                .toList();
     }
 }

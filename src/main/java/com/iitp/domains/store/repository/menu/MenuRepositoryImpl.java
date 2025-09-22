@@ -1,6 +1,7 @@
 package com.iitp.domains.store.repository.menu;
 
 import com.iitp.domains.store.domain.entity.*;
+import com.iitp.domains.store.dto.response.StoreMenuManageResponse;
 import com.iitp.domains.store.repository.mapper.MenuListQueryResult;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
@@ -89,6 +90,34 @@ public class MenuRepositoryImpl implements MenuRepositoryCustom {
                 )
                 .orderBy(menu.dailyDiscountPercent.desc())     // 할인율 높은 순
                 .limit(limit)
+                .fetch();
+    }
+
+    @Override
+    public List<StoreMenuManageResponse> findMenuManage(Long storeId, Long cursorId) {
+        QMenu menu = QMenu.menu;
+
+        var query = queryFactory
+                .select(Projections.constructor(StoreMenuManageResponse.class,
+                        menu.id,
+                        menu.name,
+                        menu.info,
+                        menu.discountPrice,
+                        menu.imageKey))
+                .from(menu)
+                .where(
+                        menu.store.id.eq(storeId),
+                        menu.isDeleted.eq(false)
+                );
+
+        // cursorId가 있으면 해당 ID 이후부터, 없으면 처음부터
+        if (cursorId != null) {
+            query = query.where(menu.id.gt(cursorId));
+        }
+
+        return query
+                .orderBy(menu.id.asc())
+                .limit(5)
                 .fetch();
     }
 

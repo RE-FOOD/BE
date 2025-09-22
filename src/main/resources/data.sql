@@ -551,4 +551,356 @@ INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_pe
 INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
                                                                                                                                                            (59, '마르게리타 피자', 24000, '토마토 소스와 모짜렐라 치즈의 클래식', 20000, 17, 15, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
                                                                                                                                                            (59, '페퍼로니 피자', 27000, '매콤한 페퍼로니와 치즈의 조화', 23000, 15, 12, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+
                                                                                                                                                            (59, '불고기 피자', 30000, '한국식 불고기와 피자의 만남', 26000, 13, 10, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false);
+
+
+
+
+
+
+
+
+
+
+#  ------------------------------------------------
+-- member_id 24 가게들 (20개)
+-- member_id 24 가게들 (20개, 서울 주소)
+INSERT INTO store (member_id, name, phone_number, status, address, description, origin, latitude, longitude, open_time, close_time, category, max_percent, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                                                                   (24, '서울 해물탕 전문점', '02-1234-5678', 'OPEN', '서울 강남구 역삼동 123-45', '신선한 해산물의 진수를 맛보세요', '국내산', 37.5665, 127.0280, '10:00:00', '22:00:00', 'KRFOOD', 18, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 스시 오마카세', '02-1234-5679', 'OPEN', '서울 강남구 논현동 234-56', '정통 스시 오마카세', '일본산', 37.5165, 127.0380, '12:00:00', '21:00:00', 'JPFOOD', 25, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 마라탕', '02-1234-5680', 'OPEN', '서울 강남구 삼성동 345-67', '매콤한 마라탕의 진수', '중국산', 37.5265, 127.0480, '11:00:00', '23:00:00', 'CHFOOD', 20, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 스테이크 하우스', '02-1234-5681', 'OPEN', '서울 강남구 청담동 456-78', '프리미엄 스테이크 전문점', '호주산', 37.5365, 127.0580, '17:00:00', '24:00:00', 'ENFOOD', 22, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 떡볶이 천국', '02-1234-5682', 'OPEN', '서울 강남구 신사동 567-89', '매콤달콤한 떡볶이', '국내산', 37.5465, 127.0680, '09:00:00', '21:00:00', 'SNACKFOOD', 12, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 디저트 카페', '02-1234-5683', 'OPEN', '서울 강남구 압구정동 678-90', '달콤한 디저트의 세계', '프랑스산', 37.5565, 127.0780, '10:00:00', '22:00:00', 'DESSERT', 15, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 삼겹살 구이', '02-1234-5684', 'OPEN', '서울 강남구 대치동 789-01', '신선한 삼겹살과 소주', '국내산', 37.5665, 127.0880, '17:00:00', '02:00:00', 'KRFOOD', 16, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 파스타 레스토랑', '02-1234-5685', 'OPEN', '서울 강남구 도곡동 890-12', '이탈리안 파스타의 정석', '이탈리아산', 37.5765, 127.0980, '12:00:00', '22:00:00', 'ENFOOD', 18, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 탕수육 전문점', '02-1234-5686', 'OPEN', '서울 강남구 개포동 901-23', '바삭바삭한 탕수육', '국내산', 37.5865, 127.1080, '11:00:00', '21:30:00', 'CHFOOD', 14, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 초밥집', '02-1234-5687', 'OPEN', '서울 강남구 수서동 012-34', '신선한 초밥과 회', '일본산', 37.5965, 127.1180, '11:00:00', '22:00:00', 'JPFOOD', 20, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 순대국밥', '02-1234-5688', 'OPEN', '서울 강남구 세곡동 123-45', '얼큰한 순대국밥', '국내산', 37.6065, 127.1280, '09:00:00', '20:00:00', 'KRFOOD', 10, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 마카롱 전문점', '02-1234-5689', 'OPEN', '서울 강남구 일원동 234-56', '예쁜 마카롱과 케이크', '프랑스산', 37.6165, 127.1380, '10:00:00', '21:00:00', 'DESSERT', 18, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 갈비찜', '02-1234-5690', 'OPEN', '서울 강남구 수진동 345-67', '부드럽고 달콤한 갈비찜', '국내산', 37.6265, 127.1480, '11:00:00', '21:00:00', 'KRFOOD', 15, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 피자헛', '02-1234-5691', 'OPEN', '서울 강남구 대진동 456-78', '치즈가 쭉 늘어나는 피자', '미국산', 37.6365, 127.1580, '11:00:00', '23:00:00', 'ENFOOD', 16, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 짜장면', '02-1234-5692', 'OPEN', '서울 강남구 신월동 567-89', '정통 짜장면과 탕수육', '국내산', 37.6465, 127.1680, '10:00:00', '21:00:00', 'CHFOOD', 12, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 우동 전문점', '02-1234-5693', 'OPEN', '서울 강남구 목동 678-90', '따뜻한 우동과 튀김', '일본산', 37.6565, 127.1780, '11:00:00', '22:00:00', 'JPFOOD', 14, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 순대볶음', '02-1234-5694', 'OPEN', '서울 강남구 양천동 789-01', '쫄깃한 순대와 떡볶이', '국내산', 37.6665, 127.1880, '09:00:00', '20:00:00', 'SNACKFOOD', 8, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 아이스크림', '02-1234-5695', 'OPEN', '서울 강남구 신정동 890-12', '시원한 아이스크림', '미국산', 37.6765, 127.1980, '10:00:00', '22:00:00', 'DESSERT', 10, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 김치찌개', '02-1234-5696', 'OPEN', '서울 강남구 염창동 901-23', '얼큰한 김치찌개', '국내산', 37.6865, 127.2080, '11:00:00', '21:00:00', 'KRFOOD', 9, NOW(), NOW(), false),
+                                                                                                                                                                                                   (24, '서울 치킨마루', '02-1234-5697', 'OPEN', '서울 강남구 신월동 012-34', '바삭한 치킨의 맛', '국내산', 37.6965, 127.2180, '12:00:00', '24:00:00', 'KRFOOD', 13, NOW(), NOW(), false);
+
+
+
+
+-- StoreImage 데이터 (가게당 1개씩, id 687부터, store_id 161부터)
+INSERT INTO store_image (id, image_key, store_id) VALUES
+                                                      (687, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', 161),
+                                                      (688, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', 162),
+                                                      (689, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', 163),
+                                                      (690, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', 164),
+                                                      (691, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', 165),
+                                                      (692, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', 166),
+                                                      (693, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', 167),
+                                                      (694, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', 168),
+                                                      (695, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', 169),
+                                                      (696, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', 170),
+                                                      (697, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', 171),
+                                                      (698, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', 172),
+                                                      (699, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', 173),
+                                                      (700, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', 174),
+                                                      (701, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', 175),
+                                                      (702, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', 176),
+                                                      (703, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', 177),
+                                                      (704, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', 178),
+                                                      (705, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', 179),
+                                                      (706, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', 180);
+
+
+
+
+
+
+-- 가게 161번: 서울 해물탕 전문점
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (161, '해물탕', 28000, '신선한 해산물이 가득한 해물탕', 24000, 14, 15, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (161, '매운탕', 25000, '얼큰하고 매운 매운탕', 21000, 16, 12, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (161, '생선구이', 22000, '신선한 생선 구이', 19000, 14, 18, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false);
+
+-- 가게 162번: 서울 스시 오마카세
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (162, '오마카세 코스', 80000, '정통 스시 오마카세 코스', 70000, 13, 8, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (162, '연어 스시', 12000, '노르웨이산 연어 스시', 10000, 17, 20, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (162, '참치 스시', 15000, '지방이 풍부한 참치 스시', 13000, 13, 15, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false);
+
+-- 가게 163번: 서울 마라탕
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (163, '마라탕', 18000, '매콤한 마라탕', 15000, 17, 20, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (163, '꿔바로우', 16000, '바삭한 꿔바로우', 14000, 13, 15, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (163, '훠궈', 25000, '다양한 재료의 훠궈', 22000, 12, 10, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false);
+
+-- 가게 164번: 서울 스테이크 하우스
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (164, '립 스테이크', 45000, '부드러운 립 스테이크', 38000, 16, 10, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (164, '티본 스테이크', 55000, '프리미엄 티본 스테이크', 48000, 13, 6, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (164, '샐러드', 9000, '신선한 채소 샐러드', 8000, 11, 25, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false);
+
+-- 가게 165번: 서울 떡볶이 천국
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (165, '떡볶이', 4500, '매콤달콤한 국물떡볶이', 4000, 11, 35, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (165, '김밥', 4000, '신선한 재료로 만든 김밥', 3500, 13, 30, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (165, '순대', 5500, '쫄깃한 순대와 양념', 5000, 9, 25, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false);
+
+-- 가게 166번: 서울 디저트 카페
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (166, '아메리카노', 5000, '깊고 진한 에스프레소', 4500, 10, 50, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (166, '카페라떼', 6000, '부드러운 우유와 에스프레소', 5500, 8, 40, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (166, '티라미수', 8000, '진한 커피향의 티라미수', 7000, 13, 20, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false);
+
+-- 가게 167번: 서울 삼겹살 구이
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (167, '삼겹살', 18000, '신선한 삼겹살 구이', 15000, 17, 25, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (167, '목살', 20000, '부드러운 목살 구이', 17000, 15, 20, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (167, '갈비살', 22000, '프리미엄 갈비살', 19000, 14, 15, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false);
+
+-- 가게 168번: 서울 파스타 레스토랑
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (168, '까르보나라', 20000, '계란 노른자와 파마산 치즈의 완벽한 조화', 17000, 15, 18, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (168, '토마토 파스타', 18000, '신선한 토마토 소스의 시트러스한 맛', 15000, 17, 20, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (168, '봉골레 파스타', 22000, '신선한 조개와 마늘의 풍부한 맛', 19000, 14, 15, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false);
+
+-- 가게 169번: 서울 탕수육 전문점
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (169, '탕수육', 20000, '바삭한 탕수육', 17000, 15, 18, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (169, '짜장면', 9000, '진한 짜장면', 8000, 11, 25, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (169, '깐풍기', 18000, '달콤한 소스가 발린 깐풍기', 15000, 17, 15, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false);
+
+-- 가게 170번: 서울 초밥집
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (170, '모듬초밥 12pcs', 30000, '신선한 생선으로 만든 프리미엄 모듬초밥', 26000, 13, 12, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (170, '연어초밥', 10000, '노르웨이산 연어의 부드러운 맛', 9000, 10, 25, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (170, '참치초밥', 12000, '지방이 풍부한 참치의 깊은 맛', 10000, 17, 20, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false);
+
+-- 가게 171번: 서울 순대국밥
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (171, '순대국밥', 8000, '얼큰한 순대국밥', 7000, 13, 30, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (171, '돼지국밥', 9000, '진한 돼지국밥', 8000, 11, 25, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (171, '내장탕', 10000, '얼큰한 내장탕', 9000, 10, 20, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false);
+
+-- 가게 172번: 서울 마카롱 전문점
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (172, '마카롱 6개', 12000, '예쁜 마카롱 6개 세트', 10000, 17, 20, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (172, '케이크', 15000, '달콤한 케이크', 13000, 13, 15, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (172, '티라미수', 8000, '진한 커피향의 티라미수', 7000, 13, 18, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false);
+
+-- 가게 173번: 서울 갈비찜
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (173, '갈비찜', 30000, '부드럽고 달콤한 갈비찜', 26000, 13, 12, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (173, '된장찌개', 12000, '집에서 먹는 듯한 된장찌개', 10000, 17, 20, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (173, '김치찌개', 13000, '매콤한 김치찌개', 11000, 15, 18, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false);
+
+-- 가게 174번: 서울 피자헛
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (174, '마르게리타 피자', 25000, '토마토 소스와 모짜렐라 치즈의 클래식', 22000, 12, 15, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (174, '페퍼로니 피자', 28000, '매콤한 페퍼로니와 치즈의 조화', 25000, 11, 12, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (174, '불고기 피자', 30000, '한국식 불고기와 피자의 만남', 26000, 13, 10, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false);
+
+-- 가게 175번: 서울 짜장면
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (175, '짜장면', 8000, '진한 짜장면', 7000, 13, 30, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (175, '탕수육', 18000, '바삭한 탕수육', 15000, 17, 18, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (175, '깐풍기', 16000, '달콤한 소스가 발린 깐풍기', 14000, 13, 15, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false);
+
+-- 가게 176번: 서울 우동 전문점
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (176, '우동', 12000, '쫄깃한 우동', 10000, 17, 25, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (176, '라멘', 14000, '진한 육수의 라멘', 12000, 14, 20, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (176, '덮밥', 16000, '다양한 재료가 올라간 덮밥', 14000, 13, 18, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false);
+
+-- 가게 177번: 서울 순대볶음
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (177, '순대볶음', 6000, '쫄깃한 순대 볶음', 5500, 8, 25, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (177, '떡볶이', 4500, '매콤달콤한 떡볶이', 4000, 11, 30, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (177, '김밥', 4000, '신선한 김밥', 3500, 13, 28, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false);
+
+-- 가게 178번: 서울 아이스크림
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (178, '바닐라 아이스크림', 4000, '부드럽고 달콤한 바닐라', 3500, 13, 35, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (178, '초콜릿 아이스크림', 4500, '진한 초콜릿의 맛', 4000, 11, 30, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (178, '딸기 아이스크림', 4500, '신선한 딸기의 맛', 4000, 11, 25, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false);
+
+-- 가게 179번: 서울 김치찌개
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (179, '김치찌개', 12000, '얼큰한 김치찌개', 10000, 17, 25, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (179, '된장찌개', 11000, '집에서 먹는 듯한 된장찌개', 9500, 14, 22, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (179, '부대찌개', 13000, '얼큰한 부대찌개', 11000, 15, 20, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false);
+
+-- 가게 180번: 서울 치킨마루
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (180, '후라이드 치킨', 19000, '바삭하고 촉촉한 후라이드 치킨', 16000, 16, 30, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (180, '양념치킨', 20000, '달콤하고 매콤한 양념치킨', 17000, 15, 25, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (180, '간장치킨', 21000, '진한 간장의 깊은 맛', 18000, 14, 22, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false);
+
+
+
+INSERT INTO store (member_id, name, phone_number, status, address, description, origin, latitude, longitude, open_time, close_time, category, max_percent, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                                                                   (1, '서울 전통 한식당', '02-1234-5678', 'OPEN', '서울 강남구 역삼동 123-45', '전통 한식의 맛을 느낄 수 있는 곳', '국내산', 37.5665, 127.0280, '09:00:00', '22:00:00', 'KRFOOD', 15, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 맛있는 한식', '02-1234-5679', 'OPEN', '서울 강남구 논현동 234-56', '정통 한식의 진수를 맛보세요', '국내산', 37.5165, 127.0380, '10:00:00', '21:00:00', 'KRFOOD', 18, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 고향 한식', '02-1234-5680', 'OPEN', '서울 강남구 삼성동 345-67', '집에서 먹는 듯한 한식', '국내산', 37.5265, 127.0480, '11:00:00', '22:00:00', 'KRFOOD', 20, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 정통 한식', '02-1234-5681', 'OPEN', '서울 강남구 청담동 456-78', '정통 한식의 맛', '국내산', 37.5365, 127.0580, '10:00:00', '21:30:00', 'KRFOOD', 16, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 맛집 한식', '02-1234-5682', 'OPEN', '서울 강남구 신사동 567-89', '맛있는 한식 전문점', '국내산', 37.5465, 127.0680, '09:00:00', '22:00:00', 'KRFOOD', 14, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 전통 맛집', '02-1234-5683', 'OPEN', '서울 강남구 압구정동 678-90', '전통 맛의 한식당', '국내산', 37.5565, 127.0780, '10:00:00', '21:00:00', 'KRFOOD', 17, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 고향 맛집', '02-1234-5684', 'OPEN', '서울 강남구 대치동 789-01', '고향의 맛이 나는 한식', '국내산', 37.5665, 127.0880, '11:00:00', '22:00:00', 'KRFOOD', 19, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 정통 맛집', '02-1234-5685', 'OPEN', '서울 강남구 도곡동 890-12', '정통 맛의 한식당', '국내산', 37.5765, 127.0980, '10:00:00', '21:30:00', 'KRFOOD', 15, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 맛있는 맛집', '02-1234-5686', 'OPEN', '서울 강남구 개포동 901-23', '맛있는 한식 전문점', '국내산', 37.5865, 127.1080, '09:00:00', '22:00:00', 'KRFOOD', 18, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 전통 식당', '02-1234-5687', 'OPEN', '서울 강남구 수서동 012-34', '전통 한식 식당', '국내산', 37.5965, 127.1180, '10:00:00', '21:00:00', 'KRFOOD', 16, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 고향 식당', '02-1234-5688', 'OPEN', '서울 강남구 세곡동 123-45', '고향의 맛 한식당', '국내산', 37.6065, 127.1280, '11:00:00', '22:00:00', 'KRFOOD', 20, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 정통 식당', '02-1234-5689', 'OPEN', '서울 강남구 일원동 234-56', '정통 한식 식당', '국내산', 37.6165, 127.1380, '10:00:00', '21:30:00', 'KRFOOD', 17, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 맛있는 식당', '02-1234-5690', 'OPEN', '서울 강남구 수진동 345-67', '맛있는 한식 식당', '국내산', 37.6265, 127.1480, '09:00:00', '22:00:00', 'KRFOOD', 19, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 전통 요리', '02-1234-5691', 'OPEN', '서울 강남구 대진동 456-78', '전통 한식 요리', '국내산', 37.6365, 127.1580, '10:00:00', '21:00:00', 'KRFOOD', 15, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 고향 요리', '02-1234-5692', 'OPEN', '서울 강남구 신월동 567-89', '고향의 맛 한식 요리', '국내산', 37.6465, 127.1680, '11:00:00', '22:00:00', 'KRFOOD', 18, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 정통 요리', '02-1234-5693', 'OPEN', '서울 강남구 목동 678-90', '정통 한식 요리', '국내산', 37.6565, 127.1780, '10:00:00', '21:30:00', 'KRFOOD', 16, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 맛있는 요리', '02-1234-5694', 'OPEN', '서울 강남구 양천동 789-01', '맛있는 한식 요리', '국내산', 37.6665, 127.1880, '09:00:00', '22:00:00', 'KRFOOD', 20, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 전통 한정식', '02-1234-5695', 'OPEN', '서울 강남구 신정동 890-12', '전통 한정식 전문점', '국내산', 37.6765, 127.1980, '10:00:00', '21:00:00', 'KRFOOD', 17, NOW(), NOW(), false),
+                                                                                                                                                                                                   (1, '서울 고향 한정식', '02-1234-5696', 'OPEN', '서울 강남구 염창동 901-23', '고향의 맛 한정식', '국내산', 37.6865, 127.2080, '11:00:00', '22:00:00', 'KRFOOD', 19, NOW(), NOW(), false);
+
+
+
+
+-- StoreImage 데이터 (가게당 1개씩, id 799부터, store_id 211부터)
+INSERT INTO store_image (id, image_key, store_id) VALUES
+                                                      (799, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', 211),
+                                                      (800, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', 212),
+                                                      (801, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', 213),
+                                                      (802, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', 214),
+                                                      (803, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', 215),
+                                                      (804, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', 216),
+                                                      (805, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', 217),
+                                                      (806, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', 218),
+                                                      (807, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', 219),
+                                                      (808, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', 220),
+                                                      (809, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', 221),
+                                                      (810, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', 222),
+                                                      (811, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', 223),
+                                                      (812, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', 224),
+                                                      (813, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', 225),
+                                                      (814, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', 226),
+                                                      (815, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', 227),
+                                                      (816, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', 228),
+                                                      (817, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', 229);
+
+
+
+
+-- 가게 211번: 서울 전통 한식당
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (211, '김치전', 12000, '바삭한 김치전', 10000, 17, 20, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (211, '불고기', 18000, '달콤한 불고기', 15000, 17, 25, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (211, '갈비찜', 25000, '부드러운 갈비찜', 22000, 12, 15, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false);
+
+-- 가게 212번: 서울 맛있는 한식
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (212, '고추김치전', 14000, '매콤한 고추김치전', 12000, 14, 18, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (212, '궁중불고기', 22000, '정통 궁중불고기', 19000, 14, 20, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (212, '된장찌개', 8000, '얼큰한 된장찌개', 7000, 13, 30, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false);
+
+-- 가게 213번: 서울 고향 한식
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (213, '김치전', 11000, '집에서 먹는 김치전', 9500, 14, 22, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (213, '불고기', 19000, '고향의 맛 불고기', 16000, 16, 23, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (213, '김치찌개', 9000, '매콤한 김치찌개', 8000, 11, 25, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false);
+
+-- 가게 214번: 서울 정통 한식
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (214, '파전', 13000, '바삭한 파전', 11000, 15, 20, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (214, '불고기', 20000, '정통 불고기', 17000, 15, 24, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (214, '비빔밥', 12000, '다양한 나물 비빔밥', 10000, 17, 28, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false);
+
+-- 가게 215번: 서울 맛집 한식
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (215, '김치전', 13000, '맛있는 김치전', 11000, 15, 19, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (215, '삼겹살', 16000, '신선한 삼겹살', 14000, 13, 30, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (215, '불고기', 21000, '맛집 불고기', 18000, 14, 22, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false);
+
+-- 가게 216번: 서울 전통 맛집
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (216, '고추김치전', 15000, '매콤달콤한 고추김치전', 13000, 13, 16, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (216, '갈비탕', 15000, '진한 갈비탕', 13000, 13, 20, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (216, '불고기', 23000, '전통 불고기', 20000, 13, 18, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false);
+
+-- 가게 217번: 서울 고향 맛집
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (217, '김치전', 10000, '고향의 맛 김치전', 8500, 15, 25, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (217, '삼계탕', 18000, '영양만점 삼계탕', 16000, 11, 15, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (217, '불고기', 17000, '고향 불고기', 15000, 12, 26, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false);
+
+-- 가게 218번: 서울 정통 맛집
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (218, '파전', 14000, '정통 파전', 12000, 14, 18, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (218, '불고기', 24000, '정통 맛집 불고기', 21000, 13, 17, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (218, '김치찌개', 10000, '얼큰한 김치찌개', 9000, 10, 28, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false);
+
+-- 가게 219번: 서울 맛있는 맛집
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (219, '김치전', 12000, '맛있는 김치전', 10000, 17, 21, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (219, '고추김치전', 16000, '맛있는 고추김치전', 14000, 13, 14, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (219, '불고기', 19000, '맛있는 불고기', 16000, 16, 24, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false);
+
+-- 가게 220번: 서울 전통 식당
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (220, '파전', 12000, '전통 파전', 10000, 17, 22, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (220, '불고기', 25000, '전통 식당 불고기', 22000, 12, 16, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (220, '갈비찜', 28000, '부드러운 갈비찜', 25000, 11, 12, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false);
+
+-- 가게 221번: 서울 고향 식당
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (221, '김치전', 11000, '고향 식당 김치전', 9500, 14, 23, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (221, '삼겹살', 17000, '고향 삼겹살', 15000, 12, 28, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (221, '불고기', 18000, '고향 식당 불고기', 15500, 14, 25, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false);
+
+-- 가게 222번: 서울 정통 식당
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (222, '고추김치전', 13000, '정통 고추김치전', 11000, 15, 19, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (222, '불고기', 22000, '정통 식당 불고기', 19000, 14, 20, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (222, '비빔밥', 13000, '정통 비빔밥', 11000, 15, 26, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false);
+
+-- 가게 223번: 서울 맛있는 식당
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (223, '김치전', 13000, '맛있는 식당 김치전', 11000, 15, 20, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (223, '파전', 15000, '맛있는 파전', 13000, 13, 17, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (223, '불고기', 20000, '맛있는 식당 불고기', 17000, 15, 23, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false);
+
+-- 가게 224번: 서울 전통 요리
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (224, '고추김치전', 14000, '전통 고추김치전', 12000, 14, 18, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (224, '불고기', 23000, '전통 요리 불고기', 20000, 13, 19, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (224, '갈비탕', 16000, '진한 갈비탕', 14000, 13, 22, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false);
+
+-- 가게 225번: 서울 고향 요리
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (225, '김치전', 10000, '고향 요리 김치전', 8500, 15, 24, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (225, '삼겹살', 18000, '고향 요리 삼겹살', 16000, 11, 26, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (225, '불고기', 17000, '고향 요리 불고기', 15000, 12, 27, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false);
+
+-- 가게 226번: 서울 정통 요리
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (226, '파전', 13000, '정통 요리 파전', 11000, 15, 21, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (226, '불고기', 24000, '정통 요리 불고기', 21000, 13, 18, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (226, '김치찌개', 11000, '얼큰한 김치찌개', 9500, 14, 29, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false);
+
+-- 가게 227번: 서울 맛있는 요리
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (227, '김치전', 12000, '맛있는 요리 김치전', 10000, 17, 22, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (227, '고추김치전', 15000, '맛있는 고추김치전', 13000, 13, 16, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (227, '불고기', 19000, '맛있는 요리 불고기', 16000, 16, 25, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false);
+
+-- 가게 228번: 서울 전통 한정식
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (228, '파전', 14000, '전통 한정식 파전', 12000, 14, 19, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (228, '불고기', 25000, '전통 한정식 불고기', 22000, 12, 17, 'profile/a7d5b139-d7ae-4a05-9c3f-526a5f1204c1/food3.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (228, '갈비찜', 30000, '프리미엄 갈비찜', 27000, 10, 10, 'profile/437e8b4a-d491-4618-9bf6-be0d98b67612/food4.jpg', NOW(), NOW(), false);
+
+-- 가게 229번: 서울 고향 한정식
+INSERT INTO menu (store_id, name, price, info, discount_price, daily_discount_percent, daily_quantity, image_key, created_at, updated_at, is_deleted) VALUES
+                                                                                                                                                          (229, '김치전', 11000, '고향 한정식 김치전', 9500, 14, 23, 'profile/c87d6f78-d7d9-4c34-8f12-c459a02ccc9e/food5.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (229, '삼겹살', 19000, '고향 한정식 삼겹살', 17000, 11, 24, 'profile/45388403-7c3f-479d-ae3d-fa1411846ae0/food1.jpg', NOW(), NOW(), false),
+                                                                                                                                                          (229, '불고기', 18000, '고향 한정식 불고기', 15500, 14, 26, 'profile/f3bd06d6-fac3-4b57-af23-58c8d95a9296/food2.jpg', NOW(), NOW(), false);
+
