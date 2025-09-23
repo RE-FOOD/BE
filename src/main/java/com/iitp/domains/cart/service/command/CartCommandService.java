@@ -5,17 +5,13 @@ import com.iitp.domains.cart.dto.CartMenuRedisDto;
 import com.iitp.domains.cart.dto.CartRedisDto;
 import com.iitp.domains.cart.dto.request.CartCreateRequest;
 import com.iitp.domains.cart.dto.request.CartUpdateRequest;
-import com.iitp.domains.cart.dto.response.CartMenuResponse;
 import com.iitp.domains.cart.repository.CartRepository;
 import com.iitp.domains.cart.domain.entity.Cart;
-import com.iitp.domains.store.domain.entity.Menu;
 import com.iitp.domains.store.domain.entity.Store;
-import com.iitp.domains.store.repository.menu.MenuRepository;
-import com.iitp.domains.store.repository.store.StoreRepository;
+import com.iitp.domains.store.validator.StoreValidator;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import com.iitp.global.redis.service.CartRedisService;
-import com.iitp.imageUpload.service.query.ImageGetService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,16 +24,14 @@ import java.util.List;
 @Slf4j
 public class CartCommandService {
     private final CartRepository cartRepository;
-    private final StoreRepository storeRepository;
     private final CartRedisService cartRedisService;
-    private final MenuRepository menuRepository;
-    private final ImageGetService imageGetService;
+    private final StoreValidator storeValidator;
     private static final String CART_CACHE_PREFIX = "cart:";
 
     // Redis에 장바구니 저장
     public void addCart(Long memberId, CartCreateRequest request) {
         String cacheKey = CART_CACHE_PREFIX + memberId;
-        Store store = validateStoreExists(request.storeId());
+        Store store = storeValidator.validateStoreExists(request.storeId());
 
         if (request.checkNew()) {
             // 새로운 카트 생성 - 기존 데이터 삭제
@@ -64,7 +58,7 @@ public class CartCommandService {
 
     public void updateCart(Long memberId, CartUpdateRequest request) {
         String cacheKey = CART_CACHE_PREFIX + memberId;
-        Store store = validateStoreExists(request.id());
+        Store store = storeValidator.validateStoreExists(request.id());
 
         // 기존 장바구니 데이터 삭제
         cartRedisService.deleteCart(cacheKey);
@@ -93,7 +87,7 @@ public class CartCommandService {
             throw new NotFoundException(ExceptionMessage.CART_NOT_FOUND);
         }
 
-        Store store = validateStoreExists(existingCart.id());
+        Store store = storeValidator.validateStoreExists(existingCart.id());
         Cart cart = CartRedisDto.toEntity(store, memberId,existingCart );
 //        // TODO: 리팩토링
         cartRepository.save(cart);
@@ -114,7 +108,7 @@ public class CartCommandService {
         String cacheKey = CART_CACHE_PREFIX + memberId;
         CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
 
-        Store store = validateStoreExists(existingCart.id());
+        Store store = storeValidator.validateStoreExists(existingCart.id());
         Cart cart = CartRedisDto.toEntity(store, memberId, existingCart );
 
         List<CartMenu> cartMenus = existingCart.menus().stream()
@@ -124,20 +118,5 @@ public class CartCommandService {
 
         return cart.addMenu(cartMenus);
     }
-
-    private Store validateStoreExists(Long storeId) {
-        return storeRepository.findByStoreId(storeId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
-    }
-
-    private Menu validateMenuExists(Long menuId) {
-        return menuRepository.findByMenuId(menuId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
-    }
-
-    private String getImageUrl(String imageKey) {
-        return imageGetService.getGetS3Url(imageKey).preSignedUrl();
-    }
-
 
 }

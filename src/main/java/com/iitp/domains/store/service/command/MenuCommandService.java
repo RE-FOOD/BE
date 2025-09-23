@@ -6,6 +6,8 @@ import com.iitp.domains.store.dto.request.MenuCreateRequest;
 import com.iitp.domains.store.dto.request.MenuUpdateRequest;
 import com.iitp.domains.store.repository.menu.MenuRepository;
 import com.iitp.domains.store.repository.store.StoreRepository;
+import com.iitp.domains.store.validator.MenuValidator;
+import com.iitp.domains.store.validator.StoreValidator;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import com.iitp.global.redis.service.StoreRedisService;
@@ -17,12 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional
 public class MenuCommandService {
-    private final StoreRepository storeRepository;
     private final MenuRepository menuRepository;
     private final StoreRedisService cacheService;
+    private final StoreValidator storeValidator;
+    private final MenuValidator menuValidator;
 
     public void createMenu(MenuCreateRequest request, Long storeId) {
-        Store store = validateStoreExists(storeId);
+        Store store = storeValidator.validateStoreExists(storeId);
 
         Menu menu = menuRepository.save(request.toEntity(store));
 
@@ -37,8 +40,8 @@ public class MenuCommandService {
 
 
     public void updateMenu(MenuUpdateRequest request, Long storeId, Long menuId) {
-        validateStoreExists(storeId);
-        Menu menu  = validateMenuExists(menuId);
+        storeValidator.validateStoreExists(storeId);
+        Menu menu  = menuValidator.validateMenuExists(menuId);
 
         menu.update(request);
 
@@ -48,23 +51,12 @@ public class MenuCommandService {
 
 
     public void deleteMenu(Long storeId, Long menuId) {
-        validateStoreExists(storeId);
-        Menu menu = validateMenuExists(menuId);
+        storeValidator.validateStoreExists(storeId);
+        Menu menu = menuValidator.validateMenuExists(menuId);
         menu.markAsDeleted();
 
         cacheService.clearCache();
     }
 
 
-
-
-    private Store validateStoreExists(Long storeId) {
-            return storeRepository.findByStoreId(storeId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
-    }
-
-    private Menu validateMenuExists(Long menuId) {
-        return menuRepository.findByMenuId(menuId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
-    }
 }

@@ -20,7 +20,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class CartQueryService {
-    private final CartRepository cartRepository;
     private final CartRedisService cartRedisService;
     private final ImageGetService imageGetService;
 
@@ -70,12 +69,6 @@ public class CartQueryService {
         CartResponse response = new CartResponse(existingCart.id(), storeImageUrl, existingCart.name(), existingCart.totalCoast(), menuResponse);
 
         return response;
-    }
-
-
-    private Cart validateCartExists(Long storeId, Long memberId) {
-        return cartRepository.findCartData(storeId, memberId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
     }
 
 }

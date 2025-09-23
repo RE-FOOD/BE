@@ -8,12 +8,16 @@ import com.iitp.domains.review.domain.entity.Review;
 import com.iitp.domains.review.dto.response.MyReviewResponse;
 import com.iitp.domains.review.dto.response.ReviewResponse;
 import com.iitp.domains.review.repository.ReviewRepository;
+import com.iitp.domains.review.repository.mapper.ReviewAggregationResult;
 import com.iitp.domains.store.domain.entity.Menu;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.menu.MenuRepository;
+import com.iitp.domains.store.service.query.MenuQueryService;
 import com.iitp.domains.store.service.query.StoreQueryService;
 import com.iitp.global.common.response.TwoWayCursorListResponse;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +31,7 @@ public class ReviewQueryService {
     private final ReviewRepository reviewRepository;
     private final MemberQueryService memberQueryService;
     private final StoreQueryService storeQueryService;
-    private final MenuRepository menuRepository;
+    private final MenuQueryService menuQueryService;
 
     /**
      * API 응답 메서드
@@ -105,7 +109,12 @@ public class ReviewQueryService {
 
         menuIdList.forEach(it-> System.out.println("it = " + it));
 
-        return menuRepository.findAllById(menuIdList);
+        return menuQueryService.finAllMenus(menuIdList);
+    }
+
+
+    public Optional<ReviewAggregationResult> findReviewRatingAverageByStore(Long storeId) {
+        return reviewRepository.findReviewRatingAverageByStore(storeId);
     }
 
 }

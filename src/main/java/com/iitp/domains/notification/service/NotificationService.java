@@ -63,4 +63,7 @@ public class NotificationService {
         unreadNotifications.forEach(Notification::read);
     }
 
+    public boolean existsByIsReadIsFalseAndMemberId(Long memberId) {
+        return notificationRepository.existsByIsReadIsFalseAndMemberId(memberId);
+    }
 }

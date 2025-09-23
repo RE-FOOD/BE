@@ -9,6 +9,8 @@ import com.iitp.domains.store.dto.response.StoreMenuManageResponse;
 import com.iitp.domains.store.repository.mapper.MenuListQueryResult;
 import com.iitp.domains.store.repository.menu.MenuRepository;
 import com.iitp.domains.store.repository.store.StoreRepository;
+import com.iitp.domains.store.validator.MenuValidator;
+import com.iitp.domains.store.validator.StoreValidator;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import com.iitp.imageUpload.service.query.ImageGetService;
@@ -23,13 +25,14 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MenuQueryService {
-    private final StoreRepository storeRepository;
-    private final ImageGetService imageGetService;
     private final MenuRepository menuRepository;
+    private final ImageGetService imageGetService;
+    private final StoreValidator storeValidator;
+    private final MenuValidator menuValidator;
 
     public MenuResponse findMenu(Long storeId, Long menuId) {
-        validateStoreExists(storeId);
-        Menu menu = validateMenuExists(menuId);
+        storeValidator.validateStoreExists(storeId);
+        Menu menu = menuValidator.validateMenuExists(menuId);
 
         String imageUrl = getImageUrl(menu.getImageKey());
 
@@ -38,7 +41,7 @@ public class MenuQueryService {
 
 
     public List<MenuListResponse> findMenus(Long storeId) {
-        validateStoreExists(storeId);
+        storeValidator.validateStoreExists(storeId);
 
         List<MenuListQueryResult> results = menuRepository.findAllMenu(storeId);
 
@@ -54,20 +57,6 @@ public class MenuQueryService {
     }
 
 
-    private Store validateStoreExists(Long storeId) {
-        return storeRepository.findByStoreId(storeId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
-    }
-
-    private Menu validateMenuExists(Long menuId) {
-        return menuRepository.findByMenuId(menuId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
-    }
-
-    private String getImageUrl(String imageKey) {
-        return imageGetService.getGetS3Url(imageKey).preSignedUrl();
-    }
-
     public List<StoreMenuManageResponse> findMenuManage(Long storeId, Long cursorId) {
         return menuRepository.findMenuManage(storeId, cursorId).stream()
                 .map(menu -> new StoreMenuManageResponse(
@@ -78,5 +67,18 @@ public class MenuQueryService {
                         getImageUrl(menu.imageUrl()) // imageKey를 imageUrl로 변환
                 ))
                 .toList();
+    }
+
+
+    public List<Menu> findDiscountMenusByStoreIds(List<Long> storeIds, int limit) {
+        return menuRepository.findDiscountMenusByStoreIds(storeIds, limit);
+    }
+
+    private String getImageUrl(String imageKey) {
+        return imageGetService.getGetS3Url(imageKey).preSignedUrl();
+    }
+
+    public List<Menu> finAllMenus(List<Long> menuIds) {
+        return menuRepository.findAllById(menuIds);
     }
 }

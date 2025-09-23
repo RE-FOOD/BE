@@ -2,13 +2,16 @@ package com.iitp.domains.payment.service;
 
 import com.iitp.domains.cart.domain.entity.Cart;
 import com.iitp.domains.cart.repository.CartRepository;
+import com.iitp.domains.cart.validator.CartValidator;
 import com.iitp.domains.member.domain.EnvironmentLevel;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.repository.MemberRepository;
 import com.iitp.domains.member.service.EnvironmentRewardService;
+import com.iitp.domains.member.validator.MemberValidator;
 import com.iitp.domains.order.domain.OrderStatus;
 import com.iitp.domains.order.domain.entity.Order;
 import com.iitp.domains.order.repository.OrderRepository;
+import com.iitp.domains.order.service.command.OrderCommandService;
 import com.iitp.domains.payment.domain.Payment;
 import com.iitp.domains.payment.domain.TossPaymentMethod;
 import com.iitp.domains.payment.domain.TossPaymentStatus;
@@ -19,6 +22,7 @@ import com.iitp.domains.payment.dto.response.PaymentConfirmResponse;
 import com.iitp.domains.payment.repository.PaymentRepository;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.store.StoreRepository;
+import com.iitp.domains.store.validator.StoreValidator;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 import com.iitp.global.exception.OrderConflictException;
@@ -43,22 +47,20 @@ import java.util.concurrent.TimeUnit;
 @Transactional
 @Log4j2
 public class PaymentService {
-
     private final PaymentRepository paymentRepository;
-    private final OrderRepository orderRepository;
     private final CommonRedisService commonRedisService;
-    private final MemberRepository memberRepository;
-    private final StoreRepository storeRepository;
-    private final CartRepository cartRepository;
     private final CartRedisService cartRedisService;
     private final EnvironmentRewardService environmentRewardService;
+    private final OrderCommandService orderCommandService;
+    private final MemberValidator memberValidator;
+    private final StoreValidator storeValidator;
+    private final CartValidator cartValidator;
 
     private static final String PENDING_ORDER_PREFIX = "pending_order:";
-    private static final String PAYMENT_SESSION_PREFIX = "payment_session:";
     private static final String CART_CACHE_PREFIX = "cart:";
     private static final int PAYMENT_TIMEOUT_MINUTES = 30;
-
     private final Logger logger = LoggerFactory.getLogger(PaymentService.class);
+
 
     /**
      * 주문과 함께 결제를 진행하는 메서드
@@ -111,7 +113,7 @@ public class PaymentService {
             // 3. 실제 Order 엔티티 생성 및 저장
             Order order = createOrderFromPendingOrder(pendingOrder, paymentRewardDto);
 
-            Order savedOrder = orderRepository.save(order);
+            Order savedOrder = orderCommandService.orderSave(order);
 
 
             // 4. 결제 정보 저장
@@ -166,15 +168,11 @@ public class PaymentService {
      * PendingOrderDto로부터 Order 엔티티 생성
      */
     private Order createOrderFromPendingOrder(PendingOrderDto pendingOrder ,PaymentRewardDto paymentRewardDto ) {
-        Member member = memberRepository.findByIdAndIsDeletedFalse(pendingOrder.memberId())
-                .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
+        Member member = memberValidator.validateMemberExists(pendingOrder.memberId());
 
-        Store store = storeRepository.findByStoreId(pendingOrder.storeId())
-                .orElseThrow(() -> new NotFoundException(ExceptionMessage.STORE_NOT_FOUND));
+        Store store = storeValidator.validateStoreExists(pendingOrder.storeId());
 
-        Cart cart = cartRepository.findByCartId(pendingOrder.cartId())
-                .orElseThrow(() -> new NotFoundException(ExceptionMessage.CART_NOT_FOUND));
-
+        Cart cart = cartValidator.validateCartExists(pendingOrder.cartId());
 
         return Order.builder()
                 .member(member)

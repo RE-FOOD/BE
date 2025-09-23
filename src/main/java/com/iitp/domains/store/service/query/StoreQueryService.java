@@ -7,8 +7,10 @@ import com.iitp.domains.member.domain.entity.Location;
 import com.iitp.domains.member.service.query.LocationQueryService;
 import com.iitp.domains.order.domain.entity.Order;
 import com.iitp.domains.order.repository.OrderRepository;
+import com.iitp.domains.order.service.query.OrderQueryService;
 import com.iitp.domains.review.repository.ReviewRepository;
 import com.iitp.domains.review.repository.mapper.ReviewAggregationResult;
+import com.iitp.domains.review.service.query.ReviewQueryService;
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
 import com.iitp.domains.store.domain.StoreStatus;
@@ -17,6 +19,8 @@ import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.dto.response.*;
 import com.iitp.domains.store.repository.mapper.StoreListQueryResult;
 import com.iitp.domains.store.repository.store.StoreRepository;
+import com.iitp.domains.store.validator.MenuValidator;
+import com.iitp.domains.store.validator.StoreValidator;
 import com.iitp.global.common.response.TwoWayCursorListResponse;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
@@ -46,10 +50,14 @@ public class StoreQueryService {
     private final MenuQueryService menuQueryService;
     private final LocationQueryService locationQueryService;
     private final FavoriteQueryService favoriteQueryService;
-    private final ReviewRepository reviewRepository;
     private final RedisGeoService redisGeoService;
-    private final OrderRepository orderRepository;
+    private final ReviewQueryService reviewQueryService;
+    private final OrderQueryService orderQueryService;
+    private final StoreValidator storeValidator;
+
     private Long currentCachedStoreId = null;
+
+
 
     /**
      * 가게 목록 조회 (거리순은 Redis GEO, 나머지는 Cursor)
@@ -172,7 +180,7 @@ public class StoreQueryService {
 
         boolean isFavored = favoriteQueryService.isFavoriteExists(memberId, storeId);
 
-        Optional<ReviewAggregationResult> reviewAggregation = reviewRepository.findReviewRatingAverageByStore(storeId);
+        Optional<ReviewAggregationResult> reviewAggregation = reviewQueryService.findReviewRatingAverageByStore(storeId);
         Double roundedAvg = reviewAggregation.map(ReviewAggregationResult::averageRating).orElse(null);
         long reviewCount = reviewAggregation.map(ReviewAggregationResult::count).orElse(0L);
 
@@ -189,7 +197,7 @@ public class StoreQueryService {
      * 존재하는 가게 조회 (삭제된 가게 제외)
      */
     public Store findExistingStore(Long storeId) {
-        Store store = validateStoreExists(storeId);
+        Store store = storeValidator.validateStoreExists(storeId);
         System.out.println("store.getId() = " + store.getId());
         System.out.println("store.getName() = " + store.getName());
         System.out.println("store.getFavorites() = " + store.getFavorites());
@@ -411,7 +419,7 @@ public class StoreQueryService {
     public List<StoreOrderListResponse> findOrders(Long memberId, Long cursorId) {
         Store store = findExistingMemer(memberId);
         // Order와 Cart, CartMenu, Menu를 JOIN하여 한 번에 조회
-        List<StoreOrderListResponse> orderWithMenus = orderRepository.findOrdersWithMenuInfo(store.getId(), cursorId);
+        List<StoreOrderListResponse> orderWithMenus =  orderQueryService.findOrdersWithMenuInfo(store.getId(), cursorId);
 
         return orderWithMenus.stream()
                 .map(orderInfo -> StoreOrderListResponse.builder()
@@ -488,9 +496,4 @@ public class StoreQueryService {
         }
     }
 
-
-    private Store validateStoreExists(Long storeId) {
-        return storeRepository.findByStoreId(storeId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
-    }
 }

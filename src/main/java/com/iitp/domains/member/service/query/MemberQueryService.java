@@ -7,6 +7,7 @@ import com.iitp.domains.member.dto.responseDto.LocationResponseDto;
 import com.iitp.domains.member.dto.responseDto.MemberProfileResponseDto;
 import com.iitp.domains.member.repository.LocationRepository;
 import com.iitp.domains.member.repository.MemberRepository;
+import com.iitp.domains.member.service.command.LocationCommandService;
 import com.iitp.global.config.security.SecurityUtil;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
@@ -23,9 +24,8 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 @Slf4j
 public class MemberQueryService {
-
     private final MemberRepository memberRepository;
-    private final LocationRepository locationRepository;
+    private final LocationCommandService locationCommandService;
 
     /**
      * 회원 프로필 조회
@@ -114,7 +114,7 @@ public class MemberQueryService {
     @Cacheable(value = "locations", key = "'member:' + #memberId + ':recent'")
     public Optional<Location> findMostRecentLocation(Long memberId) {
         log.debug("최근 위치 조회 - memberId: {}", memberId);
-        return locationRepository.findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(memberId);
+        return locationCommandService.findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(memberId);
     }
 
     /**
@@ -126,4 +126,11 @@ public class MemberQueryService {
                 .orElseThrow(()-> new NotFoundException(ExceptionMessage.MEMBER_NOT_FOUND));
     }
 
+    public Integer sumAllOrderCount(){
+        return memberRepository.sumAllOrderCount();
+    }
+
+    public Integer sumAllDishCount(){
+        return memberRepository.sumAllDishCount();
+    }
 }

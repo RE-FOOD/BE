@@ -23,8 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Slf4j
 public class EnvironmentRewardService {
-
-    private final MemberRepository memberRepository;
     private final MemberQueryService memberQueryService;
     private final NotificationService notificationService;
 

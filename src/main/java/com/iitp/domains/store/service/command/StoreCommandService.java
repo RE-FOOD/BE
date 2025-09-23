@@ -6,9 +6,11 @@ import com.iitp.domains.order.domain.OrderStatus;
 import com.iitp.domains.order.domain.entity.Order;
 import com.iitp.domains.order.service.command.OrderCommandService;
 import com.iitp.domains.order.service.query.OrderQueryService;
+import com.iitp.domains.order.validator.OrderValidator;
 import com.iitp.domains.payment.domain.Payment;
 import com.iitp.domains.payment.domain.TossPaymentStatus;
 import com.iitp.domains.payment.service.PaymentService;
+import com.iitp.domains.payment.validator.PaymentValidator;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.domain.entity.StoreImage;
 import com.iitp.domains.store.dto.request.StoreCreateRequest;
@@ -32,15 +34,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Transactional
 public class StoreCommandService {
-    private final KakaoGeocodingService  kakaoGeocodingService;
     private final StoreRepository storeRepository;
     private final StoreImageRepository storeImageRepository;
+    private final KakaoGeocodingService  kakaoGeocodingService;
     private final StoreRedisService cacheService;
     private final RedisGeoService redisGeoService;
-    private final OrderCommandService orderCommandService;
     private final OrderQueryService orderQueryService;
-    private final PaymentService paymentService;
     private final NotificationService notificationService;
+    private final OrderValidator orderValidator;
+    private final PaymentValidator paymentValidator;
 
     public Long createStore(StoreCreateRequest request, Long userId) {
         // 주소로 위/경도 조회
@@ -106,9 +108,9 @@ public class StoreCommandService {
 
 
     public void refusalOrder(Long memberId, Long orderId) {
-        Order order = orderQueryService.validateOrderExists(orderId);
+        Order order = orderValidator.validateOrderExists(orderId);
 
-        Payment payment = orderQueryService.validatePaymentExists(orderId);
+        Payment payment = paymentValidator.validatePaymentExists(orderId);
 
         // 주문 거절에 따른 롤백
         order.updateOrderStatus(OrderStatus.CANCELED);
@@ -120,9 +122,9 @@ public class StoreCommandService {
 
 
     public void confirmOrder(Long memberId, Long orderId) {
-        Order order = orderQueryService.validateOrderExists(orderId);
+        Order order = orderValidator.validateOrderExists(orderId);
 
-        Payment payment = orderQueryService.validatePaymentExists(orderId);
+        Payment payment = paymentValidator.validatePaymentExists(orderId);
 
         // 주문 거절에 따른 롤백
         order.updateOrderStatus(OrderStatus.COMPLETED);
@@ -155,6 +157,4 @@ public class StoreCommandService {
         return storeRepository.findByMemberId(memberId)
                 .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
     }
-
-
 }

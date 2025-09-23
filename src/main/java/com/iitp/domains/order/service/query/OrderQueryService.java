@@ -12,13 +12,18 @@ import com.iitp.domains.order.domain.OrderStatus;
 import com.iitp.domains.order.domain.entity.Order;
 import com.iitp.domains.order.dto.response.*;
 import com.iitp.domains.order.repository.OrderRepository;
+import com.iitp.domains.order.validator.OrderValidator;
 import com.iitp.domains.payment.domain.Payment;
 import com.iitp.domains.payment.repository.PaymentRepository;
+import com.iitp.domains.payment.validator.PaymentValidator;
 import com.iitp.domains.store.domain.entity.Menu;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.dto.response.InsightResponse;
+import com.iitp.domains.store.dto.response.StoreOrderListResponse;
 import com.iitp.domains.store.repository.menu.MenuRepository;
 import com.iitp.domains.store.repository.store.StoreRepository;
+import com.iitp.domains.store.validator.MenuValidator;
+import com.iitp.domains.store.validator.StoreValidator;
 import com.iitp.global.exception.ExceptionMessage;
 import com.iitp.global.exception.NotFoundException;
 
@@ -42,17 +47,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class OrderQueryService {
     private final OrderRepository orderRepository;
-    private final StoreRepository storeRepository;
-    private final MemberRepository memberRepository;
-    private final MenuRepository menuRepository;
     private final ImageGetService  imageGetService;
-    private final PaymentRepository paymentRepository;
     private static final String CART_CACHE_PREFIX = "cart:";
     private final CartRedisService cartRedisService;
+    private final StoreValidator  storeValidator;
+    private final MenuValidator menuValidator;
+    private final OrderValidator orderValidator;
 
     public Order findExistingOrder(Long orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND));
+        Order order = orderValidator.validateOrderExists(orderId);
+
         if (order.getIsDeleted()) {
             throw new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND);
         }
@@ -79,11 +83,11 @@ public class OrderQueryService {
             throw new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND);
         }
 
-        Store store = validateStoreExists(existingCart.id());
+        Store store = storeValidator.validateStoreExists(existingCart.id());
         List<OrderMenuResponse> menus = new ArrayList<>();
 
         for(CartMenuRedisDto cartMenu : existingCart.menus()) {
-            Menu menu = validateMenuExists(cartMenu.id());
+            Menu menu = menuValidator.validateMenuExists(cartMenu.id());
 
             menus.add(new OrderMenuResponse(
                     menu.getName(),
@@ -95,7 +99,7 @@ public class OrderQueryService {
 
         // TODO 동시성 처리 Redis + Kafka 리팩토링
         for(int i=0; i<existingCart.menus().size(); i++) {
-            Menu menu = validateMenuExists(memberId);
+            Menu menu = menuValidator.validateMenuExists(memberId);
 
             if(existingCart.menus().get(i).orderQuantity() > menu.getDailyQuantity()){
                 throw new OrderConflictException(menu.getName());
@@ -127,7 +131,6 @@ public class OrderQueryService {
     }
 
 
-
     public OrderListResponse getOrders(String keyword, Long cursorId, Long memberId) {
         List<Order> orders = orderRepository.findOrders(keyword, cursorId, memberId);
 
@@ -147,8 +150,9 @@ public class OrderQueryService {
                         // 첫 번째 메뉴의 이름을 가져옴
                         Long firstMenuId = order.getCart().getCartMenus().get(0).getMenuId();
                         try {
-                            Menu firstMenu = menuRepository.findByMenuId(firstMenuId)
-                                    .orElse(null);
+                            Menu firstMenu = menuValidator.validateMenuExistsWithNull(firstMenuId);
+//                                    menuRepository.findByMenuId(firstMenuId)
+//                                    .orElse(null);
                             if (firstMenu != null) {
                                 menuName = firstMenu.getName();
                             }
@@ -197,28 +201,11 @@ public class OrderQueryService {
     }
 
 
-    public Store validateStoreExists(Long storeId) {
-        return storeRepository.findByStoreId(storeId)
-                .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
-    }
-
-    public Menu validateMenuExists(Long menuId) {
-        return menuRepository.findByMenuId(menuId)
-                .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
-    }
-
-    public Order validateOrderExists(Long orderId) {
-        return orderRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND));
-    }
-
-    public Payment validatePaymentExists(Long orderId) {
-        return paymentRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new NotFoundException(ExceptionMessage.PAYMENT_NOT_FOUND));
-    }
-
     public String getImageUrl(String imageKey) {
         return imageGetService.getGetS3Url(imageKey).preSignedUrl();
     }
 
+    public List<StoreOrderListResponse> findOrdersWithMenuInfo(Long storeId, Long cursorId) {
+        return orderRepository.findOrdersWithMenuInfo(storeId, cursorId);
+    }
 }

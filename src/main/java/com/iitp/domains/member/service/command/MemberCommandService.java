@@ -26,11 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class MemberCommandService {
     private final MemberRepository memberRepository;
-    private final LocationRepository locationRepository;
     private final MemberQueryService memberQueryService;
-    private final KakaoApiClient kakaoApiClient;
-    private final JwtUtil jwtUtil;
-    private final EmailCreateService emailCreateService;
+    private final LocationCommandService locationCommandService;
 
 
     /**
@@ -92,12 +89,12 @@ public class MemberCommandService {
 
         // 기존 위치들을 최근이 아닌 것으로 변경 (필요시)
         if (setAsMostRecent) {
-            locationRepository.updateAllToNotMostRecent(memberId);
+            locationCommandService.updateAllToNotMostRecent(memberId);
         }
 
         // 새 위치 생성 및 저장
         Location location = createLocation(memberId, address);
-        location = locationRepository.save(location);
+        location = locationCommandService.saveLocation(location);
 
         log.info("새 위치 추가 완료 - locationId: {}", location.getId());
         return location;

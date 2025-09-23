@@ -56,7 +56,7 @@ public class MapQueryService {
                 .collect(Collectors.toList());
 
         // DB에서 가게 정보 조회
-        List<Store> stores = mapRepository.findStoreListByIds(storeIds);
+        List<Store> stores = findStoreListByIds(storeIds);
         ;
 
         return stores.stream()
@@ -125,7 +125,7 @@ public class MapQueryService {
                 .collect(Collectors.toList());
 
         // DB에서 가게 정보 조회
-        List<Store> stores = mapRepository.findStoreListByIds(storeIds);
+        List<Store> stores = findStoreListByIds(storeIds);
 
         // 응답 DTO 생성
         List<MapListResponseDto> storeList = stores.stream()
@@ -179,7 +179,7 @@ public class MapQueryService {
                 .collect(Collectors.toList());
 
         // 전체 가게 정보 조회
-        List<Store> stores = mapRepository.findStoreListByIds(storeIds);
+        List<Store> stores = findStoreListByIds(storeIds);
 
         if (stores.isEmpty()) {
             return MapListScrollResponseDto.empty(cursorId);
@@ -329,5 +329,9 @@ private MapListScrollResponseDto applyCursorPagination(List<MapListResponseDto> 
             .nextCursor(nextCursor)
             .hasNext(hasNext)
             .build();
-}
+    }
+
+    public List<Store> findStoreListByIds(List<Long> storeIds){
+        return mapRepository.findStoreListByIds(storeIds);
+    }
 }
