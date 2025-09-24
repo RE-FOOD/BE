@@ -5,7 +5,6 @@ import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.dto.response.MenuListResponse;
 import com.iitp.domains.store.dto.response.MenuResponse;
 import com.iitp.domains.store.dto.response.StoreListResponse;
-import com.iitp.domains.store.dto.response.StoreMenuManageResponse;
 import com.iitp.domains.store.repository.mapper.MenuListQueryResult;
 import com.iitp.domains.store.repository.menu.MenuRepository;
 import com.iitp.domains.store.repository.store.StoreRepository;
