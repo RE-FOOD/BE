@@ -10,15 +10,12 @@ import com.iitp.global.config.security.CustomUserDetails;
 import com.iitp.global.config.security.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "가게 Query API", description = "가게 Query API")
 @RestController
@@ -93,7 +90,7 @@ public class StoreQueryController {
 
 
     @Operation(summary = "가게 메뉴 관리 페이지 출력", description = "가게에서 관리하는 메뉴 리스트 출력하고 해당 메뉴 수정")
-    @GetMapping("/manageMenu")
+    @GetMapping("/menus/manage")
     public ApiResponse<List<StoreMenuManageResponse>> getMenuManage(
             @RequestParam(value = "cursorId", defaultValue = "0") Long cursorId
     ){
