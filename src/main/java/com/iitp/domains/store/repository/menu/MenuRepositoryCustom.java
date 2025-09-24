@@ -1,6 +1,7 @@
 package com.iitp.domains.store.repository.menu;
 
 import com.iitp.domains.store.domain.entity.Menu;
+import com.iitp.domains.store.dto.response.StoreMenuManageResponse;
 import com.iitp.domains.store.repository.mapper.MenuListQueryResult;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +17,6 @@ public interface MenuRepositoryCustom {
 
     //할인 메뉴 조회
     List<Menu> findDiscountMenusByStoreIds(List<Long> storeIds, int limit);
+
+    List<StoreMenuManageResponse> findMenuManage(Long id, Long cursorId);
 }

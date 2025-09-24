@@ -189,8 +189,7 @@ public class StoreQueryService {
      * 존재하는 가게 조회 (삭제된 가게 제외)
      */
     public Store findExistingStore(Long storeId) {
-        Store store = storeRepository.findByStoreId(storeId)
-                .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
+        Store store = validateStoreExists(storeId);
         System.out.println("store.getId() = " + store.getId());
         System.out.println("store.getName() = " + store.getName());
         System.out.println("store.getFavorites() = " + store.getFavorites());
@@ -204,10 +203,8 @@ public class StoreQueryService {
     }
 
     public Store findExistingMemer(Long memberId) {
-        Store store = storeRepository.findByMemberId(memberId)
+        return storeRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
-
-        return store;
     }
 
     /**
@@ -428,6 +425,14 @@ public class StoreQueryService {
 
     }
 
+    // 가게 메뉴 관리 페이지 데이터 반화
+    public List<StoreMenuManageResponse> findStoreMenuManage(Long cursorId, Long memberId) {
+        Store store = findExistingMemer(memberId);
+
+        return menuQueryService.findMenuManage(store.getId(), cursorId);
+    }
+
+
     /**
      * 영업시간 체크 헬퍼 메서드
      */
@@ -435,7 +440,6 @@ public class StoreQueryService {
         LocalTime now = LocalTime.now();
         return openTime.isBefore(now) && now.isBefore(closeTime);
     }
-
 
 
     /**
@@ -482,5 +486,11 @@ public class StoreQueryService {
         public boolean isHasNext() {
             return hasNext;
         }
+    }
+
+
+    private Store validateStoreExists(Long storeId) {
+        return storeRepository.findByStoreId(storeId)
+                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
     }
 }
