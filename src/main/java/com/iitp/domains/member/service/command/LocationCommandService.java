@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -40,11 +41,11 @@ public class LocationCommandService {
         validateAddressCount(memberId);
 
         // 2. 기존 모든 주소를 기본 주소가 아닌 것으로 변경
-        locationRepository.updateAllToNotMostRecent(memberId);
+        updateAllToNotMostRecent(memberId);
 
         // 3. 새 주소 생성 및 저장
         Location newLocation = createLocationWithCoordinates(memberId, request);
-        Location savedLocation = locationRepository.save(newLocation);
+        Location savedLocation = saveLocation(newLocation);
 
         log.info("새 주소 추가 완료 - memberId: {}, locationId: {}", memberId, savedLocation.getId());
 
@@ -68,7 +69,7 @@ public class LocationCommandService {
         }
 
         // 3. 기존 모든 주소를 기본 주소가 아닌 것으로 변경
-        locationRepository.updateAllToNotMostRecent(memberId);
+        updateAllToNotMostRecent(memberId);
 
         // 4. 대상 주소를 기본 주소로 설정
         targetLocation.setAsMostRecent();
@@ -153,5 +154,17 @@ public class LocationCommandService {
             log.warn("주소 좌표 변환 실패 - address: {}, error: {}", request.address(), ex.getMessage());
             throw new BadRequestException(ExceptionMessage.ADDRESS_GEOCODING_FAILED);
         }
+    }
+
+    public void updateAllToNotMostRecent(Long memberId) {
+        locationRepository.updateAllToNotMostRecent(memberId);
+    }
+
+    public Location saveLocation(Location location){
+        return locationRepository.save(location);
+    }
+
+    public Optional<Location> findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(Long memberId) {
+        return locationRepository.findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(memberId);
     }
 }

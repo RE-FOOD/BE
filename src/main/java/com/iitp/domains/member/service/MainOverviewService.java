@@ -3,6 +3,7 @@ package com.iitp.domains.member.service;
 import com.iitp.domains.cart.dto.CartRedisDto;
 import com.iitp.domains.cart.repository.CartRepository;
 import com.iitp.domains.map.repository.MapRepository;
+import com.iitp.domains.map.service.query.MapQueryService;
 import com.iitp.domains.member.domain.entity.Location;
 import com.iitp.domains.member.domain.entity.Member;
 import com.iitp.domains.member.dto.responseDto.DiscountMenuResponseDto;
@@ -10,13 +11,16 @@ import com.iitp.domains.member.dto.responseDto.LocationResponseDto;
 import com.iitp.domains.member.dto.responseDto.MainOverviewResponseDto;
 import com.iitp.domains.member.dto.responseDto.PopularStoreResponseDto;
 import com.iitp.domains.member.repository.LocationRepository;
+import com.iitp.domains.member.service.command.LocationCommandService;
 import com.iitp.domains.member.service.query.MemberQueryService;
 import com.iitp.domains.notification.repository.NotificationRepository;
+import com.iitp.domains.notification.service.NotificationService;
 import com.iitp.domains.review.service.query.ReviewQueryService;
 import com.iitp.domains.store.domain.entity.Menu;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.menu.MenuRepository;
 import com.iitp.domains.store.repository.store.StoreRepository;
+import com.iitp.domains.store.service.query.MenuQueryService;
 import com.iitp.global.redis.service.CartRedisService;
 import com.iitp.global.redis.service.RedisGeoService;
 import com.iitp.global.util.map.DistanceCalculator;
@@ -36,17 +40,15 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @Slf4j
 public class MainOverviewService {
-    private final MemberQueryService memberQueryService;
-    private final LocationRepository locationRepository;
-    private final NotificationRepository notificationRepository;
-    private final StoreRepository storeRepository;
-    private final MenuRepository menuRepository;
     private final RedisGeoService redisGeoService;
     private final ReviewQueryService reviewQueryService;
-    private final MapRepository mapRepository;
     private final DistanceCalculator distanceCalculator;
     private final ImageGetService imageGetService;
     private final CartRedisService cartRedisService;
+    private final LocationCommandService locationCommandService;
+    private final MapQueryService mapQueryService;
+    private final NotificationService notificationService;
+    private final MenuQueryService menuQueryService;
 
 
     /**
@@ -57,7 +59,7 @@ public class MainOverviewService {
 
         Integer cartCount = getCartCount(memberId);
         // 읽은 알림 존재 여부
-        boolean hasUnreadNotification = notificationRepository.existsByIsReadIsFalseAndMemberId(memberId);
+        boolean hasUnreadNotification = notificationService.existsByIsReadIsFalseAndMemberId(memberId);
 
         LocationResponseDto location = getDefaultLocation(memberId);
         List<DiscountMenuResponseDto> discountMenus = getDiscountMenus(memberId);
@@ -100,7 +102,7 @@ public class MainOverviewService {
      * 기본 주소 조회
      */
     private LocationResponseDto getDefaultLocation(Long memberId) {
-        Location location = locationRepository.findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(memberId)
+        Location location = locationCommandService.findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(memberId)
                 .orElseThrow(() -> new RuntimeException("기본 주소를 찾을 수 없습니다"));
 
         return LocationResponseDto.from(location);
@@ -113,7 +115,7 @@ public class MainOverviewService {
         log.debug("할인 메뉴 조회 시작 - memberId: {}", memberId);
 
         try {
-            Location location = locationRepository.findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(memberId)
+            Location location = locationCommandService.findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(memberId)
                     .orElse(null);
 
             if (location == null || location.getLatitude() == null || location.getLongitude() == null) {
@@ -136,7 +138,7 @@ public class MainOverviewService {
                     .map(Long::valueOf)
                     .collect(Collectors.toList());
 
-            List<Menu> discountMenus = menuRepository.findDiscountMenusByStoreIds(storeIds, 10);
+            List<Menu> discountMenus = menuQueryService.findDiscountMenusByStoreIds(storeIds, 10);
 
             if (discountMenus.isEmpty()) {
                 log.debug("근처에 할인 메뉴가 없습니다 - memberId: {}", memberId);
@@ -173,7 +175,7 @@ public class MainOverviewService {
         log.debug("인기 가게 조회 시작 - memberId: {}", memberId);
 
         try {
-            Location location = locationRepository.findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(memberId)
+            Location location = locationCommandService.findByMemberIdAndIsMostRecentTrueAndIsDeletedFalse(memberId)
                     .orElse(null);
 
             if (location == null || location.getLatitude() == null || location.getLongitude() == null) {
@@ -196,7 +198,7 @@ public class MainOverviewService {
                     .map(Long::valueOf)
                     .collect(Collectors.toList());
 
-            List<Store> stores = mapRepository.findStoreListByIds(storeIds);
+            List<Store> stores = mapQueryService.findStoreListByIds(storeIds);
 
             if (stores.isEmpty()) {
                 log.debug("조회된 가게가 없습니다 - memberId: {}", memberId);
