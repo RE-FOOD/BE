@@ -41,171 +41,25 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
-@RequiredArgsConstructor
-@Slf4j
-@Transactional(readOnly = true)
-public class OrderQueryService {
-    private final OrderRepository orderRepository;
-    private final ImageGetService  imageGetService;
-    private static final String CART_CACHE_PREFIX = "cart:";
-    private final CartRedisService cartRedisService;
-    private final StoreValidator  storeValidator;
-    private final MenuValidator menuValidator;
-    private final OrderValidator orderValidator;
 
-    public Order findExistingOrder(Long orderId) {
-        Order order = orderValidator.validateOrderExists(orderId);
-
-        if (order.getIsDeleted()) {
-            throw new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND);
-        }
-        return order;
-    }
+public interface OrderQueryService {
+    Order findExistingOrder(Long orderId);
 
 
-    public List<Menu> findMenuList(Long orderId) {
-        // Order -> Cart -> CartMenu -> Menu 리스트 조회
-        // 1. 객체적으로 접근하기. 근데 지금은 CartMenu에서 Menu 엔티티 객체가 아닌 ID만을 FK로 갖고 있음.
-        // 2. 쿼리를 통해 접근하기. QueryDSL을 써야 할듯? SELECT * FROM MENU WHERE
+    List<Menu> findMenuList(Long orderId);
 
-        return null;
-    }
-
-    @Transactional
-    public OrderResponse getOrderReady(Long memberId) {
-        // TODO :: Service를 통해 호출하는 코드로 리팩토링
-
-        String cacheKey = CART_CACHE_PREFIX + memberId;
-        CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
-
-        if(existingCart == null) {
-            throw new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND);
-        }
-
-        Store store = storeValidator.validateStoreExists(existingCart.id());
-        List<OrderMenuResponse> menus = new ArrayList<>();
-
-        for(CartMenuRedisDto cartMenu : existingCart.menus()) {
-            Menu menu = menuValidator.validateMenuExists(cartMenu.id());
-
-            menus.add(new OrderMenuResponse(
-                    menu.getName(),
-                    cartMenu.orderQuantity(),
-                    getImageUrl(menu.getImageKey()),
-                    cartMenu.discountPrice()
-            ));
-        }
-
-        // TODO 동시성 처리 Redis + Kafka 리팩토링
-        for(int i=0; i<existingCart.menus().size(); i++) {
-            Menu menu = menuValidator.validateMenuExists(memberId);
-
-            if(existingCart.menus().get(i).orderQuantity() > menu.getDailyQuantity()){
-                throw new OrderConflictException(menu.getName());
-            }
-        }
-
-        OrderResponse response = OrderResponse.builder()
-                .name(store.getName())
-                .address(store.getAddress())
-                .totalCoast(existingCart.totalCoast())
-                .openTime(store.getOpenTime())
-                .closeTime(store.getCloseTime())
-                .menus(menus)
-                .build();
-
-        return response;
-    }
+    OrderResponse getOrderReady(Long memberId);
 
 
-    public OrderPaymentResponse getOrder(Long orderId, Long memberId) {
-        // Repository에서 JOIN을 통해 모든 데이터를 한 번에 조회
-        OrderPaymentResponse response = orderRepository.findOrderWithDetails(orderId, memberId);
-
-        if (response == null) {
-            throw new NotFoundException(ExceptionMessage.ORDER_NOT_FOUND);
-        }
-
-        return response;
-    }
+    OrderPaymentResponse getOrder(Long orderId, Long memberId);
 
 
-    public OrderListResponse getOrders(String keyword, Long cursorId, Long memberId) {
-        List<Order> orders = orderRepository.findOrders(keyword, cursorId, memberId);
+    OrderListResponse getOrders(String keyword, Long cursorId, Long memberId);
 
-        if(orders.isEmpty()) {
-            return null;
-        }
-
-        // Order 엔티티를 OrderMenuListResponse로 변환
-        List<OrderMenuListResponse> orderResponses = orders.stream()
-                .map(order -> {
-                    // Store 정보 조회
-                    Store store = order.getStore();
-
-                    // Cart에서 첫 번째 메뉴 정보 가져오기 (대표 메뉴)
-                    String menuName = "주문 완료"; // 기본값
-                    if (order.getCart() != null && !order.getCart().getCartMenus().isEmpty()) {
-                        // 첫 번째 메뉴의 이름을 가져옴
-                        Long firstMenuId = order.getCart().getCartMenus().get(0).getMenuId();
-                        try {
-                            Menu firstMenu = menuValidator.validateMenuExistsWithNull(firstMenuId);
-//                                    menuRepository.findByMenuId(firstMenuId)
-//                                    .orElse(null);
-                            if (firstMenu != null) {
-                                menuName = firstMenu.getName();
-                            }
-                        } catch (Exception e) {
-                            // 메뉴 조회 실패 시 기본값 사용
-                            log.warn("메뉴 조회 실패: {}", firstMenuId, e);
-                        }
-                    }
-
-                    // Store 이미지 URL 가져오기 (첫 번째 이미지)
-                    String imageUrl = "";
-                    if (store.getStoreImages() != null && !store.getStoreImages().isEmpty()) {
-                        String imageKey = store.getStoreImages().get(0).getImageKey();
-                        try {
-                            imageUrl = imageGetService.getGetS3Url(imageKey).preSignedUrl();
-                        } catch (Exception e) {
-                            log.warn("이미지 URL 조회 실패: {}", imageKey, e);
-                        }
-                    }
-
-                    return OrderMenuListResponse.builder()
-                            .orderId(order.getId())
-                            .storeId(store.getId())
-                            .storeName(store.getName())
-                            .imageUrl(imageUrl)
-                            .status(order.getStatus() == OrderStatus.COMPLETED)
-                            .menuName(menuName)
-                            .build();
-                })
-                .collect(Collectors.toList());
-
-        // 커서 값 계산
-        long prevCursor = orderResponses.get(0).orderId();
-        long nextCursor = orderResponses.get(orderResponses.size()-1).orderId();
-
-        return OrderListResponse.builder()
-                .prevCursor(prevCursor)
-                .nextCursor(nextCursor)
-                .orders(orderResponses)
-                .build();
-
-    }
-
-    public InsightResponse findInsight(Long storeId){
-        return orderRepository.findInsight(storeId);
-    }
+    InsightResponse findInsight(Long storeId);
 
 
-    public String getImageUrl(String imageKey) {
-        return imageGetService.getGetS3Url(imageKey).preSignedUrl();
-    }
+    String getImageUrl(String imageKey);
 
-    public List<StoreOrderListResponse> findOrdersWithMenuInfo(Long storeId, Long cursorId) {
-        return orderRepository.findOrdersWithMenuInfo(storeId, cursorId);
-    }
+    List<StoreOrderListResponse> findOrdersWithMenuInfo(Long storeId, Long cursorId);
 }

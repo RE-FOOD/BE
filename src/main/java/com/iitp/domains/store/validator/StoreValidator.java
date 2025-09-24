@@ -18,5 +18,14 @@ public class StoreValidator {
                 .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
     }
 
+    public void validateUserHasPermission(Store store, Long userId) {
+        if (store.getMemberId().equals(userId)) {
+            throw new IllegalArgumentException();
+        }
+    }
 
+    public Store validateStoreExistsFromMemberId(Long memberId) {
+        return storeRepository.findByMemberId(memberId)
+                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
+    }
 }

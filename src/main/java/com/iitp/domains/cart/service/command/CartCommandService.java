@@ -18,105 +18,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-@Transactional
-@Slf4j
-public class CartCommandService {
-    private final CartRepository cartRepository;
-    private final CartRedisService cartRedisService;
-    private final StoreValidator storeValidator;
-    private static final String CART_CACHE_PREFIX = "cart:";
+
+public interface CartCommandService {
 
     // Redis에 장바구니 저장
-    public void addCart(Long memberId, CartCreateRequest request) {
-        String cacheKey = CART_CACHE_PREFIX + memberId;
-        Store store = storeValidator.validateStoreExists(request.storeId());
-
-        if (request.checkNew()) {
-            // 새로운 카트 생성 - 기존 데이터 삭제
-            cartRedisService.deleteCart(cacheKey);
-            CartRedisDto cartRedisDto = CartRedisDto.fromEntity(store);     // 장바구니 생성
-            CartRedisDto dto = cartRedisService.addCartItemToCart(cartRedisDto, request.menuId(), request.quantity()); // 장바구니에 메뉴 추가
-            cartRedisService.saveCartToRedis(cacheKey, dto);
-        } else {
-            // 기존 카트에 아이템 추가
-            CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
-            if (existingCart != null) {
-                CartRedisDto dto  = cartRedisService.addCartItemToCart(existingCart, request.menuId(), request.quantity());
-                cartRedisService.saveCartToRedis(cacheKey, dto);
-            } else {
-                // 기존 카트가 없으면 새로 생성
-                CartRedisDto cartRedisDto = CartRedisDto.fromEntity(store);     // 장바구니 생성
-
-                CartRedisDto dto  = cartRedisService.addCartItemToCart(cartRedisDto, request.menuId(), request.quantity()); // 장바구니에 메뉴 추가
-                cartRedisService.saveCartToRedis(cacheKey, dto);
-            }
-        }
-    }
+    void addCart(Long memberId, CartCreateRequest request);
 
 
-    public void updateCart(Long memberId, CartUpdateRequest request) {
-        String cacheKey = CART_CACHE_PREFIX + memberId;
-        Store store = storeValidator.validateStoreExists(request.id());
+    void updateCart(Long memberId, CartUpdateRequest request);
 
-        // 기존 장바구니 데이터 삭제
-        cartRedisService.deleteCart(cacheKey);
-
-        // 장바구니 업데이트
-        CartRedisDto cartRedisDto = CartRedisDto.fromEntity(store);
-
-        for(CartUpdateRequest.CartMenuListRequest menu : request.menus()){
-            // 메뉴가 0개 이상일 경우에만
-            if(menu.quantity() > 0){
-                cartRedisDto = cartRedisService.addCartItemToCart(cartRedisDto, menu.id(), menu.quantity());
-            }
-        }
-        // 장바구니에 메뉴 추가
-        cartRedisService.saveCartToRedis(cacheKey, cartRedisDto);
-    }
-
-    public Cart saveCart(Long memberId) {
-        String cacheKey = CART_CACHE_PREFIX + memberId;
+    Cart saveCart(Long memberId);
 
 
-        CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
-
-
-        if(existingCart == null){
-            throw new NotFoundException(ExceptionMessage.CART_NOT_FOUND);
-        }
-
-        Store store = storeValidator.validateStoreExists(existingCart.id());
-        Cart cart = CartRedisDto.toEntity(store, memberId,existingCart );
-//        // TODO: 리팩토링
-        cartRepository.save(cart);
-        cartRepository.flush();
-
-        List<CartMenu> cartMenus = existingCart.menus().stream()
-                        .map(menu ->
-                            CartMenuRedisDto.toEntity(cart, menu.id(), menu)).toList();
-
-        cart.addMenu(cartMenus);
-        cartRepository.save(cart);
-        return cart;
-    }
-
-
-    public Cart getCart(Long memberId) {
-        // TODO saveCart처럼
-        String cacheKey = CART_CACHE_PREFIX + memberId;
-        CartRedisDto existingCart = cartRedisService.getCartFromRedis(cacheKey);
-
-        Store store = storeValidator.validateStoreExists(existingCart.id());
-        Cart cart = CartRedisDto.toEntity(store, memberId, existingCart );
-
-        List<CartMenu> cartMenus = existingCart.menus().stream()
-                .map(menu ->
-                        CartMenuRedisDto.toEntity(cart, menu.id(), menu)).toList();
-
-
-        return cart.addMenu(cartMenus);
-    }
+    Cart getCart(Long memberId);
 
 }
