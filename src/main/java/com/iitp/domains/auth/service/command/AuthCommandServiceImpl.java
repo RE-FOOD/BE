@@ -16,6 +16,7 @@ import com.iitp.domains.member.repository.LocationRepository;
 import com.iitp.domains.member.repository.MemberRepository;
 import com.iitp.domains.member.service.command.EmailCreateService;
 import com.iitp.domains.member.service.query.MemberQueryService;
+import com.iitp.domains.store.repository.store.StoreRepositoryCustom;
 import com.iitp.global.config.security.KakaoApiClient;
 import com.iitp.global.exception.BadRequestException;
 import com.iitp.global.exception.ExceptionMessage;
@@ -41,6 +42,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
     private final JwtUtil jwtUtil;
     private final EmailCreateService emailCreateService;
     private final KakaoGeocodingService kakaoGeocodingService;
+    private final StoreRepositoryCustom storeRepository; // 가게 존재 여부 확인용 추가
 
     /**
      * 개인회원 카카오 회원가입
@@ -158,10 +160,17 @@ public class AuthCommandServiceImpl implements AuthCommandService {
         // 6. 변경사항 저장
         memberRepository.save(member);
 
+        // 7. 사업자인 경우 가게 생성 여부 확인
+        Boolean hasStore = null;
+        if (member.getRole() == Role.ROLE_STORE) {
+            hasStore = storeRepository.findByMemberId(member.getId()).isPresent();
+            log.info("사업자 가게 생성 여부 확인 - memberId: {}, hasStore: {}", member.getId(), hasStore);
+        }
+
         log.info("로그인 완료 - memberId: {}", member.getId());
         log.info("로그인 완료 - memberFcmToken: {}", member.getFcmToken());
 
-        return LoginResponseDto.of(tokens[0], tokens[1], member.getFcmToken());
+        return LoginResponseDto.from(member, tokens[0], tokens[1], hasStore);
     }
 
     /**
@@ -274,7 +283,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
         } catch (Exception e) {
             log.warn("좌표 변환 실패 - fullAddress: {}, error: {}", address, e.getMessage());
 
-            // 🔥 좌표 변환 실패 시에도 주소 정보는 저장
+            // 좌표 변환 실패 시에도 주소 정보는 저장
             return Location.builder()
                     .memberId(memberId)
                     .address(address)
