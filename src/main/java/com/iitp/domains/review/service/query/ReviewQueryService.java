@@ -8,104 +8,49 @@ import com.iitp.domains.review.domain.entity.Review;
 import com.iitp.domains.review.dto.response.MyReviewResponse;
 import com.iitp.domains.review.dto.response.ReviewResponse;
 import com.iitp.domains.review.repository.ReviewRepository;
+import com.iitp.domains.review.repository.mapper.ReviewAggregationResult;
 import com.iitp.domains.store.domain.entity.Menu;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.repository.menu.MenuRepository;
+import com.iitp.domains.store.service.query.MenuQueryService;
 import com.iitp.domains.store.service.query.StoreQueryService;
+import com.iitp.domains.store.validator.StoreValidator;
 import com.iitp.global.common.response.TwoWayCursorListResponse;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
-@Transactional(readOnly = true)
-@RequiredArgsConstructor
-@Slf4j
-public class ReviewQueryService {
-    private final ReviewRepository reviewRepository;
-    private final MemberQueryService memberQueryService;
-    private final StoreQueryService storeQueryService;
-    private final MenuRepository menuRepository;
+
+public interface ReviewQueryService {
 
     /**
      * API 응답 메서드
      */
-    public TwoWayCursorListResponse<ReviewResponse> readStoreReviews(Long storeId, Long cursorId, int limit) {
-        Store store = storeQueryService.findExistingStore(storeId);
-        List<ReviewResponse> result = getStoreReviews(store.getId(), cursorId, limit);
+    TwoWayCursorListResponse<ReviewResponse> readStoreReviews(Long storeId, Long cursorId, int limit);
 
-        return new TwoWayCursorListResponse<>(
-                result.isEmpty() ? null : result.getFirst().id(),
-                result.isEmpty() ? null : result.getLast().id(),
-                result
-        );
-    }
-
-    public TwoWayCursorListResponse<MyReviewResponse> readMyReviews(long memberId, long cursorId, int limit) {
-        Member author = memberQueryService.findMemberById(memberId);
-        List<MyReviewResponse> result = getMyReviews(author.getId(), cursorId, limit);
-        return new TwoWayCursorListResponse<>(
-                result.isEmpty() ? null : result.getFirst().id(),
-                result.isEmpty() ? null : result.getLast().id(),
-                result
-        );
-    }
+    TwoWayCursorListResponse<MyReviewResponse> readMyReviews(long memberId, long cursorId, int limit);
 
     /**
      * 조회 및 DTO 변환
      */
-    public List<ReviewResponse> getStoreReviews(long storeId, Long cursorId, int limit) {
-        List<Review> reviews = reviewRepository.findReviewsByStore(storeId, cursorId, limit);
-        return convertToResponse(reviews);
-    }
+    List<ReviewResponse> getStoreReviews(long storeId, Long cursorId, int limit);
 
-    private List<MyReviewResponse> getMyReviews(long authorId, Long cursorId, int limit) {
-        List<Review> reviews = reviewRepository.findReviewsByMember(authorId, cursorId, limit);
-        return convertToMyResponse(reviews);
-    }
+    List<MyReviewResponse> getMyReviews(long authorId, Long cursorId, int limit);
 
     /**
      * 공통 메서드
      */
-    private List<ReviewResponse> convertToResponse(List<Review> reviews) {
-        return reviews.stream()
-                .map(it -> ReviewResponse.from(it, getOrderedMenusOfReview(it)))
-                .toList();
-    }
 
-    private List<MyReviewResponse> convertToMyResponse(List<Review> reviews) {
-        return reviews.stream()
-                .map(it -> MyReviewResponse.from(it, getOrderedMenusOfReview(it)))
-                .toList();
-    }
-
-    public Double calculateStoreRating(Long storeId) {
-        List<ReviewResponse> reviews = getStoreReviews(storeId, 0L, Integer.MAX_VALUE);
-
-        if (reviews.isEmpty()) {
-            return 0.0;
-        }
-
-        Double rating = reviews.stream()
-                .mapToInt(ReviewResponse::rating)
-                .average()
-                .orElse(0.0);
-
-        return Math.round(rating * 10.0) / 10.0;
-    }
+    Double calculateStoreRating(Long storeId);
 
 
-    private List<Menu> getOrderedMenusOfReview(Review review) {
-        // 임시로 해당 가게의 모든 메뉴를 반환
-        List<Long> menuIdList = review.getOrder().getCart().getCartMenus().stream()
-                .map(CartMenu::getMenuId)
-                .toList();
+    List<Menu> getOrderedMenusOfReview(Review review);
 
-        menuIdList.forEach(it-> System.out.println("it = " + it));
 
-        return menuRepository.findAllById(menuIdList);
-    }
+    Optional<ReviewAggregationResult> findReviewRatingAverageByStore(Long storeId);
 
 }

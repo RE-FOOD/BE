@@ -16,11 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 @Slf4j
 public class EnvironmentQueryService {
-
     private final MemberQueryService memberQueryService;
-    private final MemberRepository memberRepository;
-    private final MemberRepositoryImpl memberRepositoryImpl;
-
 
     /**
      * 환경 정보 조회
@@ -44,13 +40,13 @@ public class EnvironmentQueryService {
         log.debug("전체 환경 리포트 조회 시작");
 
         // 전체 주문 횟수 조회
-        Integer totalOrderCount = memberRepository.sumAllOrderCount();
+        Integer totalOrderCount = memberQueryService.sumAllOrderCount();
         if (totalOrderCount == null) {
             totalOrderCount = 0;
         }
 
         // 전체 다회용기 사용 횟수 조회
-        Integer totalDishCount = memberRepository.sumAllDishCount();
+        Integer totalDishCount = memberQueryService.sumAllDishCount();
         if (totalDishCount == null) {
             totalDishCount = 0;
         }

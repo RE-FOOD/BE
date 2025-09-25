@@ -6,9 +6,11 @@ import com.iitp.domains.order.domain.OrderStatus;
 import com.iitp.domains.order.domain.entity.Order;
 import com.iitp.domains.order.service.command.OrderCommandService;
 import com.iitp.domains.order.service.query.OrderQueryService;
+import com.iitp.domains.order.validator.OrderValidator;
 import com.iitp.domains.payment.domain.Payment;
 import com.iitp.domains.payment.domain.TossPaymentStatus;
 import com.iitp.domains.payment.service.PaymentService;
+import com.iitp.domains.payment.validator.PaymentValidator;
 import com.iitp.domains.store.domain.entity.Store;
 import com.iitp.domains.store.domain.entity.StoreImage;
 import com.iitp.domains.store.dto.request.StoreCreateRequest;
@@ -27,134 +29,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
-@RequiredArgsConstructor
-@Slf4j
-@Transactional
-public class StoreCommandService {
-    private final KakaoGeocodingService  kakaoGeocodingService;
-    private final StoreRepository storeRepository;
-    private final StoreImageRepository storeImageRepository;
-    private final StoreRedisService cacheService;
-    private final RedisGeoService redisGeoService;
-    private final OrderCommandService orderCommandService;
-    private final OrderQueryService orderQueryService;
-    private final PaymentService paymentService;
-    private final NotificationService notificationService;
 
-    public Long createStore(StoreCreateRequest request, Long userId) {
-        // 주소로 위/경도 조회
-        GeocodingResult geocodingResult = kakaoGeocodingService.getCoordinates(request.address());
+public interface StoreCommandService {
 
-        Store store = request.toEntity(userId, geocodingResult.latitude(), geocodingResult.longitude());
+    Long createStore(StoreCreateRequest request, Long userId);
 
-        storeRepository.save(store);
+    void updateStore(StoreUpdateRequest request,Long storeId, Long userId);
 
-        for(String img : request.imageKey()){
-             storeImageRepository.save(new StoreImage(img, store));
-        }
-        // Redis Geo에 상점 위치 정보 추가
-        try {
-            redisGeoService.updateStoreLocationFromEntity(store);
-            log.info("상점 생성 완료 및 Redis Geo 업데이트 - storeId: {}", store.getId());
-        } catch (Exception e) {
-            log.warn("Redis Geo 업데이트 실패하였지만 상점 생성은 완료 - storeId: {}, error: {}",
-                    store.getId(), e.getMessage());
-        }
-
-        return store.getId();
-    }
-
-    public void updateStore(StoreUpdateRequest request,Long storeId, Long userId) {
-        Store store = validateStoreExists(storeId);
-
-        validateUserHasPermission(store, userId);
-
-        store.update(request);
-
-        // 위치 정보가 변경된 경우 Redis Geo 업데이트
-        try {
-            redisGeoService.updateStoreLocationFromEntity(store);
-            log.info("상점 수정 완료 및 Redis Geo 업데이트 - storeId: {}", storeId);
-        } catch (Exception e) {
-            log.warn("Redis Geo 업데이트 실패하였지만 상점 수정은 완료 - storeId: {}, error: {}",
-                    storeId, e.getMessage());
-        }
-
-        // 캐시 삭제
-        cacheService.clearCache();
-    }
+    void deleteStore(Long storeId, Long userId);
 
 
-    public void deleteStore(Long storeId, Long userId) {
-        Store store = validateStoreExists(storeId);
-
-        validateUserHasPermission(store, userId);
-        store.markAsDeleted();
-
-        // Redis Geo에서 상점 위치 정보 삭제
-        try {
-            redisGeoService.removeStoreLocation(storeId);
-            log.info("상점 삭제 완료 및 Redis Geo에서 제거 - storeId: {}", storeId);
-        } catch (Exception e) {
-            log.warn("Redis Geo 제거 실패하였지만 상점 삭제는 완료 - storeId: {}, error: {}",
-                    storeId, e.getMessage());
-        }
-
-        cacheService.clearCache();
-    }
+    void refusalOrder(Long memberId, Long orderId);
 
 
-    public void refusalOrder(Long memberId, Long orderId) {
-        Order order = orderQueryService.validateOrderExists(orderId);
-
-        Payment payment = orderQueryService.validatePaymentExists(orderId);
-
-        // 주문 거절에 따른 롤백
-        order.updateOrderStatus(OrderStatus.CANCELED);
-        payment.updatePaymentStatus(TossPaymentStatus.CANCELED);
-
-        // 주문한 회원에게 주문 거절 FCM 알림 전송
-        notificationService.pushMessage(NotifyParams.ofOrderRefusal(order));
-    }
+    void confirmOrder(Long memberId, Long orderId);
 
 
-    public void confirmOrder(Long memberId, Long orderId) {
-        Order order = orderQueryService.validateOrderExists(orderId);
-
-        Payment payment = orderQueryService.validatePaymentExists(orderId);
-
-        // 주문 거절에 따른 롤백
-        order.updateOrderStatus(OrderStatus.COMPLETED);
-        payment.updatePaymentStatus(TossPaymentStatus.DONE);
-
-        // 주문한 회원에게 주문 승인 FCM 알림 전송
-        notificationService.pushMessage(NotifyParams.ofOrderCompletion(order));
-    }
-
-
-    public InsightResponse findInsight(Long memberId) {
-        Store store = validateStoreExistsFromMemberId(memberId);
-        InsightResponse response = orderQueryService.findInsight(store.getId());
-        return response;
-    }
-
-
-    private void validateUserHasPermission(Store store, Long userId) {
-        if (store.getMemberId().equals(userId)) {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    private Store validateStoreExists(Long storeId) {
-        return storeRepository.findByStoreId(storeId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
-    }
-
-    private Store validateStoreExistsFromMemberId(Long memberId) {
-        return storeRepository.findByMemberId(memberId)
-                .orElseThrow( () -> new NotFoundException(ExceptionMessage.DATA_NOT_FOUND));
-    }
-
+    InsightResponse findInsight(Long memberId);
 
 }

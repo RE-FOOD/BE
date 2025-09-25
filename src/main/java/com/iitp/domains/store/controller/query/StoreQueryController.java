@@ -2,33 +2,31 @@ package com.iitp.domains.store.controller.query;
 
 import com.iitp.domains.store.domain.Category;
 import com.iitp.domains.store.domain.SortType;
-import com.iitp.domains.store.dto.response.FavoriteStoresResponse;
-import com.iitp.domains.store.dto.response.StoreDetailResponse;
-import com.iitp.domains.store.dto.response.StoreListTotalResponse;
-import com.iitp.domains.store.dto.response.StoreOrderListResponse;
+import com.iitp.domains.store.dto.response.*;
+import com.iitp.domains.store.service.query.MenuQueryService;
 import com.iitp.domains.store.service.query.StoreQueryService;
 import com.iitp.global.common.response.ApiResponse;
 import com.iitp.global.config.security.CustomUserDetails;
 import com.iitp.global.config.security.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Tag(name = "가게 Query API", description = "가게 Query API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/stores")
+@Slf4j
 @PreAuthorize("isAuthenticated()")
 public class StoreQueryController {
     private final StoreQueryService storeQueryService;
+    private final MenuQueryService menuQueryService;
 
     @Operation(summary = "가게 리스트 호출", description = "필터에 적합한 가게 리스트를 출력합니다.")
     @GetMapping("")
@@ -93,4 +91,16 @@ public class StoreQueryController {
     }
 
 
+    @Operation(summary = "가게 메뉴 관리 페이지 출력", description = "가게에서 관리하는 메뉴 리스트 출력하고 해당 메뉴 수정")
+    @GetMapping("/menus/manage")
+    public ApiResponse<List<StoreMenuManageResponse>> getMenuManage(
+            @RequestParam(value = "cursorId", defaultValue = "0") Long cursorId
+    ){
+        Long memberId = SecurityUtil.getCurrentMemberId();
+        log.info("cursorId = {}", cursorId);
+
+        List<StoreMenuManageResponse> response = storeQueryService.findStoreMenuManage(cursorId,memberId);
+
+        return ApiResponse.ok(200, response, "가게 메뉴 관리 페이지 출력");
+    }
 }
