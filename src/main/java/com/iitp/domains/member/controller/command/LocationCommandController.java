@@ -40,6 +40,7 @@ public class LocationCommandController {
     @Operation(summary = "기본 주소 변경",
             description = "특정 주소를 기본 주소로 설정합니다.")
     @PatchMapping("/{addressId}/setDefault")
+    @PreAuthorize("isAuthenticated()")
     public ApiResponse<LocationResponseDto> setDefaultAddress(
             @Parameter(description = "기본 주소로 설정할 주소 ID", required = true)
             @PathVariable Long addressId) {

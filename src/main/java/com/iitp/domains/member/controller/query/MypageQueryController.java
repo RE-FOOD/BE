@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "마이페이지", description = "마이페이지 조회 API")
+@PreAuthorize("isAuthenticated()")
 public class MypageQueryController {
     private final MypageQueryService myPageQueryService;
 
@@ -25,7 +26,6 @@ public class MypageQueryController {
             description = "현재 로그인한 회원의 마이페이지 정보를 조회합니다." +
                     "환경점수는 주후 도입 예정입니다.")
     @GetMapping("/main")
-    @PreAuthorize("isAuthenticated()")
     public ApiResponse<MyPageResponseDto> getMyPage() {
         Long memberId = SecurityUtil.getCurrentMemberId();
 

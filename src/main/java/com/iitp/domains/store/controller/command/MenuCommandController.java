@@ -7,6 +7,7 @@ import com.iitp.global.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/stores/{storeId}/menus")
 @RestController
+@PreAuthorize("hasRole('STORE')")
 public class MenuCommandController {
 
     private final MenuCommandService menuCommandService;

@@ -19,12 +19,12 @@ import java.util.List;
 @RequestMapping("/api/maps")
 @RequiredArgsConstructor
 @Tag(name = "지도 API", description = "지도 관련 API")
+@PreAuthorize("isAuthenticated()")
 public class MapQueryController {
     private final MapQueryService mapQueryService;
 
     @Operation(summary = "근처 가게 마커 조회")
     @GetMapping("/markers")
-    @PreAuthorize("isAuthenticated()")
     public ApiResponse<List<MapMarkerResponseDto>> getNearbyStoreMarkers(
             @RequestParam Double latitude,
             @RequestParam Double longitude,
@@ -37,7 +37,6 @@ public class MapQueryController {
 
     @Operation(summary = "가게 지도 요약 조회")
     @GetMapping("/{storeId}/summary")
-    @PreAuthorize("isAuthenticated()")
     public ApiResponse<MapSummaryResponseDto> getStoreSummary(
             @PathVariable Long storeId,
             @RequestParam Double latitude,
@@ -50,7 +49,6 @@ public class MapQueryController {
 
     @Operation(summary = "가게 지도 목록 조회")
     @GetMapping("/lists")
-    @PreAuthorize("isAuthenticated()")
     public ApiResponse<MapListScrollResponseDto> getNearbyStoreList(
             @RequestParam Double latitude,
             @RequestParam Double longitude,
