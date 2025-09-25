@@ -161,7 +161,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
         log.info("로그인 완료 - memberId: {}", member.getId());
         log.info("로그인 완료 - memberFcmToken: {}", member.getFcmToken());
 
-        return LoginResponseDto.of(tokens[0], tokens[1], member.getFcmToken());
+        return LoginResponseDto.from(member, tokens[0], tokens[1]);
     }
 
     /**
@@ -274,7 +274,7 @@ public class AuthCommandServiceImpl implements AuthCommandService {
         } catch (Exception e) {
             log.warn("좌표 변환 실패 - fullAddress: {}, error: {}", address, e.getMessage());
 
-            // 🔥 좌표 변환 실패 시에도 주소 정보는 저장
+            // 좌표 변환 실패 시에도 주소 정보는 저장
             return Location.builder()
                     .memberId(memberId)
                     .address(address)
