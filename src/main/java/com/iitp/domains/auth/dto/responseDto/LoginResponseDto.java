@@ -13,12 +13,13 @@ public record LoginResponseDto(
         Long memberId,
         String email,
         Role role,
-        BusinessApprovalStatus businessApprovalStatus // 사업자 승인 상태 (일반회원은 null)
+        BusinessApprovalStatus businessApprovalStatus, // 사업자 승인 상태 (일반회원은 null)
+        Boolean hasStore // 가게 생성 여부 (사업자만 해당, 일반회원은 null)
 ) {
     /**
      * Member 객체를 받아서 LoginResponseDto 생성
      */
-    public static LoginResponseDto from(Member member, String accessToken, String refreshToken) {
+    public static LoginResponseDto from(Member member, String accessToken, String refreshToken, Boolean hasStore) {
         return LoginResponseDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -27,6 +28,7 @@ public record LoginResponseDto(
                 .email(member.getEmail())
                 .role(member.getRole())
                 .businessApprovalStatus(member.getIsBusinessApproved())
+                .hasStore(hasStore)
                 .build();
     }
 }
