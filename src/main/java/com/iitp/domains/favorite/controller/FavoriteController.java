@@ -8,6 +8,7 @@ import com.iitp.global.config.security.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/stores")
 @RequiredArgsConstructor
 @Tag(name = "찜", description = "가게에 대한 찜 API")
+@PreAuthorize("hasRole('USER')")
 public class FavoriteController {
     private final FavoriteCommandService favoriteCommandService;
 

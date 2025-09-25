@@ -9,12 +9,14 @@ import com.iitp.global.config.security.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/carts")
 @RestController
 @Tag(name = "카트 Query API", description = "카트 Query API")
+@PreAuthorize("hasRole('USER')")
 public class CartQueryController {
     private final CartQueryService cartQueryService;
 

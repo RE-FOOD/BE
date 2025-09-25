@@ -8,12 +8,14 @@ import com.iitp.global.config.security.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/carts")
 @RestController
 @Tag(name = "장바구니 Command API", description = "장바구니 Command API")
+@PreAuthorize("hasRole('USER')")
 public class CartCommandController {
     private final CartCommandService cartCommandService;
 

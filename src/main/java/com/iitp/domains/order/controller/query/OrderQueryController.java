@@ -10,12 +10,14 @@ import com.iitp.global.config.security.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "주문 Query API", description = "주문 Query API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/orders")
+@PreAuthorize("hasRole('USER')")  // 일반 사용자만 주문 조회 가능
 public class OrderQueryController {
     private final OrderQueryService orderQueryService;
 

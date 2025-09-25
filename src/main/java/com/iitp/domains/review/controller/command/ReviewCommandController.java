@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/stores/{storeId}/orders/{orderId}/reviews")
 @RestController
 @Tag(name = "리뷰 API", description = "리뷰 생성, 삭제, 조회 API")
+@PreAuthorize("hasRole('USER')")
 public class ReviewCommandController {
     private final ReviewCommandService reviewCommandService;
 

@@ -23,13 +23,13 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "인증 관리", description = "회원가입, 로그인,닉네임 수정, 로그아웃 API")
+@PreAuthorize("hasRole('USER')")
 public class MemberCommandController {
     private final MemberCommandService memberCommandService;
 
     // 회원 탈퇴
     @Operation(summary = "회원 탈퇴", description = "현재 로그인한 회원을 탈퇴 처리합니다.")
     @PatchMapping("/delete")
-    @PreAuthorize("isAuthenticated()")
     public ApiResponse<String> deleteMember() {
         Long memberId = SecurityUtil.getCurrentMemberId();
         memberCommandService.deleteMember(memberId);
@@ -38,7 +38,6 @@ public class MemberCommandController {
 
     @Operation(summary = "닉네임 수정", description = "현재 로그인한 회원의 닉네임을 수정합니다.")
     @PatchMapping("/nickname")
-    @PreAuthorize("isAuthenticated()")
     public ApiResponse<MemberUpdateNicknameResponseDto> updateNickname(
             @Valid @RequestBody MemberUpdateNicknameRequestDto request) {
 
@@ -51,7 +50,6 @@ public class MemberCommandController {
     @Operation(summary = "새 위치 추가",
             description = "현재 로그인한 회원의 새로운 위치를 추가합니다.")
     @PostMapping("/location")
-    @PreAuthorize("isAuthenticated()")
     public ApiResponse<LocationResponseDto> addLocation(
             @Valid @RequestBody LocationCreateRequestDto request) {
         Long memberId = SecurityUtil.getCurrentMemberId();

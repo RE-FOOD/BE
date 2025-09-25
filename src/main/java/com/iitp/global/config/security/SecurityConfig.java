@@ -5,6 +5,7 @@ import com.iitp.global.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,6 +19,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -28,7 +30,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
 
                 // CORS 설정
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
 
                 // 세션 사용 안함 (JWT 사용)
                 .sessionManagement(session ->
@@ -48,31 +50,79 @@ public class SecurityConfig {
 
                 // URL별 권한 설정
                 .authorizeHttpRequests(auth -> auth
-                        // 인증 없이 접근 가능한 경로
-                        .requestMatchers(
-                                "/**",
+                                // === 완전 공개 (인증 불필요) ===
+                                .requestMatchers(
+                                        "/health",                      // 헬스체크
+                                        "/error",                       // 에러 페이지
+                                        "/",                           // 루트 페이지
+                                        "/login.html"                  // 로그인 테스트 페이지
+                                ).permitAll()
 
-                                // Swagger
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/swagger-resources/**",
-                                "/webjars/**",
-                                "/swagger-ui/index.html",
+                                // === Swagger UI ===
+                                .requestMatchers(
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                        "/swagger-resources/**",
+                                        "/webjars/**",
+                                        "/swagger-ui/index.html"
+                                ).permitAll()
 
-                                "/api/auth/**",        // 인증 관련 API
-                                "/api/members/check/**",    // 회원가입 입력값 검증 API
-                                "/login.html",  // 서버 로그인 테스트 페이지
-                                "/health",  // 서버 헬스체크 API
-                                "/h2-console/**",
-                                "/error",            // 에러 페이지
-                                "/"
+                                // === H2 콘솔 ===
+                                .requestMatchers("/h2-console/**").permitAll()
 
+                                // === 인증 관련 API (로그인/회원가입) ===
+                                .requestMatchers(
+                                        "/api/auth/signup/**",          // 회원가입
+                                        "/api/auth/login/**",           // 로그인
+                                        "/api/auth/refresh"             // 토큰 갱신
+                                ).permitAll()
 
-                        ).permitAll()
+                                // === 회원가입 유효성 검사 API ===
+                                .requestMatchers(
+                                "/api/members/check/**"         // 닉네임 중복 체크 등
+                                 ).permitAll()
 
-                        // 나머지는 인증 필요
-                        .anyRequest().authenticated()
+                                 // === 인증 필요하지만 모든 사용자 접근 가능 ===
+                                 .requestMatchers(
+                                         "/api/auth/logout"              // 로그아웃
+                                 ).authenticated()
+
+                                 // === 일반 사용자 전용 API ===
+                                 .requestMatchers(
+                                         "/api/members/profile",         // 프로필 조회
+                                         "/api/members/nickname",        // 닉네임 수정
+                                         "/api/members/delete",          // 회원 탈퇴
+                                         "/api/members/location",        // 위치 관리
+                                         "/api/members/me/**",           // 내 정보 관련
+                                         "/api/members/cartCount",       // 장바구니 개수
+                                         "/api/cart/**",                 // 장바구니 관리
+                                         "/api/orders/**",               // 주문 관리
+                                         "/api/reviews/**",              // 리뷰 관리
+                                         "/api/favorites/**",            // 찜 관리
+                                         "/api/payments/**"              // 결제 관리
+                                 ).hasRole("USER")
+
+                                 // === 매장 사업자 전용 API ===
+                                 .requestMatchers(
+                                         "/api/stores/manage/**",        // 매장 관리
+                                         "/api/menus/manage/**",         // 메뉴 관리
+                                         "/api/business/**"              // 사업자 관련
+                                 ).hasRole("STORE")
+
+                                 // === 공통 조회 API (모든 인증된 사용자) ===
+                                 .requestMatchers(
+                                         "/api/stores/search/**",        // 매장 검색
+                                         "/api/stores/*/menus",          // 메뉴 조회
+                                         "/api/map/**",                  // 지도 관련
+                                         "/api/locations/**"             // 위치 관련
+                                 ).authenticated()
+
+                                 // === 이미지 업로드 (인증된 사용자) ===
+                                 .requestMatchers("/api/s3/**").authenticated()
+
+                                 // 나머지는 모두 인증 필요
+                                 .anyRequest().authenticated()
                 )
                 // jwt 필터
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

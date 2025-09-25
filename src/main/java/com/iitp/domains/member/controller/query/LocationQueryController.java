@@ -20,13 +20,13 @@ import java.util.List;
 @RequestMapping("/api/addresses")
 @RestController
 @Slf4j
+@PreAuthorize("hasRole('USER')")
 public class LocationQueryController {
     private final LocationQueryService locationQueryService;
 
     @Operation(summary = "주소 목록 조회",
             description = "현재 로그인한 회원의 모든 주소를 조회합니다.")
     @GetMapping("")
-    @PreAuthorize("isAuthenticated()")
     public ApiResponse<List<LocationResponseDto>> getMyAddresses() {
         Long memberId = SecurityUtil.getCurrentMemberId();
         log.info("주소 목록 조회 - memberId: {}", memberId);
@@ -39,7 +39,6 @@ public class LocationQueryController {
     @Operation(summary = "현재 기본 주소 조회",
             description = "현재 설정된 기본 주소만 조회합니다.")
     @GetMapping("/default")
-    @PreAuthorize("isAuthenticated()")
     public ApiResponse<LocationResponseDto> getDefaultAddress() {
         Long memberId = SecurityUtil.getCurrentMemberId();
         log.info("기본 주소 조회 - memberId: {}", memberId);

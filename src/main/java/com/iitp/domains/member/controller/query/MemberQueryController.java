@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/members")
 @RestController
 @Slf4j
+@PreAuthorize("hasRole('USER')")
 public class MemberQueryController {
 
     private final MemberQueryService memberQueryService;
@@ -33,7 +34,6 @@ public class MemberQueryController {
     @Operation(summary = "내 프로필 조회",
             description = "현재 로그인한 회원의 프로필 정보를 조회합니다.")
     @GetMapping("/profile")
-    @PreAuthorize("isAuthenticated()")
     public ApiResponse<MemberProfileResponseDto> getMyProfile() {
         Long memberId = SecurityUtil.getCurrentMemberId();
 
@@ -62,7 +62,6 @@ public class MemberQueryController {
                     "장바구니 개수, 알림 존재 여부, 기본 주소, 할인 메뉴 목록, 인기 가게 목록을 포함합니다."
     )
     @GetMapping("/me/overviews")
-    @PreAuthorize("isAuthenticated()")
     public ApiResponse<MainOverviewResponseDto> getMainOverview() {
         Long memberId = SecurityUtil.getCurrentMemberId();
 
