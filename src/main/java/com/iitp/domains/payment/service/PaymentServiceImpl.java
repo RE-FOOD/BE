@@ -96,6 +96,9 @@ public class PaymentServiceImpl implements PaymentService {
      * 결제 성공 시 주문과 결제 정보를 저장
      */
     public PaymentConfirmResponse saveOrderAndPayment(JSONObject paymentResponse, String paymentSessionId) {
+
+
+
         try {
             // 1. Redis에서 임시 주문 정보 조회
             String pendingOrderKey = PENDING_ORDER_PREFIX + paymentSessionId;

@@ -116,8 +116,8 @@ public class CartCommandServiceImpl implements CartCommandService {
                 .map(menu ->
                         CartMenuRedisDto.toEntity(cart, menu.id(), menu)).toList();
 
-
-        return cart.addMenu(cartMenus);
+        cart.addMenu(cartMenus);
+        return cart;
     }
 
 }
